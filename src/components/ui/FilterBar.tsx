@@ -111,22 +111,24 @@ export const FilterBar: React.FC = () => {
                 className="fixed inset-0 z-10" 
                 onClick={() => setShowDatePicker(false)}
               />
-              <div className="absolute mt-1 z-20 w-60 bg-card shadow-card rounded-md border border-border animate-in slide-up">
-                <div className="p-1">
-                  {(['day', 'week', 'month'] as DateRangeType[]).map((range) => (
-                    <button
-                      key={range}
-                      onClick={() => handleDateRangeChange(range)}
-                      className={`
-                        w-full flex items-center px-3 py-2 text-sm rounded-md
-                        ${dateRange === range ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                      `}
-                    >
-                      <span>{dateRangeLabels[range]}</span>
-                      {dateRange === range && <Check size={16} className="ml-auto" />}
-                    </button>
-                  ))}
-                  <div className="px-3 py-2">
+              <div className="absolute mt-1 left-0 z-20 bg-card shadow-card rounded-md border border-border animate-in slide-up">
+                <div className="p-2">
+                  <div className="flex flex-col space-y-1">
+                    {(['day', 'week', 'month'] as DateRangeType[]).map((range) => (
+                      <button
+                        key={range}
+                        onClick={() => handleDateRangeChange(range)}
+                        className={`
+                          w-full flex items-center px-3 py-2 text-sm rounded-md
+                          ${dateRange === range ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                        `}
+                      >
+                        <span>{dateRangeLabels[range]}</span>
+                        {dateRange === range && <Check size={16} className="ml-auto" />}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-2">
                     <DateRangePicker />
                   </div>
                 </div>

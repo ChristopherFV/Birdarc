@@ -56,7 +56,7 @@ export const DateRangePicker: React.FC = () => {
   };
   
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 w-full max-w-[280px]">
       <div className="flex items-center justify-between text-xs">
         <div className="space-y-1">
           <div className="text-muted-foreground">Start Date</div>
@@ -87,7 +87,8 @@ export const DateRangePicker: React.FC = () => {
             });
           }
         }}
-        className="rounded-md border"
+        className="rounded-md border w-full"
+        defaultMonth={selectedRange.from}
       />
       
       <button
