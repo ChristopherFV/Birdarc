@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,45 +5,45 @@
 @layer base {
   :root {
     /* Main colors */
-    --background: 0 0% 95%;
-    --foreground: 225 10% 20%;
+    --background: 45 100% 96%;
+    --foreground: 0 0% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 225 10% 20%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 225 10% 20%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 25 95% 53%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 45 100% 71%;
+    --primary-foreground: 0 0% 15%;
 
-    --secondary: 220 10% 97%;
-    --secondary-foreground: 225 10% 20%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
 
-    --muted: 220 10% 96%;
-    --muted-foreground: 240 5% 54%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 220 10% 97%;
-    --accent-foreground: 225 10% 20%;
+    --accent: 45 100% 71%;
+    --accent-foreground: 0 0% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 95%;
-    --input: 240 10% 95%;
-    --ring: 25 95% 53%;
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 45 100% 71%;
 
     --radius: 0.75rem;
 
     /* Sidebar colors */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 225 10% 20%;
-    --sidebar-primary: 25 95% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 10% 97%;
-    --sidebar-accent-foreground: 225 10% 20%;
-    --sidebar-border: 240 10% 95%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 45 100% 71%;
+    --sidebar-primary-foreground: 0 0% 15%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 45 100% 71%;
   }
 
   .dark {
@@ -154,6 +153,8 @@
 }
 
 /* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @font-face {
   font-family: 'SF Pro Display';
   src: url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');

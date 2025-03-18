@@ -16,19 +16,19 @@ const Header = () => {
   return (
     <div className="flex justify-between items-center mb-8">
       <div>
-        <h1 className="text-2xl font-semibold mb-1 text-[#403E43]">Dashboard</h1>
-        <p className="text-muted-foreground text-[#8A898C]">Track your fiber installation progress and revenue</p>
+        <h1 className="text-2xl font-semibold mb-1 text-[#262626]">Dashboard</h1>
+        <p className="text-muted-foreground text-[#6B6B6B]">Track your fiber installation progress and revenue</p>
       </div>
       <div className="flex items-center gap-4">
         <div className="text-right">
-          <p className="font-medium text-[#403E43]">{selectedCompany.name}</p>
+          <p className="font-medium text-[#262626]">{selectedCompany.name}</p>
         </div>
         <Button 
           variant="outline" 
           size="icon"
-          className="rounded-full border-[#F1F0FB] bg-white shadow-subtle hover:bg-[#F6F6F7]"
+          className="rounded-full border-[#E6E6E6] bg-white shadow-sm hover:bg-[#F5F5F5]"
         >
-          <Settings className="h-[1.2rem] w-[1.2rem] text-[#403E43]" />
+          <Settings className="h-[1.2rem] w-[1.2rem] text-[#262626]" />
           <span className="sr-only">Settings</span>
         </Button>
       </div>
@@ -46,9 +46,9 @@ const HeaderWithProvider = () => (
 const Index = () => {
   return (
     <AppProvider>
-      <div className="min-h-screen bg-[#F1F1F1]">
+      <div className="min-h-screen bg-gradient-to-br from-white via-[#FFF8E4] to-[#FFF8D9]">
         <main className="p-6 md:p-8 max-w-7xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-subtle p-6 md:p-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-sm border border-[#EAEAEA] p-6 md:p-8">
             <HeaderWithProvider />
             <FilterBar />
             

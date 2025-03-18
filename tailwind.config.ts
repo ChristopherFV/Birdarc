@@ -20,7 +20,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['SF Pro Display', 'Inter', 'system-ui', 'sans-serif'],
+				sans: ['Inter', 'SF Pro Display', 'system-ui', 'sans-serif'],
 				mono: ['SF Mono', 'monospace'],
 			},
 			colors: {
@@ -67,7 +67,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Fieldvision custom colors
+				// Custom colors
 				fieldvision: {
 					blue: {
 						light: '#E1F5FE',
@@ -83,14 +83,16 @@ export default {
 					accent: {
 						green: '#4CAF50',
 						purple: '#9575CD',
-						orange: '#F97316'
+						orange: '#F97316',
+						yellow: '#FFD66B'
 					}
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				'3xl': '1.5rem',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -135,7 +137,7 @@ export default {
 				'pulse-slow': 'pulse 3s ease-in-out infinite'
 			},
 			boxShadow: {
-				'subtle': '0 2px 10px rgba(0, 0, 0, 0.05)',
+				'subtle': '0 2px 10px rgba(0, 0, 0, 0.03)',
 				'elevation': '0 5px 30px -15px rgba(0, 0, 0, 0.15)',
 				'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.05), 0 12px 24px rgba(0,0,0,0.05)',
 				'modern': '0px 20px 25px -5px rgba(0, 0, 0, 0.05), 0px 10px 10px -5px rgba(0, 0, 0, 0.02)',
