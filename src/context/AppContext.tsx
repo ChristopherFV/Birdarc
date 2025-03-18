@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format, subDays, subMonths } from 'date-fns';
 import { mockProjects, mockBillingCodes, mockTeamMembers, mockWorkEntries, mockCompanies } from '@/utils/mockData';
@@ -83,6 +82,9 @@ type AppContextType = {
   // Utilities
   getFilteredEntries: () => WorkEntry[];
   exportData: (type: 'raw' | 'summary') => void;
+  
+  // Added calculateRevenue to the context type
+  calculateRevenue: (entry: WorkEntry, billingCodes: BillingCode[]) => number;
 };
 
 // Create context
@@ -276,6 +278,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     
     getFilteredEntries,
     exportData,
+    calculateRevenue,
   };
   
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
