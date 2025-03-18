@@ -42,7 +42,7 @@ export const RevenueChart: React.FC = () => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-card p-3 border border-border shadow-card rounded-lg">
+        <div className="bg-white p-3 border border-[#E6E6E6] shadow-sm rounded-lg">
           <p className="font-medium mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={`tooltip-${index}`} className="flex items-center text-sm mb-1">
@@ -63,10 +63,10 @@ export const RevenueChart: React.FC = () => {
   };
   
   return (
-    <div className="bg-card rounded-lg border border-border shadow-subtle p-5 mb-6 animate-in fade-in" style={{ animationDelay: '0ms' }}>
+    <div className="bg-white rounded-3xl border border-[#E6E6E6] shadow-sm p-5 mb-6 animate-in fade-in" style={{ animationDelay: '0ms' }}>
       <div className="mb-4">
-        <h3 className="text-lg font-medium">Revenue Overview</h3>
-        <p className="text-muted-foreground text-sm">
+        <h3 className="text-lg font-medium text-[#262626]">Revenue Overview</h3>
+        <p className="text-[#6B6B6B] text-sm">
           Expected revenue from completed work
         </p>
       </div>
@@ -77,18 +77,18 @@ export const RevenueChart: React.FC = () => {
             data={chartData}
             margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
             <XAxis 
               dataKey="formattedDate" 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#6B6B6B" }}
               tickLine={false}
-              axisLine={{ stroke: '#eaeaea' }}
+              axisLine={{ stroke: '#E6E6E6' }}
               dy={10}
             />
             <YAxis 
               yAxisId="left"
               tickFormatter={value => formatCurrency(value)}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#6B6B6B" }}
               tickLine={false}
               axisLine={false}
               width={80}
@@ -98,7 +98,7 @@ export const RevenueChart: React.FC = () => {
               orientation="right" 
               domain={[0, (maxRevenue * dataScale) || 10000]}
               tickFormatter={value => formatCurrency(value)}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#6B6B6B" }}
               tickLine={false}
               axisLine={false}
               width={80}
@@ -115,7 +115,7 @@ export const RevenueChart: React.FC = () => {
               yAxisId="left" 
               dataKey="revenue" 
               name="Revenue" 
-              fill="rgba(3, 155, 229, 0.8)" 
+              fill="#039BE5" 
               radius={[4, 4, 0, 0]}
               animationDuration={1000}
             />

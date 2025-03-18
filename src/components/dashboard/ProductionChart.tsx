@@ -42,7 +42,7 @@ export const ProductionChart: React.FC = () => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-card p-3 border border-border shadow-card rounded-lg">
+        <div className="bg-white p-3 border border-[#E6E6E6] shadow-sm rounded-lg">
           <p className="font-medium mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={`tooltip-${index}`} className="flex items-center text-sm mb-1">
@@ -63,10 +63,10 @@ export const ProductionChart: React.FC = () => {
   };
   
   return (
-    <div className="bg-card rounded-lg border border-border shadow-subtle p-5 mb-6 animate-in fade-in" style={{ animationDelay: '100ms' }}>
+    <div className="bg-white rounded-3xl border border-[#E6E6E6] shadow-sm p-5 mb-6 animate-in fade-in" style={{ animationDelay: '100ms' }}>
       <div className="mb-4">
-        <h3 className="text-lg font-medium">Production Overview</h3>
-        <p className="text-muted-foreground text-sm">
+        <h3 className="text-lg font-medium text-[#262626]">Production Overview</h3>
+        <p className="text-[#6B6B6B] text-sm">
           Feet completed over time
         </p>
       </div>
@@ -77,18 +77,18 @@ export const ProductionChart: React.FC = () => {
             data={chartData}
             margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
             <XAxis 
               dataKey="formattedDate" 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#6B6B6B" }}
               tickLine={false}
-              axisLine={{ stroke: '#eaeaea' }}
+              axisLine={{ stroke: '#E6E6E6' }}
               dy={10}
             />
             <YAxis 
               yAxisId="left"
               tickFormatter={value => `${value} ft`}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#6B6B6B" }}
               tickLine={false}
               axisLine={false}
               width={60}
@@ -98,7 +98,7 @@ export const ProductionChart: React.FC = () => {
               orientation="right" 
               domain={[0, (maxFeet * dataScale) || 1000]}
               tickFormatter={value => `${value} ft`}
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: "#6B6B6B" }}
               tickLine={false}
               axisLine={false}
               width={60}
@@ -115,7 +115,7 @@ export const ProductionChart: React.FC = () => {
               yAxisId="left" 
               dataKey="feet" 
               name="Feet Completed" 
-              fill="rgba(149, 117, 205, 0.8)" 
+              fill="#9575CD" 
               radius={[4, 4, 0, 0]}
               animationDuration={1000}
             />
@@ -124,7 +124,7 @@ export const ProductionChart: React.FC = () => {
               dataKey="cumulativeFeet" 
               name="Cumulative Feet" 
               type="monotone" 
-              stroke="#FF9800"
+              stroke="#F97316"
               strokeWidth={2}
               dot={{ r: 3, strokeWidth: 2 }}
               activeDot={{ r: 6, strokeWidth: 2 }}
