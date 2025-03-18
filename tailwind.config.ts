@@ -83,7 +83,7 @@ export default {
 					accent: {
 						green: '#4CAF50',
 						purple: '#9575CD',
-						orange: '#FF9800'
+						orange: '#F97316'
 					}
 				}
 			},
@@ -138,6 +138,8 @@ export default {
 				'subtle': '0 2px 10px rgba(0, 0, 0, 0.05)',
 				'elevation': '0 5px 30px -15px rgba(0, 0, 0, 0.15)',
 				'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.05), 0 12px 24px rgba(0,0,0,0.05)',
+				'modern': '0px 20px 25px -5px rgba(0, 0, 0, 0.05), 0px 10px 10px -5px rgba(0, 0, 0, 0.02)',
+				'button': '0px 1px 2px rgba(16, 24, 40, 0.05)',
 			}
 		}
 	},
