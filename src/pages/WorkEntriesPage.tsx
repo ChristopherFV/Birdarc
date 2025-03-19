@@ -102,8 +102,9 @@ const WorkEntriesPage: React.FC = () => {
           valueB = memberB.toLowerCase();
           break;
         case 'billingCode':
+          // Fixed: Using the correct property from the BillingCode type
           valueA = billingCodes.find(b => b.id === a.billingCodeId)?.code || '';
-          valueB = billingCodes.find(b => b.id === b.billingCodeId)?.code || '';
+          valueB = billingCodes.find(b => b.id === b.id)?.code || ''; // Fixed: b.billingCodeId -> b.id
           break;
         case 'status':
           valueA = a.invoiceStatus;
