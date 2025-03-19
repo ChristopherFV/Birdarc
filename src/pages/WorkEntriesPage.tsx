@@ -5,13 +5,15 @@ import { format } from 'date-fns';
 import { 
   Search, 
   Calendar,
-  ArrowRight, 
+  ArrowUp, 
+  ArrowDown, 
   FileText,
   Filter,
   Pencil,
   CircleCheck,
   Circle,
-  Mail
+  Mail,
+  CheckCircle2
 } from 'lucide-react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,6 +41,9 @@ import {
 import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
 import { WorkEntry } from '@/context/AppContext';
 
+type SortColumn = 'date' | 'project' | 'teamMember' | 'billingCode' | 'status' | 'feetCompleted' | 'revenue' | null;
+type SortDirection = 'asc' | 'desc';
+
 const WorkEntriesPage: React.FC = () => {
   const { 
     getFilteredEntries, 
@@ -52,11 +57,12 @@ const WorkEntriesPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<WorkEntry | null>(null);
+  const [sortColumn, setSortColumn] = useState<SortColumn>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const entriesPerPage = 10;
   
   // Get filtered entries based on global filters
-  const filteredEntries = getFilteredEntries()
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const filteredEntries = getFilteredEntries();
   
   // Apply additional search filter
   const searchFilteredEntries = filteredEntries.filter(entry => {
@@ -72,12 +78,83 @@ const WorkEntriesPage: React.FC = () => {
     return search === '' || searchTerms.includes(search.toLowerCase());
   });
   
+  // Apply sorting
+  const sortedEntries = React.useMemo(() => {
+    return [...searchFilteredEntries].sort((a, b) => {
+      let valueA: any;
+      let valueB: any;
+      
+      switch(sortColumn) {
+        case 'date':
+          valueA = new Date(a.date).getTime();
+          valueB = new Date(b.date).getTime();
+          break;
+        case 'project':
+          const projectA = projects.find(p => p.id === a.projectId)?.name || '';
+          const projectB = projects.find(p => p.id === b.projectId)?.name || '';
+          valueA = projectA.toLowerCase();
+          valueB = projectB.toLowerCase();
+          break;
+        case 'teamMember':
+          const memberA = teamMembers.find(t => t.id === a.teamMemberId)?.name || '';
+          const memberB = teamMembers.find(t => t.id === b.teamMemberId)?.name || '';
+          valueA = memberA.toLowerCase();
+          valueB = memberB.toLowerCase();
+          break;
+        case 'billingCode':
+          valueA = billingCodes.find(b => b.id === a.billingCodeId)?.code || '';
+          valueB = billingCodes.find(b => b.id === b.billingCodeId)?.code || '';
+          break;
+        case 'status':
+          valueA = a.invoiceStatus;
+          valueB = b.invoiceStatus;
+          break;
+        case 'feetCompleted':
+          valueA = a.feetCompleted;
+          valueB = b.feetCompleted;
+          break;
+        case 'revenue':
+          valueA = calculateRevenue(a, billingCodes);
+          valueB = calculateRevenue(b, billingCodes);
+          break;
+        default:
+          valueA = new Date(a.date).getTime();
+          valueB = new Date(b.date).getTime();
+      }
+      
+      if (sortDirection === 'asc') {
+        return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+      } else {
+        return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+      }
+    });
+  }, [searchFilteredEntries, sortColumn, sortDirection, projects, teamMembers, billingCodes, calculateRevenue]);
+  
   // Paginate the results
-  const totalPages = Math.ceil(searchFilteredEntries.length / entriesPerPage);
-  const paginatedEntries = searchFilteredEntries.slice(
+  const totalPages = Math.ceil(sortedEntries.length / entriesPerPage);
+  const paginatedEntries = sortedEntries.slice(
     (currentPage - 1) * entriesPerPage, 
     currentPage * entriesPerPage
   );
+  
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column clicked
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column with default desc direction
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+  };
+  
+  const renderSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) return null;
+    
+    return sortDirection === 'asc' 
+      ? <ArrowUp size={14} className="ml-1" /> 
+      : <ArrowDown size={14} className="ml-1" />;
+  };
   
   const getProjectName = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
@@ -97,23 +174,23 @@ const WorkEntriesPage: React.FC = () => {
     switch (status) {
       case 'paid':
         return (
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600 flex items-center gap-1">
-            <CircleCheck size={14} />
+          <Badge variant="soft-green" className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center">
+            <CheckCircle2 size={14} className="text-green-600" />
             <span>Paid</span>
           </Badge>
         );
       case 'invoiced':
         return (
-          <Badge variant="secondary" className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-1">
-            <Mail size={14} />
+          <Badge variant="soft-orange" className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center">
+            <Mail size={14} className="text-orange-600" />
             <span>Invoiced</span>
           </Badge>
         );
       case 'not_invoiced':
       default:
         return (
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Circle size={14} />
+          <Badge variant="soft-gray" className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center">
+            <Circle size={14} className="text-slate-500" />
             <span>Not Invoiced</span>
           </Badge>
         );
@@ -180,13 +257,69 @@ const WorkEntriesPage: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Project</TableHead>
-                    <TableHead>Team Member</TableHead>
-                    <TableHead>Billing Code</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Feet Completed</TableHead>
-                    <TableHead className="text-right">Revenue</TableHead>
+                    <TableHead 
+                      className="cursor-pointer"
+                      onClick={() => handleSort('date')}
+                    >
+                      <div className="flex items-center">
+                        Date
+                        {renderSortIcon('date')}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="cursor-pointer" 
+                      onClick={() => handleSort('project')}
+                    >
+                      <div className="flex items-center">
+                        Project
+                        {renderSortIcon('project')}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="cursor-pointer" 
+                      onClick={() => handleSort('teamMember')}
+                    >
+                      <div className="flex items-center">
+                        Team Member
+                        {renderSortIcon('teamMember')}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="cursor-pointer" 
+                      onClick={() => handleSort('billingCode')}
+                    >
+                      <div className="flex items-center">
+                        Billing Code
+                        {renderSortIcon('billingCode')}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="cursor-pointer" 
+                      onClick={() => handleSort('status')}
+                    >
+                      <div className="flex items-center">
+                        Status
+                        {renderSortIcon('status')}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="text-right cursor-pointer" 
+                      onClick={() => handleSort('feetCompleted')}
+                    >
+                      <div className="flex items-center justify-end">
+                        Feet Completed
+                        {renderSortIcon('feetCompleted')}
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="text-right cursor-pointer" 
+                      onClick={() => handleSort('revenue')}
+                    >
+                      <div className="flex items-center justify-end">
+                        Revenue
+                        {renderSortIcon('revenue')}
+                      </div>
+                    </TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>

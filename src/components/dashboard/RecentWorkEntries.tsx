@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useApp, WorkEntry } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { FileText, Calendar, ArrowRight, List, Pen, Trash, CircleCheck, Circle, Mail, CheckCircle2, FileCheck } from 'lucide-react';
+import { FileText, Calendar, ArrowUp, ArrowDown, List, Pen, Trash, CheckCircle2, Circle, Mail, FileCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -14,6 +15,9 @@ import { Badge } from '@/components/ui/badge';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Checkbox } from '@/components/ui/checkbox';
 
+type SortColumn = 'date' | 'project' | 'teamMember' | 'revenue' | 'status' | null;
+type SortDirection = 'asc' | 'desc';
+
 export const RecentWorkEntries: React.FC = () => {
   const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue, deleteWorkEntry, updateWorkEntry } = useApp();
   const { toast } = useToast();
@@ -22,16 +26,67 @@ export const RecentWorkEntries: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const entriesPerPage = 25;
   const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
+  const [sortColumn, setSortColumn] = useState<SortColumn>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   
-  const allEntries = getFilteredEntries()
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const allEntries = getFilteredEntries();
+  
+  // Apply sorting
+  const sortedEntries = React.useMemo(() => {
+    if (!sortColumn) {
+      // Default sort by date descending if no column is selected
+      return [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
+    
+    return [...allEntries].sort((a, b) => {
+      let valueA: any;
+      let valueB: any;
+      
+      switch(sortColumn) {
+        case 'date':
+          valueA = new Date(a.date).getTime();
+          valueB = new Date(b.date).getTime();
+          break;
+        case 'project':
+          const projectA = projects.find(p => p.id === a.projectId)?.name || '';
+          const projectB = projects.find(p => p.id === b.projectId)?.name || '';
+          valueA = projectA.toLowerCase();
+          valueB = projectB.toLowerCase();
+          break;
+        case 'teamMember':
+          const memberA = teamMembers.find(t => t.id === a.teamMemberId)?.name || '';
+          const memberB = teamMembers.find(t => t.id === b.teamMemberId)?.name || '';
+          valueA = memberA.toLowerCase();
+          valueB = memberB.toLowerCase();
+          break;
+        case 'revenue':
+          valueA = calculateRevenue(a, billingCodes);
+          valueB = calculateRevenue(b, billingCodes);
+          break;
+        case 'status':
+          valueA = a.invoiceStatus;
+          valueB = b.invoiceStatus;
+          break;
+        default:
+          valueA = 0;
+          valueB = 0;
+      }
+      
+      if (sortDirection === 'asc') {
+        return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+      } else {
+        return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+      }
+    });
+  }, [allEntries, sortColumn, sortDirection, projects, teamMembers, calculateRevenue, billingCodes]);
     
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = allEntries.slice(indexOfFirstEntry, indexOfLastEntry);
-  const totalPages = Math.ceil(allEntries.length / entriesPerPage);
+  const currentEntries = sortedEntries.slice(indexOfFirstEntry, indexOfLastEntry);
+  const totalPages = Math.ceil(sortedEntries.length / entriesPerPage);
   
   const selectedCount = Object.values(selectedEntries).filter(Boolean).length;
+  const hasSelectedEntries = selectedCount > 0;
   
   const handleSelectEntry = (entryId: string, isChecked: boolean) => {
     setSelectedEntries(prev => ({
@@ -71,6 +126,25 @@ export const RecentWorkEntries: React.FC = () => {
       title: 'Invoice created',
       description: `Successfully created invoice with ${selectedEntryIds.length} work entries`,
     });
+  };
+  
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      // Toggle direction if same column clicked
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column with default desc direction
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+  };
+  
+  const renderSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) return null;
+    
+    return sortDirection === 'asc' 
+      ? <ArrowUp size={14} className="ml-1" /> 
+      : <ArrowDown size={14} className="ml-1" />;
   };
   
   const getProjectName = (projectId: string) => {
@@ -171,21 +245,23 @@ export const RecentWorkEntries: React.FC = () => {
     <Card className="bg-card border-border shadow-sm mb-4 w-full">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-medium">Work Entries</CardTitle>
-        {selectedCount > 0 && (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {hasSelectedEntries && (
             <span className="text-sm text-muted-foreground">
               {selectedCount} entries selected (${calculateTotalSelectedRevenue().toFixed(2)})
             </span>
-            <Button 
-              size="sm" 
-              onClick={handleCreateInvoice}
-              className="flex items-center gap-1.5"
-            >
-              <FileCheck size={16} />
-              Create Invoice
-            </Button>
-          </div>
-        )}
+          )}
+          <Button 
+            size="sm" 
+            onClick={handleCreateInvoice}
+            className="flex items-center gap-1.5"
+            disabled={!hasSelectedEntries}
+            variant={hasSelectedEntries ? "default" : "outline"}
+          >
+            <FileCheck size={16} />
+            Create Invoice
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="pt-0">
         <Table>
@@ -198,11 +274,51 @@ export const RecentWorkEntries: React.FC = () => {
                   className="ml-1"
                 />
               </TableHead>
-              <TableHead className="w-32">Invoice Status</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Team Member</TableHead>
-              <TableHead className="text-right">Revenue</TableHead>
+              <TableHead 
+                className="w-32 cursor-pointer"
+                onClick={() => handleSort('status')}
+              >
+                <div className="flex items-center">
+                  Invoice Status
+                  {renderSortIcon('status')}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer"
+                onClick={() => handleSort('project')}
+              >
+                <div className="flex items-center">
+                  Project
+                  {renderSortIcon('project')}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer"
+                onClick={() => handleSort('date')}
+              >
+                <div className="flex items-center">
+                  Date
+                  {renderSortIcon('date')}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer"
+                onClick={() => handleSort('teamMember')}
+              >
+                <div className="flex items-center">
+                  Team Member
+                  {renderSortIcon('teamMember')}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="text-right cursor-pointer"
+                onClick={() => handleSort('revenue')}
+              >
+                <div className="flex items-center justify-end">
+                  Revenue
+                  {renderSortIcon('revenue')}
+                </div>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
