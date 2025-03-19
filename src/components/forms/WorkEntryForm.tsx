@@ -9,7 +9,7 @@ import { FeetCompletedInput } from '@/components/forms/work-entry/FeetCompletedI
 import { RevenuePreview } from '@/components/forms/work-entry/RevenuePreview';
 import { TeamMemberSelector } from '@/components/forms/work-entry/TeamMemberSelector';
 import { SubmitButton } from '@/components/forms/work-entry/SubmitButton';
-import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
+import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 
 export const WorkEntryForm: React.FC = () => {
   const {
@@ -32,8 +32,8 @@ export const WorkEntryForm: React.FC = () => {
       {/* QuickBooks Sync Box */}
       <QuickBooksSyncIndicator />
       
-      {/* Recent Work Entries */}
-      <RecentWorkEntries />
+      {/* Recent Invoices */}
+      <RecentInvoices />
       
       {/* Work Entry Form Box */}
       <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in" style={{ animationDelay: '200ms' }}>
