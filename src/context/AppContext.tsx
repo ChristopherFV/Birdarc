@@ -1,11 +1,10 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format, subDays, subMonths } from 'date-fns';
 import { mockProjects, mockBillingCodes, mockTeamMembers, mockWorkEntries, mockCompanies } from '@/utils/mockData';
 
 // Define types
 export type DateRangeType = 'day' | 'week' | 'month' | 'custom';
-export type GroupByType = 'week' | 'month' | 'year';
+export type GroupByType = 'day' | 'week' | 'month' | 'year';
 
 export type Project = {
   id: string;

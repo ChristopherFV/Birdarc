@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { 
@@ -42,6 +41,7 @@ export const FilterBar: React.FC = () => {
   };
   
   const groupByLabels: Record<GroupByType, string> = {
+    day: 'By Day',
     week: 'By Week',
     month: 'By Month',
     year: 'By Year'
@@ -72,7 +72,6 @@ export const FilterBar: React.FC = () => {
     setShowExportMenu(false);
   };
   
-  // Get selected project and team member names
   const getSelectedProjectName = () => {
     if (!selectedProject) return 'All Projects';
     const project = projects.find(p => p.id === selectedProject);
@@ -88,13 +87,11 @@ export const FilterBar: React.FC = () => {
   return (
     <div className="bg-card border border-border rounded-lg shadow-subtle mb-6 p-4">
       <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3">
-        {/* Filter label */}
         <div className="flex items-center text-sm font-medium text-muted-foreground">
           <Filter size={16} className="mr-1.5" />
           <span>Filters:</span>
         </div>
         
-        {/* Date Range Filter */}
         <div className="relative">
           <button
             onClick={() => setShowDatePicker(!showDatePicker)}
@@ -137,7 +134,6 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
-        {/* Group By Filter */}
         <div className="relative">
           <button
             onClick={() => setShowGroupByMenu(!showGroupByMenu)}
@@ -174,7 +170,6 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
-        {/* Project Filter */}
         <div className="relative">
           <button
             onClick={() => setShowProjectsMenu(!showProjectsMenu)}
@@ -223,7 +218,6 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
-        {/* Team Member Filter */}
         <div className="relative">
           <button
             onClick={() => setShowTeamMenu(!showTeamMenu)}
@@ -272,7 +266,6 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
-        {/* Export Button */}
         <div className="relative ml-auto">
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}

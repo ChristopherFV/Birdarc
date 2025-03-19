@@ -1,5 +1,5 @@
 
-import { format, parseISO, startOfWeek, startOfMonth, startOfYear, addDays, addWeeks, addMonths } from 'date-fns';
+import { format, parseISO, startOfWeek, startOfMonth, startOfYear, startOfDay, addDays, addWeeks, addMonths } from 'date-fns';
 import { WorkEntry, BillingCode, Project, GroupByType, calculateRevenue } from '@/context/AppContext';
 
 // Type for revenue data
@@ -40,6 +40,9 @@ const groupEntriesByTimeUnit = (
     let period: string;
     
     switch (groupBy) {
+      case 'day':
+        period = format(startOfDay(date), 'yyyy-MM-dd');
+        break;
       case 'week':
         period = format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd');
         break;
@@ -72,6 +75,8 @@ const getFormattedLabel = (date: string, groupBy: GroupByType): string => {
     : parseISO(date);
   
   switch (groupBy) {
+    case 'day':
+      return format(parsedDate, 'MMM d, yyyy');
     case 'week':
       return `Week of ${format(parsedDate, 'MMM d')}`;
     case 'month':
@@ -98,6 +103,10 @@ const fillMissingPeriods = (
     let nextDate: Date;
     
     switch (groupBy) {
+      case 'day':
+        period = format(startOfDay(currentDate), 'yyyy-MM-dd');
+        nextDate = addDays(currentDate, 1);
+        break;
       case 'week':
         period = format(startOfWeek(currentDate, { weekStartsOn: 1 }), 'yyyy-MM-dd');
         nextDate = addWeeks(currentDate, 1);
