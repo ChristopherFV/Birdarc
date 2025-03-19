@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { Calculator, Calendar, CheckCircle } from 'lucide-react';
+import { Calculator, Calendar, CheckCircle, Receipt } from 'lucide-react';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent } from '@/components/ui/card';
@@ -150,6 +150,19 @@ export const WorkEntryForm: React.FC = () => {
             <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse"></div>
             <span className="text-sm font-medium">QuickBooks sync'd</span>
             <CheckCircle size={16} className="ml-auto text-green-500" />
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Create Invoice Box */}
+      <Card className="bg-card border-border shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2">
+            <Receipt size={16} className="text-fieldvision-blue" />
+            <span className="text-sm font-medium">Create invoice</span>
+            <button className="ml-auto text-xs bg-fieldvision-blue/10 hover:bg-fieldvision-blue/20 text-fieldvision-blue px-2 py-1 rounded transition-colors">
+              Generate
+            </button>
           </div>
         </CardContent>
       </Card>
