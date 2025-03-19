@@ -8,7 +8,6 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { InvoicesButton } from './InvoicesButton';
 
 // Mock data for invoices
 const mockInvoices = [
@@ -53,7 +52,12 @@ export const RecentInvoices: React.FC = () => {
           </div>
         </CardContent>
         <CardFooter className="pt-2 pb-4">
-          <InvoicesButton variant="default" fullWidth />
+          <Button asChild variant="default" className="w-full">
+            <Link to="/invoices/create">
+              <Plus className="mr-2" size={16} />
+              Create Invoice
+            </Link>
+          </Button>
         </CardFooter>
       </Card>
     );
@@ -106,7 +110,12 @@ export const RecentInvoices: React.FC = () => {
         </ScrollArea>
       </CardContent>
       <CardFooter className="pt-2 pb-4 flex flex-col gap-2">
-        <InvoicesButton variant="default" fullWidth />
+        <Button asChild variant="default" className="w-full">
+          <Link to="/invoices/create">
+            <Plus className="mr-2" size={16} />
+            Create Invoice
+          </Link>
+        </Button>
         <Button asChild variant="outline" className="w-full">
           <Link to="/invoices">
             <List className="mr-2" size={16} />
