@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp, WorkEntry } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { FileText, Calendar, ArrowRight, List, Pen, Trash, CircleCheck, Circle, Mail } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, List, Pen, Trash, CircleCheck, Circle, Mail, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -53,24 +53,24 @@ export const RecentWorkEntries: React.FC = () => {
     switch (status) {
       case 'paid':
         return (
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600 flex items-center gap-1">
-            <CircleCheck size={14} />
+          <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center shadow-sm animate-fade-in">
+            <CheckCircle2 size={14} className="text-white" />
             <span>Paid</span>
           </Badge>
         );
       case 'invoiced':
         return (
-          <Badge variant="secondary" className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-1">
-            <Mail size={14} />
+          <Badge variant="secondary" className="bg-fieldvision-accent-orange hover:bg-fieldvision-accent-orange/90 text-white px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center shadow-sm animate-fade-in">
+            <Mail size={14} className="text-white" />
             <span>Invoiced</span>
           </Badge>
         );
       case 'not_invoiced':
       default:
         return (
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Circle size={14} />
-            <span>Not Invoiced</span>
+          <Badge variant="outline" className="bg-white border-slate-200 text-slate-600 px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center shadow-sm animate-fade-in">
+            <Circle size={14} className="text-slate-400" />
+            <span>Pending</span>
           </Badge>
         );
     }
@@ -122,7 +122,7 @@ export const RecentWorkEntries: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-28">Status</TableHead>
+              <TableHead className="w-32">Invoice Status</TableHead>
               <TableHead>Project</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Team Member</TableHead>
