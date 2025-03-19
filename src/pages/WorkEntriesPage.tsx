@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
@@ -14,7 +13,8 @@ import {
   Circle,
   Mail,
   CheckCircle2,
-  FileCheck
+  FileCheck,
+  X
 } from 'lucide-react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -68,10 +68,8 @@ const WorkEntriesPage: React.FC = () => {
   const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
   const entriesPerPage = 10;
   
-  // Get filtered entries based on global filters
   const filteredEntries = getFilteredEntries();
   
-  // Apply additional search filter
   const searchFilteredEntries = filteredEntries.filter(entry => {
     const projectName = projects.find(p => p.id === entry.projectId)?.name || '';
     const teamMemberName = teamMembers.find(t => t.id === entry.teamMemberId)?.name || '';
@@ -85,7 +83,6 @@ const WorkEntriesPage: React.FC = () => {
     return search === '' || searchTerms.includes(search.toLowerCase());
   });
   
-  // Apply sorting
   const sortedEntries = React.useMemo(() => {
     return [...searchFilteredEntries].sort((a, b) => {
       let valueA: any;
@@ -109,9 +106,10 @@ const WorkEntriesPage: React.FC = () => {
           valueB = memberB.toLowerCase();
           break;
         case 'billingCode':
-          // Fixed: Using the correct property from the BillingCode type
-          valueA = billingCodes.find(b => b.id === a.billingCodeId)?.code || '';
-          valueB = billingCodes.find(c => c.id === b.billingCodeId)?.code || ''; // Fixed: b.id -> b.billingCodeId
+          const codeA = billingCodes.find(b => b.id === a.billingCodeId)?.code || '';
+          const codeB = billingCodes.find(b => b.id === b.billingCodeId)?.code || '';
+          valueA = codeA;
+          valueB = codeB;
           break;
         case 'status':
           valueA = a.invoiceStatus;
@@ -138,7 +136,6 @@ const WorkEntriesPage: React.FC = () => {
     });
   }, [searchFilteredEntries, sortColumn, sortDirection, projects, teamMembers, billingCodes, calculateRevenue]);
   
-  // Paginate the results
   const totalPages = Math.ceil(sortedEntries.length / entriesPerPage);
   const paginatedEntries = sortedEntries.slice(
     (currentPage - 1) * entriesPerPage, 
@@ -147,10 +144,8 @@ const WorkEntriesPage: React.FC = () => {
   
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
-      // Toggle direction if same column clicked
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // Set new column with default desc direction
       setSortColumn(column);
       setSortDirection('desc');
     }
@@ -272,13 +267,17 @@ const WorkEntriesPage: React.FC = () => {
     setSelectMode(false);
   };
   
+  const handleCancelInvoice = () => {
+    setSelectMode(false);
+    setSelectedEntries({});
+  };
+  
   return (
     <SimplePageLayout 
       title="Work Entries" 
       subtitle="View and manage all work entries"
     >
       <div className="space-y-6">
-        {/* Filters section */}
         <div className="flex flex-col gap-4">
           <div className="flex gap-4 flex-wrap">
             <div className="flex-1 min-w-[200px]">
@@ -307,9 +306,20 @@ const WorkEntriesPage: React.FC = () => {
             >
               <FileCheck size={16} />
               {selectMode ? (
-                 selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
+                selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
               ) : "Create Invoice"}
             </Button>
+            
+            {selectMode && (
+              <Button 
+                variant="destructive"
+                className="flex items-center gap-2"
+                onClick={handleCancelInvoice}
+              >
+                <X size={16} />
+                Cancel
+              </Button>
+            )}
           </div>
           
           <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
@@ -323,7 +333,6 @@ const WorkEntriesPage: React.FC = () => {
           </Collapsible>
         </div>
         
-        {/* Work entries table */}
         <Card className="bg-card border-border shadow-sm">
           <CardContent className="p-0">
             {paginatedEntries.length === 0 ? (
@@ -459,7 +468,6 @@ const WorkEntriesPage: React.FC = () => {
               </Table>
             )}
             
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="py-4 border-t">
                 <Pagination>
@@ -496,7 +504,6 @@ const WorkEntriesPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Edit Work Entry Dialog */}
       {editingEntry && (
         <EditWorkEntryDialog
           entry={editingEntry}

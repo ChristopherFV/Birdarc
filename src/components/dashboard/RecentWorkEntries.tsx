@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useApp, WorkEntry } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { FileText, Calendar, ArrowUp, ArrowDown, List, Pen, Trash, CheckCircle2, Circle, Mail, FileCheck } from 'lucide-react';
+import { FileText, Calendar, ArrowUp, ArrowDown, List, Pen, Trash, CheckCircle2, Circle, Mail, FileCheck, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -32,10 +31,8 @@ export const RecentWorkEntries: React.FC = () => {
   
   const allEntries = getFilteredEntries();
   
-  // Apply sorting
   const sortedEntries = React.useMemo(() => {
     if (!sortColumn) {
-      // Default sort by date descending if no column is selected
       return [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
     
@@ -144,12 +141,15 @@ export const RecentWorkEntries: React.FC = () => {
     });
   };
   
+  const handleCancelInvoice = () => {
+    setSelectMode(false);
+    setSelectedEntries({});
+  };
+  
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
-      // Toggle direction if same column clicked
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // Set new column with default desc direction
       setSortColumn(column);
       setSortDirection('desc');
     }
@@ -278,6 +278,18 @@ export const RecentWorkEntries: React.FC = () => {
               selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
             ) : "Create Invoice"}
           </Button>
+          
+          {selectMode && (
+            <Button 
+              size="sm" 
+              onClick={handleCancelInvoice}
+              className="flex items-center gap-1.5"
+              variant="destructive"
+            >
+              <X size={16} />
+              Cancel
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent className="pt-0">
@@ -486,3 +498,4 @@ export const RecentWorkEntries: React.FC = () => {
     </Card>
   );
 };
+
