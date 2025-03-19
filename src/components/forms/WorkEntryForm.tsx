@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
@@ -5,6 +6,7 @@ import { Calculator, Calendar, CheckCircle } from 'lucide-react';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent } from '@/components/ui/card';
+import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 
 export const WorkEntryForm: React.FC = () => {
   const { 
@@ -151,6 +153,9 @@ export const WorkEntryForm: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Recent Work Entries */}
+      <RecentWorkEntries />
       
       {/* Work Entry Form Box */}
       <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in" style={{ animationDelay: '200ms' }}>
