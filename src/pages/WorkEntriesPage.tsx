@@ -43,6 +43,8 @@ import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
 import { WorkEntry } from '@/context/AppContext';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
+import { AddInvoiceDialog } from '@/components/forms/AddInvoiceDialog';
 
 type SortColumn = 'date' | 'project' | 'teamMember' | 'billingCode' | 'status' | 'feetCompleted' | 'revenue' | null;
 type SortDirection = 'asc' | 'desc';
@@ -58,6 +60,7 @@ const WorkEntriesPage: React.FC = () => {
   } = useApp();
   
   const { toast } = useToast();
+  const { openAddInvoiceDialog } = useAddInvoiceDialog();
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -244,27 +247,7 @@ const WorkEntriesPage: React.FC = () => {
       return;
     }
     
-    const selectedEntryIds = Object.entries(selectedEntries)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([id]) => id);
-    
-    selectedEntryIds.forEach(id => {
-      const entry = filteredEntries.find(e => e.id === id);
-      if (entry) {
-        updateWorkEntry({
-          ...entry,
-          invoiceStatus: 'invoiced'
-        });
-      }
-    });
-    
-    toast({
-      title: 'Invoice created',
-      description: `Successfully created invoice with ${selectedEntryIds.length} work entries`,
-    });
-    
-    setSelectedEntries({});
-    setSelectMode(false);
+    openAddInvoiceDialog();
   };
   
   const handleCancelInvoice = () => {
@@ -513,6 +496,8 @@ const WorkEntriesPage: React.FC = () => {
           }}
         />
       )}
+      
+      <AddInvoiceDialog />
     </SimplePageLayout>
   );
 };
