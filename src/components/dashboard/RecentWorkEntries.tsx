@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useApp } from '@/context/AppContext';
+import { useApp, WorkEntry } from '@/context/AppContext';
 import { format } from 'date-fns';
 import { FileText, Calendar, ArrowRight, List, Pen, Trash, CircleCheck, Circle, Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';

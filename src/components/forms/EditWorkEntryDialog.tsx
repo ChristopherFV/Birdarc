@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { useApp, WorkEntry } from '@/context/AppContext';
@@ -105,7 +104,8 @@ export const EditWorkEntryDialog: React.FC<EditWorkEntryDialogProps> = ({
         billingCodeId: formData.billingCodeId,
         feetCompleted: parseFloat(formData.feetCompleted),
         teamMemberId: formData.teamMemberId,
-        companyId: entry.companyId
+        companyId: entry.companyId,
+        invoiceStatus: entry.invoiceStatus
       });
       
       // Show success message

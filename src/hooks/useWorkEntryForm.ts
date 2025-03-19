@@ -59,7 +59,8 @@ export const useWorkEntryForm = () => {
             billingCodeId: newData.billingCodeId,
             feetCompleted: feet,
             teamMemberId: '',
-            companyId: ''
+            companyId: '',
+            invoiceStatus: 'not_invoiced' // Add default invoice status
           };
           setPreviewRevenue(calculateRevenue(mockEntry, billingCodes));
         } else {
@@ -119,7 +120,8 @@ export const useWorkEntryForm = () => {
         billingCodeId: formData.billingCodeId,
         feetCompleted: parseFloat(formData.feetCompleted),
         teamMemberId: formData.teamMemberId,
-        companyId: ''  // This will be set by the context
+        companyId: '', // This will be set by the context
+        invoiceStatus: 'not_invoiced' // Add default invoice status for new entries
       });
       
       // Reset form
