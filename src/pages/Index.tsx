@@ -5,8 +5,9 @@ import { FilterBar } from '@/components/ui/FilterBar';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
-import { Settings } from 'lucide-react';
+import { Settings, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader } from '@/components/ui/card';
 import { useApp } from '@/context/AppContext';
 import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 
@@ -40,6 +41,18 @@ const HeaderWithProvider = () => (
   </AppProvider>
 );
 
+// QuickBooks sync indicator component
+const QuickBooksSyncIndicator = () => (
+  <Card className="bg-card border-border shadow-sm mb-3">
+    <CardHeader className="py-3">
+      <div className="flex items-center">
+        <CheckCircle className="text-green-500 mr-2" size={16} />
+        <p className="text-sm font-medium">QuickBooks Sync'd</p>
+      </div>
+    </CardHeader>
+  </Card>
+);
+
 const Index = () => {
   return (
     <AppProvider>
@@ -55,6 +68,7 @@ const Index = () => {
             </div>
             
             <div className="lg:col-span-1">
+              <QuickBooksSyncIndicator />
               <RecentInvoices />
               <WorkEntryForm />
             </div>
