@@ -8,6 +8,7 @@ import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
+import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 
 // Create a new Header component
 const Header = () => {
@@ -54,6 +55,7 @@ const Index = () => {
             </div>
             
             <div className="lg:col-span-1">
+              <RecentInvoices />
               <WorkEntryForm />
             </div>
           </div>
