@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
@@ -133,8 +134,6 @@ export const WorkEntryForm: React.FC = () => {
   
   return (
     <div className="space-y-4">
-      <RecentWorkEntries />
-      
       <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in" style={{ animationDelay: '200ms' }}>
         <div className="mb-4">
           <h3 className="text-lg font-medium">Log Work Entry</h3>
@@ -317,6 +316,8 @@ export const WorkEntryForm: React.FC = () => {
           </div>
         </form>
       </div>
+      
+      <RecentWorkEntries />
     </div>
   );
 };
