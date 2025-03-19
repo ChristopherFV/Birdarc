@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp, WorkEntry } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { FileText, Calendar, ArrowRight, List, Pen, Trash, CircleCheck, Circle, Mail, CheckCircle2 } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, List, Pen, Trash, CircleCheck, Circle, Mail, CheckCircle2, FileCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,9 +13,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export const RecentWorkEntries: React.FC = () => {
-  const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue, deleteWorkEntry } = useApp();
+  const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue, deleteWorkEntry, updateWorkEntry } = useApp();
   const { toast } = useToast();
   
   // State for tracking which entry is being edited
@@ -24,6 +25,9 @@ export const RecentWorkEntries: React.FC = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const entriesPerPage = 25;
+  
+  // Selected entries state
+  const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
   
   // Get all entries, sort by date (newest first)
   const allEntries = getFilteredEntries()
@@ -34,6 +38,54 @@ export const RecentWorkEntries: React.FC = () => {
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentEntries = allEntries.slice(indexOfFirstEntry, indexOfLastEntry);
   const totalPages = Math.ceil(allEntries.length / entriesPerPage);
+  
+  // Get selected entries count
+  const selectedCount = Object.values(selectedEntries).filter(Boolean).length;
+  
+  // Selection handlers
+  const handleSelectEntry = (entryId: string, isChecked: boolean) => {
+    setSelectedEntries(prev => ({
+      ...prev,
+      [entryId]: isChecked
+    }));
+  };
+  
+  const handleSelectAll = (isChecked: boolean) => {
+    const newSelectedEntries: Record<string, boolean> = {};
+    currentEntries.forEach(entry => {
+      if (entry.invoiceStatus === 'not_invoiced') {
+        newSelectedEntries[entry.id] = isChecked;
+      }
+    });
+    setSelectedEntries(newSelectedEntries);
+  };
+  
+  const handleCreateInvoice = () => {
+    // Get the IDs of all selected entries
+    const selectedEntryIds = Object.entries(selectedEntries)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => id);
+    
+    // Mark selected entries as invoiced
+    selectedEntryIds.forEach(id => {
+      const entry = allEntries.find(e => e.id === id);
+      if (entry) {
+        updateWorkEntry({
+          ...entry,
+          invoiceStatus: 'invoiced'
+        });
+      }
+    });
+    
+    // Clear selections
+    setSelectedEntries({});
+    
+    // Show success toast
+    toast({
+      title: 'Invoice created',
+      description: `Successfully created invoice with ${selectedEntryIds.length} work entries`,
+    });
+  };
   
   const getProjectName = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
@@ -86,6 +138,15 @@ export const RecentWorkEntries: React.FC = () => {
   
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+    // Clear selections when changing pages
+    setSelectedEntries({});
+  };
+  
+  // Calculate total revenue for selected entries
+  const calculateTotalSelectedRevenue = () => {
+    return allEntries
+      .filter(entry => selectedEntries[entry.id])
+      .reduce((sum, entry) => sum + calculateRevenue(entry, billingCodes), 0);
   };
   
   if (allEntries.length === 0) {
@@ -115,13 +176,35 @@ export const RecentWorkEntries: React.FC = () => {
   
   return (
     <Card className="bg-card border-border shadow-sm mb-4 w-full">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-medium">Work Entries</CardTitle>
+        {selectedCount > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {selectedCount} entries selected (${calculateTotalSelectedRevenue().toFixed(2)})
+            </span>
+            <Button 
+              size="sm" 
+              onClick={handleCreateInvoice}
+              className="flex items-center gap-1.5"
+            >
+              <FileCheck size={16} />
+              Create Invoice
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="pt-0">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10 pr-0">
+                <Checkbox 
+                  id="select-all" 
+                  onCheckedChange={(checked) => handleSelectAll(checked === true)}
+                  className="ml-1"
+                />
+              </TableHead>
               <TableHead className="w-32">Invoice Status</TableHead>
               <TableHead>Project</TableHead>
               <TableHead>Date</TableHead>
@@ -134,9 +217,22 @@ export const RecentWorkEntries: React.FC = () => {
             {currentEntries.map((entry) => {
               const billingCode = getBillingCodeInfo(entry.billingCodeId);
               const revenue = calculateRevenue(entry, billingCodes);
+              const isSelectable = entry.invoiceStatus === 'not_invoiced';
               
               return (
                 <TableRow key={entry.id} className="hover:bg-muted/40">
+                  <TableCell className="pr-0">
+                    {isSelectable ? (
+                      <Checkbox 
+                        id={`select-${entry.id}`}
+                        checked={selectedEntries[entry.id] || false}
+                        onCheckedChange={(checked) => handleSelectEntry(entry.id, checked === true)}
+                        className="ml-1"
+                      />
+                    ) : (
+                      <div className="w-4 h-4 ml-1"></div>
+                    )}
+                  </TableCell>
                   <TableCell className="p-2">
                     {getInvoiceStatusBadge(entry.invoiceStatus)}
                   </TableCell>
