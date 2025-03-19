@@ -23,7 +23,7 @@ export const RecentWorkEntries: React.FC = () => {
   
   const [editingEntry, setEditingEntry] = useState<null | WorkEntry>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const entriesPerPage = 25;
+  const entriesPerPage = 5;
   const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -186,7 +186,7 @@ export const RecentWorkEntries: React.FC = () => {
             className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
           >
             <CheckCircle2 size={14} className="text-green-600" />
-            <span>Paid</span>
+            <span>Approved</span>
           </Badge>
         );
       case 'invoiced':
@@ -196,7 +196,7 @@ export const RecentWorkEntries: React.FC = () => {
             className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
           >
             <Mail size={14} className="text-orange-600" />
-            <span>Invoiced</span>
+            <span>In Review</span>
           </Badge>
         );
       case 'not_invoiced':
@@ -275,8 +275,8 @@ export const RecentWorkEntries: React.FC = () => {
           >
             <FileCheck size={16} />
             {selectMode ? (
-              selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
-            ) : "Create Invoice"}
+              selectedCount > 0 ? `Approve Entries (${selectedCount})` : "Approve Entries"
+            ) : "Approve Entries"}
           </Button>
           
           {selectMode && (
@@ -310,7 +310,7 @@ export const RecentWorkEntries: React.FC = () => {
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center">
-                  Invoice Status
+                  Approval Status
                   {renderSortIcon('status')}
                 </div>
               </TableHead>
