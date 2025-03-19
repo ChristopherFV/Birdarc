@@ -18,7 +18,7 @@ const Header = () => {
     <div className="flex justify-between items-center mb-6">
       <div>
         <h1 className="text-2xl font-semibold mb-1">FieldVision</h1>
-        <p className="text-muted-foreground">Track your fiber production, invoicing and revenue</p>
+        <p className="text-muted-foreground">Track your fiber production, invoicing and revenue.</p>
       </div>
       <div className="flex items-center gap-4">
         <div className="text-right">
