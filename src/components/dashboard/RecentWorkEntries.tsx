@@ -1,16 +1,23 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { FileText, Calendar, ArrowRight, List } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, List, Pen, Trash } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export const RecentWorkEntries: React.FC = () => {
-  const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue } = useApp();
+  const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue, deleteWorkEntry } = useApp();
+  const { toast } = useToast();
+  
+  // State for tracking which entry is being edited
+  const [editingEntry, setEditingEntry] = useState<null | { id: string }>(null);
   
   // Get all entries, sort by date (newest first), and take the 5 most recent ones
   const recentEntries = getFilteredEntries()
@@ -29,6 +36,14 @@ export const RecentWorkEntries: React.FC = () => {
   const getTeamMemberName = (teamMemberId: string) => {
     const member = teamMembers.find(m => m.id === teamMemberId);
     return member?.name || 'Unknown';
+  };
+  
+  const handleDelete = (entryId: string) => {
+    deleteWorkEntry(entryId);
+    toast({
+      title: "Work entry deleted",
+      description: "The work entry has been successfully removed.",
+    });
   };
   
   if (recentEntries.length === 0) {
@@ -90,6 +105,53 @@ export const RecentWorkEntries: React.FC = () => {
                         {entry.feetCompleted} ft ({billingCode?.code})
                       </p>
                     </TableCell>
+                    <TableCell className="p-2 text-right">
+                      <div className="flex items-center justify-end space-x-1">
+                        {/* Edit Button */}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8"
+                          onClick={() => setEditingEntry(entry)}
+                        >
+                          <Pen size={15} />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        
+                        {/* Delete Button */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                            >
+                              <Trash size={15} />
+                              <span className="sr-only">Delete</span>
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete the work entry for {getProjectName(entry.projectId)} 
+                                on {format(new Date(entry.date), 'MMMM d, yyyy')}. 
+                                This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => handleDelete(entry.id)}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -105,6 +167,17 @@ export const RecentWorkEntries: React.FC = () => {
           </Link>
         </Button>
       </CardFooter>
+      
+      {/* Edit Work Entry Dialog */}
+      {editingEntry && (
+        <EditWorkEntryDialog
+          entry={editingEntry}
+          open={!!editingEntry}
+          onOpenChange={(open) => {
+            if (!open) setEditingEntry(null);
+          }}
+        />
+      )}
     </Card>
   );
 };
