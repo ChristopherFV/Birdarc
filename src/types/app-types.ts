@@ -41,6 +41,13 @@ export type Company = {
   logo?: string;
 };
 
+// Project creation type
+export type NewProject = {
+  name: string;
+  client: string;
+  billingCodes: Omit<BillingCode, 'id'>[];
+};
+
 // Context type
 export type AppContextType = {
   // Data
@@ -63,6 +70,7 @@ export type AppContextType = {
   addWorkEntry: (entry: Omit<WorkEntry, 'id'>) => void;
   updateWorkEntry: (entry: WorkEntry) => void;
   deleteWorkEntry: (id: string) => void;
+  addProject: (project: NewProject) => void;
   
   // Filter setters
   setDateRange: (range: DateRangeType) => void;

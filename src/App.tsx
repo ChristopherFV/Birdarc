@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import WorkEntriesPage from "./pages/WorkEntriesPage";
 import SchedulePage from "./pages/SchedulePage";
+import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <AddProjectDialog />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

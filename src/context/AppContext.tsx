@@ -14,7 +14,8 @@ import {
   InvoiceStatus,
   WorkEntry,
   Company,
-  AppContextType
+  AppContextType,
+  NewProject
 } from '@/types/app-types';
 
 // Re-export the types for backward compatibility
@@ -39,8 +40,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // State for data
   const [workEntries, setWorkEntries] = useState<WorkEntry[]>(mockWorkEntries);
-  const [projects] = useState<Project[]>(mockProjects);
-  const [billingCodes] = useState<BillingCode[]>(mockBillingCodes);
+  const [projects, setProjects] = useState<Project[]>(mockProjects);
+  const [billingCodes, setBillingCodes] = useState<BillingCode[]>(mockBillingCodes);
   const [teamMembers] = useState<TeamMember[]>(mockTeamMembers);
   const [companies] = useState<Company[]>(mockCompanies);
   const [selectedCompany, setSelectedCompany] = useState<Company>(mockCompanies[0]);
@@ -93,6 +94,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setWorkEntries(workEntries.filter(entry => entry.id !== id));
   };
   
+  // Add a new project with billing codes
+  const addProject = (newProject: NewProject) => {
+    // Create new project
+    const projectId = crypto.randomUUID();
+    const project: Project = {
+      id: projectId,
+      name: newProject.name,
+      client: newProject.client
+    };
+    
+    // Create new billing codes for the project
+    const newBillingCodes: BillingCode[] = newProject.billingCodes.map(code => ({
+      id: crypto.randomUUID(),
+      code: code.code,
+      description: code.description,
+      ratePerFoot: code.ratePerFoot
+    }));
+    
+    // Update state
+    setProjects([...projects, project]);
+    setBillingCodes([...billingCodes, ...newBillingCodes]);
+    
+    return projectId;
+  };
+  
   // Filter entries based on current filters
   const getFilteredEntries = (): WorkEntry[] => {
     return workEntries.filter(entry => {
@@ -138,6 +164,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addWorkEntry,
     updateWorkEntry,
     deleteWorkEntry,
+    addProject,
     
     setDateRange,
     setCustomDateRange,

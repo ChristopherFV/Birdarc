@@ -1,6 +1,9 @@
 
 import React from 'react';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Project } from '@/context/AppContext';
+import { useAddProjectDialog } from '@/hooks/useAddProjectDialog';
 
 interface ProjectSelectorProps {
   projectId: string;
@@ -15,11 +18,24 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
   onChange,
   error
 }) => {
+  const { openAddProjectDialog } = useAddProjectDialog();
+
   return (
     <div>
-      <label htmlFor="projectId" className="block text-sm font-medium mb-1">
-        Project
-      </label>
+      <div className="flex justify-between items-center mb-1">
+        <label htmlFor="projectId" className="block text-sm font-medium">
+          Project
+        </label>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-6 px-2 text-xs"
+          onClick={openAddProjectDialog}
+        >
+          <Plus className="h-3 w-3 mr-1" />
+          Add Project
+        </Button>
+      </div>
       <select
         id="projectId"
         name="projectId"
