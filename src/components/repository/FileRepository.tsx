@@ -38,7 +38,7 @@ const mockFiles: RepositoryFile[] = [
   },
   {
     id: '2',
-    name: 'Underground Path Diagrams',
+    name: 'Underground Path Redlines',
     type: 'image',
     count: 12, // Changed from size to count
     uploadedBy: 'Sarah Johnson',
@@ -178,3 +178,4 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
     </div>
   );
 };
+
