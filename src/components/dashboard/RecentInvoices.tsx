@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Plus, CheckCircle2 } from 'lucide-react';
+import { FileText, Plus, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -47,12 +47,8 @@ const mockInvoices: Invoice[] = [
 export const RecentInvoices: React.FC = () => {
   return (
     <Card className="bg-card border-border shadow-sm mb-6">
-      <CardHeader className="pb-2 flex flex-row items-center justify-between">
+      <CardHeader className="pb-2">
         <CardTitle className="text-base font-medium">Recent Invoices</CardTitle>
-        <div className="flex items-center text-xs text-green-600 font-medium">
-          <CheckCircle2 className="h-3.5 w-3.5 mr-1 fill-green-500 text-white" />
-          QuickBooks Sync'd
-        </div>
       </CardHeader>
       <CardContent className="pt-0">
         {mockInvoices.length === 0 ? (

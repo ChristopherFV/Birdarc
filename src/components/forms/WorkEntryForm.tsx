@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { Calculator, Calendar } from 'lucide-react';
+import { Calculator, Calendar, CheckCircle, Receipt } from 'lucide-react';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,9 +30,11 @@ export const WorkEntryForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewRevenue, setPreviewRevenue] = useState<number | null>(null);
   
+  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
+    // Clear error for this field when user starts typing
     if (formErrors[name]) {
       setFormErrors(prev => {
         const newErrors = { ...prev };
@@ -44,6 +46,7 @@ export const WorkEntryForm: React.FC = () => {
     setFormData(prev => {
       const newData = { ...prev, [name]: value };
       
+      // Update revenue preview if we have both billing code and feet
       if ((name === 'billingCodeId' || name === 'feetCompleted') && 
           newData.billingCodeId && newData.feetCompleted) {
         const feet = parseFloat(newData.feetCompleted);
@@ -67,6 +70,7 @@ export const WorkEntryForm: React.FC = () => {
     });
   };
   
+  // Handle date selection
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       setFormData(prev => ({ ...prev, date }));
@@ -74,9 +78,11 @@ export const WorkEntryForm: React.FC = () => {
     }
   };
   
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate form
     const errors: Record<string, string> = {};
     
     if (!formData.projectId) {
@@ -102,6 +108,7 @@ export const WorkEntryForm: React.FC = () => {
       return;
     }
     
+    // Submit the form
     setIsSubmitting(true);
     
     try {
@@ -111,9 +118,10 @@ export const WorkEntryForm: React.FC = () => {
         billingCodeId: formData.billingCodeId,
         feetCompleted: parseFloat(formData.feetCompleted),
         teamMemberId: formData.teamMemberId,
-        companyId: ''
+        companyId: ''  // This will be set by the context
       });
       
+      // Reset form
       setFormData({
         date: new Date(),
         projectId: '',
@@ -124,6 +132,7 @@ export const WorkEntryForm: React.FC = () => {
       
       setPreviewRevenue(null);
       
+      // Show success message (could use a toast here)
       console.log('Work entry added successfully');
     } catch (error) {
       console.error('Error adding work entry:', error);
@@ -134,6 +143,34 @@ export const WorkEntryForm: React.FC = () => {
   
   return (
     <div className="space-y-4">
+      {/* QuickBooks Sync Box */}
+      <Card className="bg-card border-border shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-green-500 animate-pulse"></div>
+            <span className="text-sm font-medium">QuickBooks sync'd</span>
+            <CheckCircle size={16} className="ml-auto text-green-500" />
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Create Invoice Box */}
+      <Card className="bg-card border-border shadow-sm">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2">
+            <Receipt size={16} className="text-fieldvision-blue" />
+            <span className="text-sm font-medium">Create invoice</span>
+            <button className="ml-auto text-xs bg-fieldvision-blue/10 hover:bg-fieldvision-blue/20 text-fieldvision-blue px-2 py-1 rounded transition-colors">
+              Generate
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Recent Work Entries */}
+      <RecentWorkEntries />
+      
+      {/* Work Entry Form Box */}
       <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in" style={{ animationDelay: '200ms' }}>
         <div className="mb-4">
           <h3 className="text-lg font-medium">Log Work Entry</h3>
@@ -143,6 +180,7 @@ export const WorkEntryForm: React.FC = () => {
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Date Field */}
           <div>
             <label htmlFor="date" className="block text-sm font-medium mb-1">
               Date
@@ -177,6 +215,7 @@ export const WorkEntryForm: React.FC = () => {
             )}
           </div>
           
+          {/* Project Dropdown */}
           <div>
             <label htmlFor="projectId" className="block text-sm font-medium mb-1">
               Project
@@ -205,6 +244,7 @@ export const WorkEntryForm: React.FC = () => {
             )}
           </div>
           
+          {/* Billing Code Dropdown */}
           <div>
             <label htmlFor="billingCodeId" className="block text-sm font-medium mb-1">
               Billing Code
@@ -233,6 +273,7 @@ export const WorkEntryForm: React.FC = () => {
             )}
           </div>
           
+          {/* Feet Completed Input */}
           <div>
             <label htmlFor="feetCompleted" className="block text-sm font-medium mb-1">
               Feet Completed
@@ -263,6 +304,7 @@ export const WorkEntryForm: React.FC = () => {
             )}
           </div>
           
+          {/* Revenue Preview */}
           {previewRevenue !== null && (
             <div className="flex items-center bg-fieldvision-blue/10 p-3 rounded-md">
               <Calculator size={18} className="text-fieldvision-blue mr-2" />
@@ -273,6 +315,7 @@ export const WorkEntryForm: React.FC = () => {
             </div>
           )}
           
+          {/* Team Member Dropdown */}
           <div>
             <label htmlFor="teamMemberId" className="block text-sm font-medium mb-1">
               Team Member
@@ -301,6 +344,7 @@ export const WorkEntryForm: React.FC = () => {
             )}
           </div>
           
+          {/* Submit Button */}
           <div className="pt-2">
             <button
               type="submit"
@@ -316,8 +360,6 @@ export const WorkEntryForm: React.FC = () => {
           </div>
         </form>
       </div>
-      
-      <RecentWorkEntries />
     </div>
   );
 };
