@@ -54,7 +54,7 @@ const Index = () => {
               <ProductionChart />
             </div>
             
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 flex flex-col" style={{ minHeight: 'calc(840px + 1.5rem)' }}>
               <WorkEntryForm />
             </div>
           </div>

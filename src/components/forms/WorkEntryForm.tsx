@@ -28,7 +28,7 @@ export const WorkEntryForm: React.FC = () => {
   } = useWorkEntryForm();
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full flex flex-col">
       {/* QuickBooks Sync Box */}
       <QuickBooksSyncIndicator />
       
@@ -36,7 +36,7 @@ export const WorkEntryForm: React.FC = () => {
       <RecentInvoices />
       
       {/* Work Entry Form Box */}
-      <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in" style={{ animationDelay: '200ms' }}>
+      <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in flex-grow" style={{ animationDelay: '200ms' }}>
         <div className="mb-4">
           <h3 className="text-lg font-medium">Log Work Entry</h3>
           <p className="text-muted-foreground text-sm">
