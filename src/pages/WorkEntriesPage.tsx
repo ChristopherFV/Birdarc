@@ -3,16 +3,14 @@ import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
 import { 
-  ChevronLeft, 
-  ChevronRight, 
   Search, 
   Calendar,
   ArrowRight, 
   FileText,
   Filter
 } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   Table, 
   TableBody, 
@@ -23,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { 
   Pagination, 
@@ -33,7 +31,6 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const WorkEntriesPage: React.FC = () => {
   const { 
@@ -41,11 +38,7 @@ const WorkEntriesPage: React.FC = () => {
     projects, 
     billingCodes, 
     teamMembers, 
-    calculateRevenue,
-    selectedProject,
-    setSelectedProject,
-    selectedTeamMember,
-    setSelectedTeamMember
+    calculateRevenue
   } = useApp();
   
   const [search, setSearch] = useState('');
@@ -93,15 +86,11 @@ const WorkEntriesPage: React.FC = () => {
   };
   
   return (
-    <DashboardLayout>
+    <SimplePageLayout 
+      title="Work Entries" 
+      subtitle="View and manage all work entries"
+    >
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-semibold mb-1">Work Entries</h1>
-            <p className="text-muted-foreground">View and manage all work entries</p>
-          </div>
-        </div>
-        
         {/* Filters section */}
         <div className="flex flex-col gap-4">
           <div className="flex gap-4 flex-wrap">
@@ -216,7 +205,7 @@ const WorkEntriesPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </SimplePageLayout>
   );
 };
 
