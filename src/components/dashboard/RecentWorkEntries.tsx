@@ -2,10 +2,12 @@
 import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { FileText, Calendar, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FileText, Calendar, ArrowRight, List } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 export const RecentWorkEntries: React.FC = () => {
   const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue } = useApp();
@@ -42,6 +44,14 @@ export const RecentWorkEntries: React.FC = () => {
             <p className="text-sm">Add your first work entry below</p>
           </div>
         </CardContent>
+        <CardFooter className="pt-2 pb-4">
+          <Button asChild variant="outline" className="w-full">
+            <Link to="/work-entries">
+              <List className="mr-2" size={16} />
+              View all work entries
+            </Link>
+          </Button>
+        </CardFooter>
       </Card>
     );
   }
@@ -87,6 +97,14 @@ export const RecentWorkEntries: React.FC = () => {
           </Table>
         </ScrollArea>
       </CardContent>
+      <CardFooter className="pt-2 pb-4">
+        <Button asChild variant="outline" className="w-full">
+          <Link to="/work-entries">
+            <List className="mr-2" size={16} />
+            View all work entries
+          </Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
