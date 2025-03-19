@@ -4,6 +4,7 @@ import { AppProvider } from '@/context/AppContext';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
+import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
 import { Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -51,6 +52,7 @@ const Index = () => {
             <div className="lg:col-span-2 space-y-6">
               <RevenueChart />
               <ProductionChart />
+              <RecentWorkEntries />
             </div>
             
             <div className="lg:col-span-1">
