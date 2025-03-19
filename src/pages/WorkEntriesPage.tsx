@@ -107,7 +107,7 @@ const WorkEntriesPage: React.FC = () => {
           break;
         case 'billingCode':
           const codeA = billingCodes.find(b => b.id === a.billingCodeId)?.code || '';
-          const codeB = billingCodes.find(b => b.id === b.billingCodeId)?.code || '';
+          const codeB = billingCodes.find(b => b.id === a.billingCodeId)?.code || '';
           valueA = codeA;
           valueB = codeB;
           break;
