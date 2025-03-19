@@ -7,7 +7,7 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
-import { Settings, Map, ListTodo } from 'lucide-react';
+import { Settings, Map, ListTodo, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
 import { InvoicesButton } from '@/components/dashboard/InvoicesButton';
@@ -24,6 +24,12 @@ const Header = () => {
       </div>
       <div className="flex items-center gap-4">
         <InvoicesButton />
+        <Link to="/repository">
+          <Button variant="outline" className="flex items-center gap-2">
+            <FolderOpen className="h-4 w-4" />
+            <span>Repository</span>
+          </Button>
+        </Link>
         <Link to="/schedule">
           <Button variant="outline" className="flex items-center gap-2">
             <Map className="h-4 w-4" />
