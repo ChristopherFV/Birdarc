@@ -1,12 +1,13 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { AppProvider } from '@/context/AppContext';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
-import { Settings } from 'lucide-react';
+import { Settings, Map, ListTodo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
 
@@ -21,6 +22,12 @@ const Header = () => {
         <p className="text-muted-foreground">Track your fiber production, invoicing and revenue.</p>
       </div>
       <div className="flex items-center gap-4">
+        <Link to="/schedule">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Map className="h-4 w-4" />
+            <span>Schedule</span>
+          </Button>
+        </Link>
         <div className="text-right">
           <p className="font-medium">{selectedCompany.name}</p>
         </div>
