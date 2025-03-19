@@ -116,7 +116,7 @@ export const useWorkEntryForm = () => {
     }
     
     if (!formData.feetCompleted) {
-      errors.feetCompleted = 'Please enter feet completed';
+      errors.feetCompleted = 'Please enter unit quantity';
     } else if (isNaN(parseFloat(formData.feetCompleted)) || parseFloat(formData.feetCompleted) <= 0) {
       errors.feetCompleted = 'Please enter a valid positive number';
     }

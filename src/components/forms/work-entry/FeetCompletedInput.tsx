@@ -15,7 +15,7 @@ export const FeetCompletedInput: React.FC<FeetCompletedInputProps> = ({
   return (
     <div>
       <label htmlFor="feetCompleted" className="block text-sm font-medium mb-1">
-        Feet Completed
+        Unit Quantity
       </label>
       <div className="relative">
         <input
@@ -24,7 +24,7 @@ export const FeetCompletedInput: React.FC<FeetCompletedInputProps> = ({
           name="feetCompleted"
           value={value}
           onChange={onChange}
-          placeholder="Enter feet"
+          placeholder="Enter quantity"
           min="0"
           step="1"
           className={`
@@ -35,7 +35,7 @@ export const FeetCompletedInput: React.FC<FeetCompletedInputProps> = ({
           `}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-          ft
+          units
         </div>
       </div>
       {error && (
