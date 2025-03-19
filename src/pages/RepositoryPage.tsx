@@ -11,10 +11,10 @@ import { Badge } from '@/components/ui/badge';
 
 // Mock project data with pending files count
 const projectsWithPendingFiles = [
-  { id: '1', name: 'Cedar Heights Fiber', pendingCount: 3 },
-  { id: '2', name: 'Oakridge Expansion', pendingCount: 1 },
-  { id: '3', name: 'Downtown Connection', pendingCount: 0 },
-  { id: '4', name: 'Westside Network', pendingCount: 2 },
+  { id: '1', name: 'Cedar Heights Fiber', pendingCount: 25, billingCodes: ['FBR-001'] },
+  { id: '2', name: 'Oakridge Expansion', pendingCount: 12, billingCodes: ['UND-025'] },
+  { id: '3', name: 'Downtown Connection', pendingCount: 0, billingCodes: ['PMT-103'] },
+  { id: '4', name: 'Westside Network', pendingCount: 8, billingCodes: ['SPL-072'] },
 ];
 
 const RepositoryPage = () => {
@@ -64,12 +64,17 @@ const RepositoryPage = () => {
                 .map(project => (
                   <div 
                     key={project.id} 
-                    className="flex justify-between items-center bg-white rounded-md p-3 shadow-sm"
+                    className="flex justify-between items-center bg-white rounded-md p-3 shadow-sm cursor-pointer"
                     onClick={() => setSelectedTab('pending')}
                   >
-                    <span className="font-medium truncate">{project.name}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium truncate">{project.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {project.billingCodes.join(', ')}
+                      </span>
+                    </div>
                     <Badge variant="secondary" className="ml-2">
-                      {project.pendingCount} pending
+                      {project.pendingCount} files
                     </Badge>
                   </div>
                 ))}
@@ -83,7 +88,7 @@ const RepositoryPage = () => {
           <CardHeader className="pb-3">
             <CardTitle>Upload Project Files</CardTitle>
             <CardDescription>
-              Add files to the repository for review and approval
+              Add multiple files to the repository for review and approval
             </CardDescription>
           </CardHeader>
           <CardContent>

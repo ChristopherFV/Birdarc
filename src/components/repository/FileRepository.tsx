@@ -11,7 +11,7 @@ interface RepositoryFile {
   id: string;
   name: string;
   type: string;
-  size: string;
+  count: number; // Changed from size to count
   uploadedBy: string;
   uploadDate: string;
   status: 'pending' | 'approved' | 'rejected';
@@ -27,9 +27,9 @@ interface FileRepositoryProps {
 const mockFiles: RepositoryFile[] = [
   {
     id: '1',
-    name: 'site-survey-report.pdf',
-    type: 'pdf',
-    size: '2.4 MB',
+    name: 'Fiber Test Results',
+    type: 'document',
+    count: 25, // Changed from size to count
     uploadedBy: 'John Doe',
     uploadDate: '2023-09-15',
     status: 'pending',
@@ -38,9 +38,9 @@ const mockFiles: RepositoryFile[] = [
   },
   {
     id: '2',
-    name: 'underground-path-diagram.jpg',
+    name: 'Underground Path Diagrams',
     type: 'image',
-    size: '1.7 MB',
+    count: 12, // Changed from size to count
     uploadedBy: 'Sarah Johnson',
     uploadDate: '2023-09-14',
     status: 'approved',
@@ -49,9 +49,9 @@ const mockFiles: RepositoryFile[] = [
   },
   {
     id: '3',
-    name: 'permit-application.docx',
+    name: 'Permit Applications',
     type: 'document',
-    size: '850 KB',
+    count: 5, // Changed from size to count
     uploadedBy: 'Mike Wilson',
     uploadDate: '2023-09-13',
     status: 'rejected',
@@ -60,9 +60,9 @@ const mockFiles: RepositoryFile[] = [
   },
   {
     id: '4',
-    name: 'fiber-splice-locations.xlsx',
+    name: 'Splice Location Documents',
     type: 'spreadsheet',
-    size: '1.2 MB',
+    count: 8, // Changed from size to count
     uploadedBy: 'Emma Davis',
     uploadDate: '2023-09-12',
     status: 'pending',
@@ -151,8 +151,11 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
                           <Tag className="h-3 w-3" />
                           {file.billingCode}
                         </Badge>
+                        <Badge variant="soft-green" className="text-xs">
+                          {file.count} files
+                        </Badge>
                         <span className="text-sm text-muted-foreground">
-                          {file.size} • {file.uploadDate}
+                          {file.uploadDate}
                         </span>
                       </div>
                     </div>

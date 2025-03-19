@@ -21,7 +21,7 @@ const formSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
   billingCodeId: z.string().min(1, "Billing code is required"),
   description: z.string().optional(),
-  files: z.array(z.any()).min(1, "At least one file is required") // Changed to any to fix type error
+  files: z.array(z.any()).min(1, "At least one file is required")
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -51,6 +51,7 @@ export const FileUploader = () => {
 
   const onSubmit = (data: FormValues) => {
     console.log('Form submitted:', data);
+    console.log(`Submitting ${uploadedFiles.length} files`);
     // Here you would typically upload the files to your server
   };
 
@@ -166,7 +167,9 @@ export const FileUploader = () => {
         <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
           <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
           <p className="text-muted-foreground">Drag and drop files here or click to browse</p>
-          <p className="text-sm text-muted-foreground mt-1">Supports images, documents, spreadsheets, and PDFs</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Upload multiple files for the same project and billing code
+          </p>
           <input
             type="file"
             ref={fileInputRef}
