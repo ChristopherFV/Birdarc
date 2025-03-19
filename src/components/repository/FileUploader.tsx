@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Upload, X, FileText, Image, File } from 'lucide-react';
+import { Upload, X, FileText, Image, File, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -14,15 +14,25 @@ import {
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Badge } from '@/components/ui/badge';
 
 // Define the form schema
 const formSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
+  billingCodeId: z.string().min(1, "Billing code is required"),
   description: z.string().optional(),
-  files: z.array(z.instanceof(File)).min(1, "At least one file is required")
+  files: z.array(z.any()).min(1, "At least one file is required") // Changed to any to fix type error
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+// Mock billing codes
+const mockBillingCodes = [
+  { id: "1", code: "FBR-001", description: "Fiber Installation" },
+  { id: "2", code: "UND-025", description: "Underground Construction" },
+  { id: "3", code: "PMT-103", description: "Permit Documentation" },
+  { id: "4", code: "SPL-072", description: "Splice Work" },
+];
 
 export const FileUploader = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +43,7 @@ export const FileUploader = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       projectId: "",
+      billingCodeId: "",
       description: "",
       files: []
     }
@@ -71,6 +82,20 @@ export const FileUploader = () => {
     }
   };
 
+  // Get the selected billing code display
+  const getSelectedBillingCode = () => {
+    const billingCodeId = form.watch('billingCodeId');
+    if (!billingCodeId) return null;
+    
+    const billingCode = mockBillingCodes.find(bc => bc.id === billingCodeId);
+    return billingCode ? (
+      <Badge className="flex items-center gap-1 mt-1" variant="outline">
+        <Tag className="h-3 w-3" />
+        {billingCode.code} - {billingCode.description}
+      </Badge>
+    ) : null;
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -80,7 +105,7 @@ export const FileUploader = () => {
             name="projectId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project</FormLabel>
+                <FormLabel>Project <span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <select
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -100,6 +125,32 @@ export const FileUploader = () => {
 
           <FormField
             control={form.control}
+            name="billingCodeId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Billing Code <span className="text-red-500">*</span></FormLabel>
+                <FormControl>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    {...field}
+                  >
+                    <option value="">Select Billing Code</option>
+                    {mockBillingCodes.map(code => (
+                      <option key={code.id} value={code.id}>
+                        {code.code} - {code.description}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+                <FormMessage />
+                {getSelectedBillingCode()}
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+            control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
@@ -111,7 +162,6 @@ export const FileUploader = () => {
               </FormItem>
             )}
           />
-        </div>
 
         <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
           <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />

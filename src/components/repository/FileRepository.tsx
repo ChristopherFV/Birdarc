@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, XCircle, FileText, Image, File, MoreVertical, Clock } from 'lucide-react';
+import { Check, XCircle, FileText, Image, File, MoreVertical, Clock, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 type FileStatus = 'all' | 'pending' | 'approved' | 'rejected';
 
@@ -15,6 +16,7 @@ interface RepositoryFile {
   uploadDate: string;
   status: 'pending' | 'approved' | 'rejected';
   project: string;
+  billingCode: string;
 }
 
 interface FileRepositoryProps {
@@ -31,7 +33,8 @@ const mockFiles: RepositoryFile[] = [
     uploadedBy: 'John Doe',
     uploadDate: '2023-09-15',
     status: 'pending',
-    project: 'Cedar Heights Fiber'
+    project: 'Cedar Heights Fiber',
+    billingCode: 'FBR-001'
   },
   {
     id: '2',
@@ -41,7 +44,8 @@ const mockFiles: RepositoryFile[] = [
     uploadedBy: 'Sarah Johnson',
     uploadDate: '2023-09-14',
     status: 'approved',
-    project: 'Oakridge Expansion'
+    project: 'Oakridge Expansion',
+    billingCode: 'UND-025'
   },
   {
     id: '3',
@@ -51,7 +55,8 @@ const mockFiles: RepositoryFile[] = [
     uploadedBy: 'Mike Wilson',
     uploadDate: '2023-09-13',
     status: 'rejected',
-    project: 'Downtown Connection'
+    project: 'Downtown Connection',
+    billingCode: 'PMT-103'
   },
   {
     id: '4',
@@ -61,7 +66,8 @@ const mockFiles: RepositoryFile[] = [
     uploadedBy: 'Emma Davis',
     uploadDate: '2023-09-12',
     status: 'pending',
-    project: 'Westside Network'
+    project: 'Westside Network',
+    billingCode: 'SPL-072'
   }
 ];
 
@@ -92,24 +98,24 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
     switch(status) {
       case 'pending':
         return (
-          <div className="flex items-center text-yellow-600 text-sm font-medium">
-            <Clock className="h-4 w-4 mr-1" />
+          <Badge variant="outline" className="bg-yellow-50 text-yellow-600 hover:bg-yellow-50 flex items-center gap-1">
+            <Clock className="h-3 w-3" />
             Pending
-          </div>
+          </Badge>
         );
       case 'approved':
         return (
-          <div className="flex items-center text-green-600 text-sm font-medium">
-            <Check className="h-4 w-4 mr-1" />
+          <Badge variant="outline" className="bg-green-50 text-green-600 hover:bg-green-50 flex items-center gap-1">
+            <Check className="h-3 w-3" />
             Approved
-          </div>
+          </Badge>
         );
       case 'rejected':
         return (
-          <div className="flex items-center text-red-600 text-sm font-medium">
-            <XCircle className="h-4 w-4 mr-1" />
+          <Badge variant="outline" className="bg-red-50 text-red-600 hover:bg-red-50 flex items-center gap-1">
+            <XCircle className="h-3 w-3" />
             Rejected
-          </div>
+          </Badge>
         );
       default:
         return null;
@@ -137,9 +143,18 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-medium truncate">{file.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {file.project} • {file.size} • Uploaded on {file.uploadDate}
-                      </p>
+                      <div className="flex flex-wrap gap-2 mt-1 items-center">
+                        <span className="text-sm text-muted-foreground">
+                          {file.project}
+                        </span>
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <Tag className="h-3 w-3" />
+                          {file.billingCode}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {file.size} • {file.uploadDate}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(file.status)}
