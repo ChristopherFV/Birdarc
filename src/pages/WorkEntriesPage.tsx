@@ -7,7 +7,8 @@ import {
   Calendar,
   ArrowRight, 
   FileText,
-  Filter
+  Filter,
+  Pencil
 } from 'lucide-react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,6 +32,8 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
+import { WorkEntry } from '@/context/AppContext';
 
 const WorkEntriesPage: React.FC = () => {
   const { 
@@ -44,6 +47,7 @@ const WorkEntriesPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<WorkEntry | null>(null);
   const entriesPerPage = 10;
   
   // Get filtered entries based on global filters
@@ -83,6 +87,10 @@ const WorkEntriesPage: React.FC = () => {
   const getTeamMemberName = (teamMemberId: string) => {
     const member = teamMembers.find(m => m.id === teamMemberId);
     return member?.name || 'Unknown';
+  };
+  
+  const handleEditEntry = (entry: WorkEntry) => {
+    setEditingEntry(entry);
   };
   
   return (
@@ -147,6 +155,7 @@ const WorkEntriesPage: React.FC = () => {
                     <TableHead>Billing Code</TableHead>
                     <TableHead className="text-right">Feet Completed</TableHead>
                     <TableHead className="text-right">Revenue</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -162,6 +171,16 @@ const WorkEntriesPage: React.FC = () => {
                         <TableCell>{billingCode?.code}</TableCell>
                         <TableCell className="text-right">{entry.feetCompleted} ft</TableCell>
                         <TableCell className="text-right font-medium">${revenue.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleEditEntry(entry)}
+                            title="Edit work entry"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -205,6 +224,17 @@ const WorkEntriesPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Work Entry Dialog */}
+      {editingEntry && (
+        <EditWorkEntryDialog
+          entry={editingEntry}
+          open={!!editingEntry}
+          onOpenChange={(open) => {
+            if (!open) setEditingEntry(null);
+          }}
+        />
+      )}
     </SimplePageLayout>
   );
 };
