@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { Calculator, Calendar } from 'lucide-react';
+import { Calculator, Calendar, CheckCircle } from 'lucide-react';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -141,6 +141,13 @@ export const WorkEntryForm: React.FC = () => {
   
   return (
     <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in" style={{ animationDelay: '200ms' }}>
+      {/* Quickbooks Sync Indicator */}
+      <div className="flex items-center gap-2 mb-3 bg-green-50 px-3 py-2 rounded-md border border-green-100">
+        <div className="h-2.5 w-2.5 rounded-full bg-green-500"></div>
+        <span className="text-sm font-medium text-green-700">QuickBooks sync'd</span>
+        <CheckCircle size={16} className="ml-auto text-green-500" />
+      </div>
+      
       <div className="mb-4">
         <h3 className="text-lg font-medium">Log Work Entry</h3>
         <p className="text-muted-foreground text-sm">
