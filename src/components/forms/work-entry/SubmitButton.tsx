@@ -11,8 +11,8 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({ isSubmitting }) => {
       type="submit"
       disabled={isSubmitting}
       className={`
-        w-full py-2.5 bg-fieldvision-blue text-white font-medium rounded-md
-        hover:bg-fieldvision-blue/90 transition-colors
+        w-full py-2.5 bg-fieldvision-orange text-white font-medium rounded-md
+        hover:bg-fieldvision-orange/90 transition-colors
         ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}
       `}
     >
