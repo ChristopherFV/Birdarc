@@ -10,7 +10,7 @@ import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
 import { Settings, Map, ListTodo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
-import { InvoicesButton } from '@/components/dashboard/InvoicesButton';
+import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 
 // Create a new Header component
 const Header = () => {
@@ -23,7 +23,6 @@ const Header = () => {
         <p className="text-muted-foreground">Track your fiber production, invoicing and revenue.</p>
       </div>
       <div className="flex items-center gap-4">
-        <InvoicesButton />
         <Link to="/schedule">
           <Button variant="outline" className="flex items-center gap-2">
             <Map className="h-4 w-4" />
@@ -61,6 +60,7 @@ const Index = () => {
             <div className="lg:col-span-2 space-y-6">
               <RevenueChart />
               <ProductionChart />
+              <RecentInvoices />
             </div>
             
             <div className="lg:col-span-1 flex flex-col" style={{ minHeight: 'calc(840px + 1.5rem)' }}>
