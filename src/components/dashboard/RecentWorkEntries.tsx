@@ -28,6 +28,7 @@ export const RecentWorkEntries: React.FC = () => {
   const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [selectMode, setSelectMode] = useState(false);
   
   const allEntries = getFilteredEntries();
   
@@ -106,6 +107,20 @@ export const RecentWorkEntries: React.FC = () => {
   };
   
   const handleCreateInvoice = () => {
+    if (!selectMode) {
+      setSelectMode(true);
+      return;
+    }
+    
+    if (selectedCount === 0) {
+      toast({
+        title: "No entries selected",
+        description: "Please select at least one work entry to create an invoice.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const selectedEntryIds = Object.entries(selectedEntries)
       .filter(([_, isSelected]) => isSelected)
       .map(([id]) => id);
@@ -121,6 +136,7 @@ export const RecentWorkEntries: React.FC = () => {
     });
     
     setSelectedEntries({});
+    setSelectMode(false);
     
     toast({
       title: 'Invoice created',
@@ -246,7 +262,7 @@ export const RecentWorkEntries: React.FC = () => {
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-medium">Work Entries</CardTitle>
         <div className="flex items-center gap-2">
-          {hasSelectedEntries && (
+          {selectMode && hasSelectedEntries && (
             <span className="text-sm text-muted-foreground">
               {selectedCount} entries selected (${calculateTotalSelectedRevenue().toFixed(2)})
             </span>
@@ -255,11 +271,12 @@ export const RecentWorkEntries: React.FC = () => {
             size="sm" 
             onClick={handleCreateInvoice}
             className="flex items-center gap-1.5"
-            disabled={!hasSelectedEntries}
-            variant={hasSelectedEntries ? "default" : "outline"}
+            variant={selectMode && !hasSelectedEntries ? "secondary" : "default"}
           >
             <FileCheck size={16} />
-            Create Invoice
+            {selectMode ? (
+              selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
+            ) : "Create Invoice"}
           </Button>
         </div>
       </CardHeader>
@@ -267,13 +284,15 @@ export const RecentWorkEntries: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-10 pr-0">
-                <Checkbox 
-                  id="select-all" 
-                  onCheckedChange={(checked) => handleSelectAll(checked === true)}
-                  className="ml-1"
-                />
-              </TableHead>
+              {selectMode && (
+                <TableHead className="w-10 pr-0">
+                  <Checkbox 
+                    id="select-all" 
+                    onCheckedChange={(checked) => handleSelectAll(checked === true)}
+                    className="ml-1"
+                  />
+                </TableHead>
+              )}
               <TableHead 
                 className="w-32 cursor-pointer"
                 onClick={() => handleSort('status')}
@@ -330,18 +349,20 @@ export const RecentWorkEntries: React.FC = () => {
               
               return (
                 <TableRow key={entry.id} className="hover:bg-muted/40">
-                  <TableCell className="pr-0">
-                    {isSelectable ? (
-                      <Checkbox 
-                        id={`select-${entry.id}`}
-                        checked={selectedEntries[entry.id] || false}
-                        onCheckedChange={(checked) => handleSelectEntry(entry.id, checked === true)}
-                        className="ml-1"
-                      />
-                    ) : (
-                      <div className="w-4 h-4 ml-1"></div>
-                    )}
-                  </TableCell>
+                  {selectMode && (
+                    <TableCell className="pr-0">
+                      {isSelectable ? (
+                        <Checkbox 
+                          id={`select-${entry.id}`}
+                          checked={selectedEntries[entry.id] || false}
+                          onCheckedChange={(checked) => handleSelectEntry(entry.id, checked === true)}
+                          className="ml-1"
+                        />
+                      ) : (
+                        <div className="w-4 h-4 ml-1"></div>
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell className="p-2">
                     {getInvoiceStatusBadge(entry.invoiceStatus)}
                   </TableCell>

@@ -13,7 +13,8 @@ import {
   CircleCheck,
   Circle,
   Mail,
-  CheckCircle2
+  CheckCircle2,
+  FileCheck
 } from 'lucide-react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +41,8 @@ import {
 } from '@/components/ui/pagination';
 import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
 import { WorkEntry } from '@/context/AppContext';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
 
 type SortColumn = 'date' | 'project' | 'teamMember' | 'billingCode' | 'status' | 'feetCompleted' | 'revenue' | null;
 type SortDirection = 'asc' | 'desc';
@@ -50,15 +53,19 @@ const WorkEntriesPage: React.FC = () => {
     projects, 
     billingCodes, 
     teamMembers, 
-    calculateRevenue
+    calculateRevenue,
+    updateWorkEntry
   } = useApp();
   
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<WorkEntry | null>(null);
   const [sortColumn, setSortColumn] = useState<SortColumn>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
   const entriesPerPage = 10;
   
   // Get filtered entries based on global filters
@@ -104,7 +111,7 @@ const WorkEntriesPage: React.FC = () => {
         case 'billingCode':
           // Fixed: Using the correct property from the BillingCode type
           valueA = billingCodes.find(b => b.id === a.billingCodeId)?.code || '';
-          valueB = billingCodes.find(b => b.id === b.id)?.code || ''; // Fixed: b.billingCodeId -> b.id
+          valueB = billingCodes.find(c => c.id === b.billingCodeId)?.code || ''; // Fixed: b.id -> b.billingCodeId
           break;
         case 'status':
           valueA = a.invoiceStatus;
@@ -202,6 +209,69 @@ const WorkEntriesPage: React.FC = () => {
     setEditingEntry(entry);
   };
   
+  const handleSelectEntry = (entryId: string, isChecked: boolean) => {
+    setSelectedEntries(prev => ({
+      ...prev,
+      [entryId]: isChecked
+    }));
+  };
+  
+  const handleSelectAll = (isChecked: boolean) => {
+    const newSelectedEntries: Record<string, boolean> = {};
+    paginatedEntries.forEach(entry => {
+      if (entry.invoiceStatus === 'not_invoiced') {
+        newSelectedEntries[entry.id] = isChecked;
+      }
+    });
+    setSelectedEntries(newSelectedEntries);
+  };
+  
+  const selectedCount = Object.values(selectedEntries).filter(Boolean).length;
+  
+  const calculateTotalSelectedRevenue = () => {
+    return sortedEntries
+      .filter(entry => selectedEntries[entry.id])
+      .reduce((sum, entry) => sum + calculateRevenue(entry, billingCodes), 0);
+  };
+  
+  const handleCreateInvoice = () => {
+    if (!selectMode) {
+      setSelectMode(true);
+      return;
+    }
+    
+    if (selectedCount === 0) {
+      toast({
+        title: "No entries selected",
+        description: "Please select at least one work entry to create an invoice.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const selectedEntryIds = Object.entries(selectedEntries)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => id);
+    
+    selectedEntryIds.forEach(id => {
+      const entry = filteredEntries.find(e => e.id === id);
+      if (entry) {
+        updateWorkEntry({
+          ...entry,
+          invoiceStatus: 'invoiced'
+        });
+      }
+    });
+    
+    toast({
+      title: 'Invoice created',
+      description: `Successfully created invoice with ${selectedEntryIds.length} work entries`,
+    });
+    
+    setSelectedEntries({});
+    setSelectMode(false);
+  };
+  
   return (
     <SimplePageLayout 
       title="Work Entries" 
@@ -229,6 +299,16 @@ const WorkEntriesPage: React.FC = () => {
             >
               <Filter size={16} />
               Filters
+            </Button>
+            <Button 
+              variant={selectMode ? "secondary" : "default"}
+              className="flex items-center gap-2"
+              onClick={handleCreateInvoice}
+            >
+              <FileCheck size={16} />
+              {selectMode ? (
+                 selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
+              ) : "Create Invoice"}
             </Button>
           </div>
           
@@ -258,6 +338,15 @@ const WorkEntriesPage: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    {selectMode && (
+                      <TableHead className="w-10 pr-0">
+                        <Checkbox 
+                          id="select-all" 
+                          onCheckedChange={(checked) => handleSelectAll(checked === true)}
+                          className="ml-1"
+                        />
+                      </TableHead>
+                    )}
                     <TableHead 
                       className="cursor-pointer"
                       onClick={() => handleSort('date')}
@@ -328,9 +417,24 @@ const WorkEntriesPage: React.FC = () => {
                   {paginatedEntries.map((entry) => {
                     const billingCode = getBillingCodeInfo(entry.billingCodeId);
                     const revenue = calculateRevenue(entry, billingCodes);
+                    const isSelectable = entry.invoiceStatus === 'not_invoiced';
                     
                     return (
                       <TableRow key={entry.id} className="hover:bg-muted/40">
+                        {selectMode && (
+                          <TableCell className="pr-0">
+                            {isSelectable ? (
+                              <Checkbox 
+                                id={`select-${entry.id}`}
+                                checked={selectedEntries[entry.id] || false}
+                                onCheckedChange={(checked) => handleSelectEntry(entry.id, checked === true)}
+                                className="ml-1"
+                              />
+                            ) : (
+                              <div className="w-4 h-4 ml-1"></div>
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell>{format(new Date(entry.date), 'MMM d, yyyy')}</TableCell>
                         <TableCell>{getProjectName(entry.projectId)}</TableCell>
                         <TableCell>{getTeamMemberName(entry.teamMemberId)}</TableCell>
