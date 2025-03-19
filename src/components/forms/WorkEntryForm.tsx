@@ -10,6 +10,7 @@ import { RevenuePreview } from '@/components/forms/work-entry/RevenuePreview';
 import { TeamMemberSelector } from '@/components/forms/work-entry/TeamMemberSelector';
 import { SubmitButton } from '@/components/forms/work-entry/SubmitButton';
 import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
+import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
 
 export const WorkEntryForm: React.FC = () => {
   const {
@@ -24,7 +25,8 @@ export const WorkEntryForm: React.FC = () => {
     teamMembers,
     handleChange,
     handleDateSelect,
-    handleSubmit
+    handleSubmit,
+    handleFileAttachment
   } = useWorkEntryForm();
   
   return (
@@ -88,6 +90,13 @@ export const WorkEntryForm: React.FC = () => {
             teamMembers={teamMembers}
             onChange={handleChange}
             error={formErrors.teamMemberId}
+          />
+          
+          {/* Attachment Button */}
+          <AttachmentButton 
+            attachments={formData.attachments || []} 
+            onAttach={handleFileAttachment}
+            error={formErrors.attachments}
           />
           
           {/* Submit Button */}

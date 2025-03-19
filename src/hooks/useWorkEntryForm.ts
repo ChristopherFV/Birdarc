@@ -10,6 +10,7 @@ interface FormDataType {
   billingCodeId: string;
   feetCompleted: string;
   teamMemberId: string;
+  attachments?: File[];
 }
 
 interface FormErrorsType {
@@ -24,7 +25,8 @@ export const useWorkEntryForm = () => {
     projectId: '',
     billingCodeId: '',
     feetCompleted: '',
-    teamMemberId: ''
+    teamMemberId: '',
+    attachments: []
   });
   
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -61,7 +63,7 @@ export const useWorkEntryForm = () => {
             feetCompleted: feet,
             teamMemberId: '',
             companyId: '',
-            invoiceStatus: 'not_invoiced' as InvoiceStatus // Fixed: Using type assertion
+            invoiceStatus: 'not_invoiced' as InvoiceStatus
           };
           setPreviewRevenue(calculateRevenue(mockEntry, billingCodes));
         } else {
@@ -71,6 +73,23 @@ export const useWorkEntryForm = () => {
       
       return newData;
     });
+  };
+  
+  // Handle file attachments
+  const handleFileAttachment = (files: File[]) => {
+    // Clear any attachment errors
+    if (formErrors.attachments) {
+      setFormErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.attachments;
+        return newErrors;
+      });
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      attachments: files
+    }));
   };
   
   // Handle date selection
@@ -115,6 +134,12 @@ export const useWorkEntryForm = () => {
     setIsSubmitting(true);
     
     try {
+      // For now, we'll just log the attachments since we don't have
+      // a storage mechanism implemented in the AppContext
+      if (formData.attachments && formData.attachments.length > 0) {
+        console.log('Files attached:', formData.attachments);
+      }
+      
       addWorkEntry({
         date: format(formData.date, 'yyyy-MM-dd'),
         projectId: formData.projectId,
@@ -122,7 +147,7 @@ export const useWorkEntryForm = () => {
         feetCompleted: parseFloat(formData.feetCompleted),
         teamMemberId: formData.teamMemberId,
         companyId: '', // This will be set by the context
-        invoiceStatus: 'not_invoiced' as InvoiceStatus // Fixed: Using type assertion
+        invoiceStatus: 'not_invoiced' as InvoiceStatus
       });
       
       // Reset form
@@ -131,7 +156,8 @@ export const useWorkEntryForm = () => {
         projectId: '',
         billingCodeId: '',
         feetCompleted: '',
-        teamMemberId: ''
+        teamMemberId: '',
+        attachments: []
       });
       
       setPreviewRevenue(null);
@@ -157,6 +183,7 @@ export const useWorkEntryForm = () => {
     teamMembers,
     handleChange,
     handleDateSelect,
-    handleSubmit
+    handleSubmit,
+    handleFileAttachment
   };
 };
