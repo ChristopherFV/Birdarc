@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
+import { InvoicesButton } from './InvoicesButton';
 
 // Mock data for invoices
 const mockInvoices = [
@@ -39,8 +39,6 @@ const mockInvoices = [
 ];
 
 export const RecentInvoices: React.FC = () => {
-  const { openAddInvoiceDialog } = useAddInvoiceDialog();
-  
   if (mockInvoices.length === 0) {
     return (
       <Card className="bg-card border-border shadow-sm mb-4">
@@ -55,12 +53,7 @@ export const RecentInvoices: React.FC = () => {
           </div>
         </CardContent>
         <CardFooter className="pt-2 pb-4">
-          <Button asChild variant="default" className="w-full">
-            <Link to="/invoices/create">
-              <Plus className="mr-2" size={16} />
-              Create Invoice
-            </Link>
-          </Button>
+          <InvoicesButton variant="default" fullWidth />
         </CardFooter>
       </Card>
     );
@@ -113,15 +106,7 @@ export const RecentInvoices: React.FC = () => {
         </ScrollArea>
       </CardContent>
       <CardFooter className="pt-2 pb-4 flex flex-col gap-2">
-        <Button 
-          onClick={openAddInvoiceDialog}
-          variant="default" 
-          className="w-full flex items-center justify-center gap-2"
-        >
-          <FileText className="h-4 w-4" />
-          <span>New Invoice</span>
-          <Plus className="h-3 w-3" />
-        </Button>
+        <InvoicesButton variant="default" fullWidth />
         <Button asChild variant="outline" className="w-full">
           <Link to="/invoices">
             <List className="mr-2" size={16} />
