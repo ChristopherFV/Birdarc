@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format, subDays, subMonths } from 'date-fns';
 import { mockProjects, mockBillingCodes, mockTeamMembers, mockWorkEntries, mockCompanies } from '@/utils/mockData';
@@ -25,6 +26,8 @@ export type TeamMember = {
   role: string;
 };
 
+export type InvoiceStatus = 'not_invoiced' | 'invoiced' | 'paid';
+
 export type WorkEntry = {
   id: string;
   date: string;
@@ -33,6 +36,7 @@ export type WorkEntry = {
   feetCompleted: number;
   teamMemberId: string;
   companyId: string;
+  invoiceStatus: InvoiceStatus;
 };
 
 export type Company = {

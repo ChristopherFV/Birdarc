@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { FileText, Calendar, ArrowRight, List, Pen, Trash } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, List, Pen, Trash, CircleCheck, Circle, Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
@@ -11,13 +11,14 @@ import { Link } from 'react-router-dom';
 import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 export const RecentWorkEntries: React.FC = () => {
   const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue, deleteWorkEntry } = useApp();
   const { toast } = useToast();
   
   // State for tracking which entry is being edited
-  const [editingEntry, setEditingEntry] = useState<null | { id: string }>(null);
+  const [editingEntry, setEditingEntry] = useState<null | WorkEntry>(null);
   
   // Get all entries, sort by date (newest first), and take the 5 most recent ones
   const recentEntries = getFilteredEntries()
@@ -36,6 +37,33 @@ export const RecentWorkEntries: React.FC = () => {
   const getTeamMemberName = (teamMemberId: string) => {
     const member = teamMembers.find(m => m.id === teamMemberId);
     return member?.name || 'Unknown';
+  };
+  
+  const getInvoiceStatusBadge = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return (
+          <Badge variant="default" className="bg-green-500 hover:bg-green-600 flex items-center gap-1">
+            <CircleCheck size={14} />
+            <span>Paid</span>
+          </Badge>
+        );
+      case 'invoiced':
+        return (
+          <Badge variant="secondary" className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-1">
+            <Mail size={14} />
+            <span>Invoiced</span>
+          </Badge>
+        );
+      case 'not_invoiced':
+      default:
+        return (
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Circle size={14} />
+            <span>Not Invoiced</span>
+          </Badge>
+        );
+    }
   };
   
   const handleDelete = (entryId: string) => {
@@ -98,6 +126,9 @@ export const RecentWorkEntries: React.FC = () => {
                           </div>
                         </div>
                       </div>
+                    </TableCell>
+                    <TableCell className="p-2">
+                      {getInvoiceStatusBadge(entry.invoiceStatus)}
                     </TableCell>
                     <TableCell className="p-2 text-right whitespace-nowrap">
                       <p className="font-medium">${revenue.toFixed(2)}</p>

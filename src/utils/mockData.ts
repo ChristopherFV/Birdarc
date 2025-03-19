@@ -1,6 +1,6 @@
 
 import { addDays, subDays, format } from 'date-fns';
-import { Project, BillingCode, TeamMember, WorkEntry, Company } from '@/context/AppContext';
+import { Project, BillingCode, TeamMember, WorkEntry, Company, InvoiceStatus } from '@/context/AppContext';
 
 // Helper to generate dates within a range
 const generateDateBetween = (startDate: Date, endDate: Date): string => {
@@ -66,6 +66,10 @@ const generateWorkEntries = (): WorkEntry[] => {
     const teamMemberId = mockTeamMembers[randomNumber(0, mockTeamMembers.length - 1)].id;
     const companyId = mockCompanies[randomNumber(0, mockCompanies.length - 1)].id;
     
+    // Randomly assign invoice status
+    const invoiceStatusOptions: InvoiceStatus[] = ['not_invoiced', 'invoiced', 'paid'];
+    const invoiceStatus = invoiceStatusOptions[randomNumber(0, 2)];
+    
     // More realistic feet values based on billing code
     let feetCompleted = 0;
     switch (billingCodeId) {
@@ -98,7 +102,8 @@ const generateWorkEntries = (): WorkEntry[] => {
       billingCodeId,
       feetCompleted,
       teamMemberId,
-      companyId
+      companyId,
+      invoiceStatus
     });
   }
   

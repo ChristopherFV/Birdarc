@@ -8,7 +8,10 @@ import {
   ArrowRight, 
   FileText,
   Filter,
-  Pencil
+  Pencil,
+  CircleCheck,
+  Circle,
+  Mail
 } from 'lucide-react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,6 +25,7 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { 
@@ -89,6 +93,33 @@ const WorkEntriesPage: React.FC = () => {
     return member?.name || 'Unknown';
   };
   
+  const getInvoiceStatusBadge = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return (
+          <Badge variant="default" className="bg-green-500 hover:bg-green-600 flex items-center gap-1">
+            <CircleCheck size={14} />
+            <span>Paid</span>
+          </Badge>
+        );
+      case 'invoiced':
+        return (
+          <Badge variant="secondary" className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-1">
+            <Mail size={14} />
+            <span>Invoiced</span>
+          </Badge>
+        );
+      case 'not_invoiced':
+      default:
+        return (
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Circle size={14} />
+            <span>Not Invoiced</span>
+          </Badge>
+        );
+    }
+  };
+  
   const handleEditEntry = (entry: WorkEntry) => {
     setEditingEntry(entry);
   };
@@ -153,6 +184,7 @@ const WorkEntriesPage: React.FC = () => {
                     <TableHead>Project</TableHead>
                     <TableHead>Team Member</TableHead>
                     <TableHead>Billing Code</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Feet Completed</TableHead>
                     <TableHead className="text-right">Revenue</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -169,6 +201,7 @@ const WorkEntriesPage: React.FC = () => {
                         <TableCell>{getProjectName(entry.projectId)}</TableCell>
                         <TableCell>{getTeamMemberName(entry.teamMemberId)}</TableCell>
                         <TableCell>{billingCode?.code}</TableCell>
+                        <TableCell>{getInvoiceStatusBadge(entry.invoiceStatus)}</TableCell>
                         <TableCell className="text-right">{entry.feetCompleted} ft</TableCell>
                         <TableCell className="text-right font-medium">${revenue.toFixed(2)}</TableCell>
                         <TableCell className="text-right">
