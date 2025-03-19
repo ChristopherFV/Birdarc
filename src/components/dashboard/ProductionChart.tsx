@@ -79,7 +79,7 @@ export const ProductionChart: React.FC = () => {
       </CardHeader>
       
       <CardContent className="p-0">
-        <div className="h-[350px] w-full px-2 pb-4">
+        <div className="h-[420px] w-full px-2 pb-4">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={chartData}
