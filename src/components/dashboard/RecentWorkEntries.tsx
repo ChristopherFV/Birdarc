@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useApp, WorkEntry } from '@/context/AppContext';
 import { format } from 'date-fns';
@@ -19,30 +18,21 @@ export const RecentWorkEntries: React.FC = () => {
   const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue, deleteWorkEntry, updateWorkEntry } = useApp();
   const { toast } = useToast();
   
-  // State for tracking which entry is being edited
   const [editingEntry, setEditingEntry] = useState<null | WorkEntry>(null);
-  
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const entriesPerPage = 25;
-  
-  // Selected entries state
   const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
   
-  // Get all entries, sort by date (newest first)
   const allEntries = getFilteredEntries()
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
-  // Calculate pagination
   const indexOfLastEntry = currentPage * entriesPerPage;
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentEntries = allEntries.slice(indexOfFirstEntry, indexOfLastEntry);
   const totalPages = Math.ceil(allEntries.length / entriesPerPage);
   
-  // Get selected entries count
   const selectedCount = Object.values(selectedEntries).filter(Boolean).length;
   
-  // Selection handlers
   const handleSelectEntry = (entryId: string, isChecked: boolean) => {
     setSelectedEntries(prev => ({
       ...prev,
@@ -61,12 +51,10 @@ export const RecentWorkEntries: React.FC = () => {
   };
   
   const handleCreateInvoice = () => {
-    // Get the IDs of all selected entries
     const selectedEntryIds = Object.entries(selectedEntries)
       .filter(([_, isSelected]) => isSelected)
       .map(([id]) => id);
     
-    // Mark selected entries as invoiced
     selectedEntryIds.forEach(id => {
       const entry = allEntries.find(e => e.id === id);
       if (entry) {
@@ -77,10 +65,8 @@ export const RecentWorkEntries: React.FC = () => {
       }
     });
     
-    // Clear selections
     setSelectedEntries({});
     
-    // Show success toast
     toast({
       title: 'Invoice created',
       description: `Successfully created invoice with ${selectedEntryIds.length} work entries`,
@@ -105,23 +91,32 @@ export const RecentWorkEntries: React.FC = () => {
     switch (status) {
       case 'paid':
         return (
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center shadow-sm animate-fade-in">
-            <CheckCircle2 size={14} className="text-white" />
+          <Badge 
+            variant="soft-green" 
+            className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
+          >
+            <CheckCircle2 size={14} className="text-green-600" />
             <span>Paid</span>
           </Badge>
         );
       case 'invoiced':
         return (
-          <Badge variant="secondary" className="bg-fieldvision-accent-orange hover:bg-fieldvision-accent-orange/90 text-white px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center shadow-sm animate-fade-in">
-            <Mail size={14} className="text-white" />
+          <Badge 
+            variant="soft-orange" 
+            className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
+          >
+            <Mail size={14} className="text-orange-600" />
             <span>Invoiced</span>
           </Badge>
         );
       case 'not_invoiced':
       default:
         return (
-          <Badge variant="outline" className="bg-white border-slate-200 text-slate-600 px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center shadow-sm animate-fade-in">
-            <Circle size={14} className="text-slate-400" />
+          <Badge 
+            variant="soft-gray" 
+            className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
+          >
+            <Circle size={14} className="text-slate-500" />
             <span>Pending</span>
           </Badge>
         );
@@ -138,11 +133,9 @@ export const RecentWorkEntries: React.FC = () => {
   
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
-    // Clear selections when changing pages
     setSelectedEntries({});
   };
   
-  // Calculate total revenue for selected entries
   const calculateTotalSelectedRevenue = () => {
     return allEntries
       .filter(entry => selectedEntries[entry.id])
@@ -253,7 +246,6 @@ export const RecentWorkEntries: React.FC = () => {
                   </TableCell>
                   <TableCell className="p-2 text-right">
                     <div className="flex items-center justify-end space-x-1">
-                      {/* Edit Button */}
                       <Button 
                         variant="ghost" 
                         size="icon" 
@@ -264,7 +256,6 @@ export const RecentWorkEntries: React.FC = () => {
                         <span className="sr-only">Edit</span>
                       </Button>
                       
-                      {/* Delete Button */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button 
@@ -304,7 +295,6 @@ export const RecentWorkEntries: React.FC = () => {
           </TableBody>
         </Table>
         
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-4">
             <Pagination>
@@ -347,7 +337,6 @@ export const RecentWorkEntries: React.FC = () => {
         </Button>
       </CardFooter>
       
-      {/* Edit Work Entry Dialog */}
       {editingEntry && (
         <EditWorkEntryDialog
           entry={editingEntry}
