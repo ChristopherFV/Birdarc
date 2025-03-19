@@ -48,17 +48,19 @@ const Index = () => {
           <HeaderWithProvider />
           <FilterBar />
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div className="lg:col-span-2 space-y-6">
               <RevenueChart />
               <ProductionChart />
-              <RecentWorkEntries />
             </div>
             
             <div className="lg:col-span-1">
               <WorkEntryForm />
             </div>
           </div>
+          
+          {/* Recent Work Entries now takes full width */}
+          <RecentWorkEntries />
         </main>
       </div>
     </AppProvider>

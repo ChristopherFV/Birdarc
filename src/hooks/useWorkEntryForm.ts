@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
+import { InvoiceStatus } from '@/context/AppContext';
 
 interface FormDataType {
   date: Date;
@@ -60,7 +61,7 @@ export const useWorkEntryForm = () => {
             feetCompleted: feet,
             teamMemberId: '',
             companyId: '',
-            invoiceStatus: 'not_invoiced' // Add default invoice status
+            invoiceStatus: 'not_invoiced' as InvoiceStatus // Fixed: Using type assertion
           };
           setPreviewRevenue(calculateRevenue(mockEntry, billingCodes));
         } else {
@@ -121,7 +122,7 @@ export const useWorkEntryForm = () => {
         feetCompleted: parseFloat(formData.feetCompleted),
         teamMemberId: formData.teamMemberId,
         companyId: '', // This will be set by the context
-        invoiceStatus: 'not_invoiced' // Add default invoice status for new entries
+        invoiceStatus: 'not_invoiced' as InvoiceStatus // Fixed: Using type assertion
       });
       
       // Reset form
