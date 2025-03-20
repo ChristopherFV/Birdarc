@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { TaskForm } from './TaskForm';
 import { useSchedule } from '@/context/ScheduleContext';
 
@@ -69,7 +68,12 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
-        <TaskForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        <TaskForm 
+          open={open} 
+          onOpenChange={onOpenChange} 
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+        />
       </DialogContent>
     </Dialog>
   );
