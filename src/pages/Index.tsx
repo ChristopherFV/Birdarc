@@ -7,7 +7,7 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
-import { Settings, Map, ListTodo, FolderOpen, Bell } from 'lucide-react';
+import { Settings, Map, ListTodo, FolderOpen, Glasses } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
 import { InvoicesButton } from '@/components/dashboard/InvoicesButton';
@@ -26,13 +26,22 @@ const Header = () => {
       <div className="flex items-center gap-4">
         <InvoicesButton />
         <Link to="/repository">
-          <Button variant="outline" className="flex items-center gap-2">
-            <FolderOpen className="h-4 w-4" />
-            <span>Fieldvision</span>
-            <Badge variant="soft-orange" className="h-4 w-4 flex items-center justify-center p-0 rounded-full">
-              <Bell className="h-3 w-3" />
+          <div className="relative">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              style={{ backgroundColor: "#CB9D06", color: "white", borderColor: "#CB9D06" }}
+            >
+              <FolderOpen className="h-4 w-4" />
+              <span>Fieldvision</span>
+            </Button>
+            <Badge 
+              variant="soft-orange" 
+              className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 rounded-full shadow-sm"
+            >
+              <Glasses className="h-3 w-3" />
             </Badge>
-          </Button>
+          </div>
         </Link>
         <Link to="/schedule">
           <Button variant="outline" className="flex items-center gap-2">
