@@ -69,7 +69,10 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
-        <TaskForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        <TaskForm 
+          handleSubmit={handleSubmit} 
+          isSubmitting={isSubmitting} 
+        />
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
 import { useApp } from '@/context/AppContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -10,12 +10,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon, Plus, Trash2, FileText, Send } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isWithinInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { InvoiceUploader } from './InvoiceUploader';
 import { useToast } from '@/hooks/use-toast';
 import { WorkEntry } from '@/types/app-types';
+import { useInvoiceFilters } from '@/hooks/useInvoiceFilters';
+import { InvoiceWorkEntryFilters } from './invoice/InvoiceWorkEntryFilters';
 
 type InvoiceData = {
   invoiceNumber: string;
@@ -36,6 +38,7 @@ export const AddInvoiceDialog = () => {
   const { isOpen, closeAddInvoiceDialog } = useAddInvoiceDialog();
   const { updateWorkEntry, workEntries, projects, billingCodes, calculateRevenue } = useApp();
   const { toast } = useToast();
+  const invoiceFilters = useInvoiceFilters();
   
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState<Date>(new Date());
@@ -47,6 +50,32 @@ export const AddInvoiceDialog = () => {
   const [selectedEntryIds, setSelectedEntryIds] = useState<string[]>([]);
   const [additionalItems, setAdditionalItems] = useState<InvoiceItem[]>([]);
   const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
+
+  // Filter work entries based on selected project and date range
+  const filteredEntries = useMemo(() => {
+    return workEntries.filter(entry => {
+      const { projectId, startDate, endDate } = invoiceFilters.filters;
+      const entryDate = new Date(entry.date);
+      
+      // Filter by invoice status first
+      if (entry.invoiceStatus !== 'not_invoiced') {
+        return false;
+      }
+
+      // Filter by project if a project is selected
+      if (projectId && entry.projectId !== projectId) {
+        return false;
+      }
+
+      // Filter by date range
+      try {
+        return isWithinInterval(entryDate, { start: startDate, end: endDate });
+      } catch (error) {
+        console.error('Error checking date interval:', error);
+        return false;
+      }
+    });
+  }, [workEntries, invoiceFilters.filters]);
 
   const handleInvoiceDataImported = (data: InvoiceData) => {
     setInvoiceData(data);
@@ -105,6 +134,14 @@ export const AddInvoiceDialog = () => {
     );
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEntryIds(filteredEntries.map(entry => entry.id));
+    } else {
+      setSelectedEntryIds([]);
+    }
+  };
+
   const handleSubmitInvoice = () => {
     if (selectedEntryIds.length === 0 && additionalItems.length === 0) {
       toast({
@@ -156,9 +193,6 @@ export const AddInvoiceDialog = () => {
     setInvoiceData(null);
     closeAddInvoiceDialog();
   };
-
-  // Get non-invoiced entries
-  const nonInvoicedEntries = workEntries.filter(entry => entry.invoiceStatus === 'not_invoiced');
 
   // Get project names for entries
   const getProjectName = (projectId: string) => {
@@ -283,42 +317,61 @@ export const AddInvoiceDialog = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <Label>Work Entries to Invoice</Label>
                   <span className="text-sm text-muted-foreground">
                     Total: ${calculateWorkEntriesTotal().toFixed(2)}
                   </span>
                 </div>
+                
+                <InvoiceWorkEntryFilters 
+                  projects={projects} 
+                  filters={invoiceFilters} 
+                />
+                
                 <div className="border rounded-md">
-                  {nonInvoicedEntries.length > 0 ? (
-                    <ScrollArea className="max-h-[150px]">
-                      <ul className="divide-y">
-                        {nonInvoicedEntries.map(entry => (
-                          <li key={entry.id} className="p-2 hover:bg-accent">
-                            <label className="flex items-center justify-between cursor-pointer p-1">
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedEntryIds.includes(entry.id)}
-                                  onChange={() => toggleEntrySelection(entry.id)}
-                                  className="rounded"
-                                />
-                                <span>
-                                  {getProjectName(entry.projectId)} - {entry.date}
+                  {filteredEntries.length > 0 ? (
+                    <div>
+                      <div className="p-2 border-b bg-muted/40">
+                        <label className="flex items-center cursor-pointer p-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedEntryIds.length === filteredEntries.length && filteredEntries.length > 0}
+                            onChange={(e) => handleSelectAll(e.target.checked)}
+                            className="rounded mr-2"
+                          />
+                          <span className="font-medium text-sm">Select All</span>
+                        </label>
+                      </div>
+                      <ScrollArea className="max-h-[150px]">
+                        <ul className="divide-y">
+                          {filteredEntries.map(entry => (
+                            <li key={entry.id} className="p-2 hover:bg-accent">
+                              <label className="flex items-center justify-between cursor-pointer p-1">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedEntryIds.includes(entry.id)}
+                                    onChange={() => toggleEntrySelection(entry.id)}
+                                    className="rounded"
+                                  />
+                                  <span>
+                                    {getProjectName(entry.projectId)} - {format(new Date(entry.date), 'MMM d, yyyy')}
+                                  </span>
+                                </div>
+                                <span className="text-sm font-medium">
+                                  {entry.feetCompleted} units - ${calculateRevenue(entry, billingCodes).toFixed(2)}
                                 </span>
-                              </div>
-                              <span className="text-sm font-medium">
-                                {entry.feetCompleted} units - ${calculateRevenue(entry, billingCodes).toFixed(2)}
-                              </span>
-                            </label>
-                          </li>
-                        ))}
-                      </ul>
-                    </ScrollArea>
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </ScrollArea>
+                    </div>
                   ) : (
                     <p className="p-4 text-center text-muted-foreground text-sm">
-                      No non-invoiced work entries available
+                      No non-invoiced work entries available for the selected filters
                     </p>
                   )}
                 </div>
@@ -334,7 +387,7 @@ export const AddInvoiceDialog = () => {
                 <div className="border rounded-md p-3">
                   {additionalItems.length > 0 ? (
                     <div className="space-y-3">
-                      {additionalItems.map((item, index) => (
+                      {additionalItems.map((item) => (
                         <div key={item.id} className="grid grid-cols-12 gap-2 items-center">
                           <div className="col-span-5">
                             <Input
