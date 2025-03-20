@@ -29,7 +29,7 @@ const Header = () => {
             <Button 
               variant="outline" 
               className="flex items-center gap-2"
-              style={{ backgroundColor: "#002B3D", color: "white", borderColor: "#002B3D" }}
+              style={{ backgroundColor: "#F18E1D", color: "white", borderColor: "#F18E1D" }}
             >
               <FolderOpen className="h-4 w-4" />
               <span>Fieldvision</span>
