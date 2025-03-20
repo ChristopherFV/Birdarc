@@ -2,17 +2,18 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, MapPin } from 'lucide-react';
 import { useSchedule, TaskPriority } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
+import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
-import { BasicTaskInfo } from './task-form/BasicTaskInfo';
-import { ProjectTeamSelector } from './task-form/ProjectTeamSelector';
-import { DateSelector } from './task-form/DateSelector';
-import { LocationInput } from './task-form/LocationInput';
-import { PriorityBillingSelector } from './task-form/PriorityBillingSelector';
-import { QuantityEstimate } from './task-form/QuantityEstimate';
-import { TaskFormData, TaskFormErrors, validateTaskForm, createTaskFromFormData } from './task-form/validation';
 
 interface TaskFormProps {
   open: boolean;
@@ -25,37 +26,28 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
   const { toast } = useToast();
 
   // Form state
-  const [formData, setFormData] = useState<TaskFormData>({
-    title: '',
-    description: '',
-    priority: 'medium',
-    projectId: '',
-    teamMemberId: '',
-    startDate: new Date(),
-    endDate: new Date(),
-    address: '',
-    billingCodeId: '',
-    quantityEstimate: 0,
-    attachments: []
-  });
-  
-  const [formErrors, setFormErrors] = useState<TaskFormErrors>({});
-
-  // Form field update handlers
-  const updateField = <K extends keyof TaskFormData>(field: K, value: TaskFormData[K]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (formErrors[field]) {
-      const newErrors = { ...formErrors };
-      delete newErrors[field];
-      setFormErrors(newErrors);
-    }
-  };
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [projectId, setProjectId] = useState('');
+  const [teamMemberId, setTeamMemberId] = useState('');
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [address, setAddress] = useState('');
+  const [billingCodeId, setBillingCodeId] = useState('');
+  const [quantityEstimate, setQuantityEstimate] = useState<number>(0);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
-    const errors = validateTaskForm(formData);
+    // Basic validation
+    const errors: Record<string, string> = {};
+    if (!title) errors.title = "Title is required";
+    if (!projectId) errors.projectId = "Project is required";
+    if (!address) errors.address = "Location is required";
+    if (!billingCodeId) errors.billingCodeId = "Billing code is required";
     
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -67,10 +59,26 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
       return;
     }
     
-    // Create and add task
-    const newTask = createTaskFromFormData(formData);
-    addTask(newTask);
+    const newTask = {
+      title,
+      description,
+      location: {
+        address,
+        lat: 37.7749, // Default to San Francisco coordinates for now
+        lng: -122.4194,
+      },
+      startDate,
+      endDate,
+      projectId,
+      teamMemberId: teamMemberId || null,
+      priority,
+      status: 'pending' as const,
+      billingCodeId: billingCodeId || null, 
+      quantityEstimate,
+      attachments
+    };
     
+    addTask(newTask);
     toast({
       title: "Success",
       description: "Task created successfully",
@@ -79,24 +87,27 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
   };
   
   const handleFileAttachment = (files: File[]) => {
-    updateField('attachments', files);
+    setAttachments(files);
+    if (formErrors.attachments) {
+      const newErrors = { ...formErrors };
+      delete newErrors.attachments;
+      setFormErrors(newErrors);
+    }
   };
   
   const handleClose = () => {
     // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      priority: 'medium',
-      projectId: '',
-      teamMemberId: '',
-      startDate: new Date(),
-      endDate: new Date(),
-      address: '',
-      billingCodeId: '',
-      quantityEstimate: 0,
-      attachments: []
-    });
+    setTitle('');
+    setDescription('');
+    setPriority('medium');
+    setProjectId('');
+    setTeamMemberId('');
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setAddress('');
+    setBillingCodeId('');
+    setQuantityEstimate(0);
+    setAttachments([]);
     setFormErrors({});
     onOpenChange(false);
   };
@@ -109,53 +120,177 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <BasicTaskInfo
-            title={formData.title}
-            description={formData.description}
-            errors={formErrors}
-            onTitleChange={(value) => updateField('title', value)}
-            onDescriptionChange={(value) => updateField('description', value)}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter task title"
+              required
+              className={formErrors.title ? "border-destructive" : ""}
+            />
+            {formErrors.title && <p className="text-destructive text-sm">{formErrors.title}</p>}
+          </div>
           
-          <ProjectTeamSelector
-            projectId={formData.projectId}
-            teamMemberId={formData.teamMemberId}
-            projects={projects}
-            teamMembers={teamMembers}
-            errors={formErrors}
-            onProjectChange={(value) => updateField('projectId', value)}
-            onTeamMemberChange={(value) => updateField('teamMemberId', value)}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter task details"
+              rows={3}
+            />
+          </div>
           
-          <DateSelector
-            startDate={formData.startDate}
-            endDate={formData.endDate}
-            onStartDateChange={(date) => updateField('startDate', date)}
-            onEndDateChange={(date) => updateField('endDate', date)}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="project">Project *</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger className={formErrors.projectId ? "border-destructive" : ""}>
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formErrors.projectId && <p className="text-destructive text-sm">{formErrors.projectId}</p>}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="teamMember">Team Member</Label>
+              <Select value={teamMemberId} onValueChange={setTeamMemberId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Assign to" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teamMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           
-          <LocationInput
-            address={formData.address}
-            errors={formErrors}
-            onAddressChange={(value) => updateField('address', value)}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, 'PPP') : 'Select date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && setStartDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>End Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, 'PPP') : 'Select date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => date && setEndDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
           
-          <PriorityBillingSelector
-            priority={formData.priority}
-            billingCodeId={formData.billingCodeId}
-            billingCodes={billingCodes}
-            errors={formErrors}
-            onPriorityChange={(value) => updateField('priority', value)}
-            onBillingCodeChange={(value) => updateField('billingCodeId', value)}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="address">Location *</Label>
+            <div className="flex">
+              <Input
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter address"
+                className={`flex-1 ${formErrors.address ? "border-destructive" : ""}`}
+                required
+              />
+              <Button type="button" variant="outline" className="ml-2">
+                <MapPin className="h-4 w-4" />
+              </Button>
+            </div>
+            {formErrors.address && <p className="text-destructive text-sm">{formErrors.address}</p>}
+          </div>
           
-          <QuantityEstimate
-            quantityEstimate={formData.quantityEstimate}
-            onQuantityChange={(value) => updateField('quantityEstimate', value)}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="billingCode">Billing Code *</Label>
+              <Select value={billingCodeId} onValueChange={setBillingCodeId}>
+                <SelectTrigger className={formErrors.billingCodeId ? "border-destructive" : ""}>
+                  <SelectValue placeholder="Select code" />
+                </SelectTrigger>
+                <SelectContent>
+                  {billingCodes.map((code) => (
+                    <SelectItem key={code.id} value={code.id}>
+                      {code.code} (${code.ratePerFoot}/unit)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formErrors.billingCodeId && <p className="text-destructive text-sm">{formErrors.billingCodeId}</p>}
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="quantity">Quantity Estimate (units)</Label>
+            <Input
+              id="quantity"
+              type="number"
+              min="0"
+              value={quantityEstimate.toString()}
+              onChange={(e) => setQuantityEstimate(Number(e.target.value))}
+            />
+          </div>
           
           <AttachmentButton
-            attachments={formData.attachments}
+            attachments={attachments}
             onAttach={handleFileAttachment}
             error={formErrors.attachments}
           />
