@@ -24,7 +24,6 @@ const Header = () => {
         <p className="text-muted-foreground">Powering Payments and Performance for Contractors.</p>
       </div>
       <div className="flex items-center gap-4">
-        <InvoicesButton />
         <Link to="/repository">
           <div className="relative">
             <Button 
@@ -49,6 +48,7 @@ const Header = () => {
             <span>Schedule</span>
           </Button>
         </Link>
+        <InvoicesButton />
         <div className="text-right">
           <p className="font-medium">{selectedCompany.name}</p>
         </div>
