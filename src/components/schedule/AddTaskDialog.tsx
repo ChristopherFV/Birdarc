@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -31,6 +30,8 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({ open, onOpenChange
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+  const [billingCodeId, setBillingCodeId] = useState('');
+  const [quantityEstimate, setQuantityEstimate] = useState(0);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +51,9 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({ open, onOpenChange
       projectId: projectId || null,
       teamMemberId: teamMemberId || null,
       priority,
-      status: 'pending' as const
+      status: 'pending' as const,
+      billingCodeId: billingCodeId || null,
+      quantityEstimate
     };
     
     addTask(newTask);
@@ -67,6 +70,8 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({ open, onOpenChange
     setPriority('medium');
     setStartDate(new Date());
     setEndDate(new Date());
+    setBillingCodeId('');
+    setQuantityEstimate(0);
   };
   
   return (
