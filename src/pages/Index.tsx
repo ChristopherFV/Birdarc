@@ -10,7 +10,6 @@ import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
 import { Settings, Map, ListTodo, FolderOpen, Glasses, HardHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
-import { InvoicesButton } from '@/components/dashboard/InvoicesButton';
 import { Badge } from '@/components/ui/badge';
 
 // Create a new Header component
@@ -58,7 +57,6 @@ const Header = () => {
             <span>Technician View</span>
           </Button>
         </Link>
-        <InvoicesButton />
         <div className="text-right">
           <p className="font-medium">{selectedCompany.name}</p>
         </div>
