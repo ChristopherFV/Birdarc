@@ -13,6 +13,7 @@ import { useSchedule, TaskPriority } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
 
 interface TaskFormProps {
   open: boolean;
@@ -35,12 +36,21 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
   const [address, setAddress] = useState('');
   const [billingCodeId, setBillingCodeId] = useState('');
   const [quantityEstimate, setQuantityEstimate] = useState<number>(0);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
-    if (!title || !projectId || !address) {
+    const errors: Record<string, string> = {};
+    if (!title) errors.title = "Title is required";
+    if (!projectId) errors.projectId = "Project is required";
+    if (!address) errors.address = "Location is required";
+    if (!billingCodeId) errors.billingCodeId = "Billing code is required";
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       toast({
         title: "Error",
         description: "Please fill out all required fields",
@@ -60,11 +70,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
       startDate,
       endDate,
       projectId,
-      teamMemberId,
+      teamMemberId: teamMemberId || null,
       priority,
       status: 'pending' as const,
-      billingCodeId, 
+      billingCodeId: billingCodeId || null, 
       quantityEstimate,
+      attachments
     };
     
     addTask(newTask);
@@ -73,6 +84,15 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
       description: "Task created successfully",
     });
     handleClose();
+  };
+  
+  const handleFileAttachment = (files: File[]) => {
+    setAttachments(files);
+    if (formErrors.attachments) {
+      const newErrors = { ...formErrors };
+      delete newErrors.attachments;
+      setFormErrors(newErrors);
+    }
   };
   
   const handleClose = () => {
@@ -87,6 +107,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
     setAddress('');
     setBillingCodeId('');
     setQuantityEstimate(0);
+    setAttachments([]);
+    setFormErrors({});
     onOpenChange(false);
   };
 
@@ -106,7 +128,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter task title"
               required
+              className={formErrors.title ? "border-destructive" : ""}
             />
+            {formErrors.title && <p className="text-destructive text-sm">{formErrors.title}</p>}
           </div>
           
           <div className="space-y-2">
@@ -124,7 +148,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
             <div className="space-y-2">
               <Label htmlFor="project">Project *</Label>
               <Select value={projectId} onValueChange={setProjectId}>
-                <SelectTrigger>
+                <SelectTrigger className={formErrors.projectId ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
@@ -135,6 +159,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
                   ))}
                 </SelectContent>
               </Select>
+              {formErrors.projectId && <p className="text-destructive text-sm">{formErrors.projectId}</p>}
             </div>
             
             <div className="space-y-2">
@@ -210,13 +235,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Enter address"
-                className="flex-1"
+                className={`flex-1 ${formErrors.address ? "border-destructive" : ""}`}
                 required
               />
               <Button type="button" variant="outline" className="ml-2">
                 <MapPin className="h-4 w-4" />
               </Button>
             </div>
+            {formErrors.address && <p className="text-destructive text-sm">{formErrors.address}</p>}
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -235,9 +261,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="billingCode">Billing Code</Label>
+              <Label htmlFor="billingCode">Billing Code *</Label>
               <Select value={billingCodeId} onValueChange={setBillingCodeId}>
-                <SelectTrigger>
+                <SelectTrigger className={formErrors.billingCodeId ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select code" />
                 </SelectTrigger>
                 <SelectContent>
@@ -248,6 +274,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
                   ))}
                 </SelectContent>
               </Select>
+              {formErrors.billingCodeId && <p className="text-destructive text-sm">{formErrors.billingCodeId}</p>}
             </div>
           </div>
           
@@ -261,6 +288,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
               onChange={(e) => setQuantityEstimate(Number(e.target.value))}
             />
           </div>
+          
+          <AttachmentButton
+            attachments={attachments}
+            onAttach={handleFileAttachment}
+            error={formErrors.attachments}
+          />
           
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>

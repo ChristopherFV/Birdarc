@@ -25,6 +25,7 @@ export interface Task {
   status: TaskStatus;
   billingCodeId: string | null;
   quantityEstimate: number;
+  attachments?: File[];
 }
 
 interface ScheduleContextType {
