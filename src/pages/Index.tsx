@@ -7,7 +7,7 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
-import { Settings, Map, ListTodo, FolderOpen, Glasses } from 'lucide-react';
+import { Settings, Map, ListTodo, FolderOpen, Glasses, HardHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
 import { InvoicesButton } from '@/components/dashboard/InvoicesButton';
@@ -46,6 +46,16 @@ const Header = () => {
           <Button variant="outline" className="flex items-center gap-2">
             <Map className="h-4 w-4" />
             <span>Schedule</span>
+          </Button>
+        </Link>
+        <Link to="/technician">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            style={{ backgroundColor: "#F18E1D", color: "white", borderColor: "#F18E1D" }}
+          >
+            <HardHat className="h-4 w-4" />
+            <span>Technician View</span>
           </Button>
         </Link>
         <InvoicesButton />
