@@ -7,10 +7,11 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
-import { Settings, Map, ListTodo, FolderOpen } from 'lucide-react';
+import { Settings, Map, ListTodo, FolderOpen, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
 import { InvoicesButton } from '@/components/dashboard/InvoicesButton';
+import { Badge } from '@/components/ui/badge';
 
 // Create a new Header component
 const Header = () => {
@@ -27,7 +28,10 @@ const Header = () => {
         <Link to="/repository">
           <Button variant="outline" className="flex items-center gap-2">
             <FolderOpen className="h-4 w-4" />
-            <span>Repository</span>
+            <span>Fieldvision</span>
+            <Badge variant="soft-orange" className="h-4 w-4 flex items-center justify-center p-0 rounded-full">
+              <Bell className="h-3 w-3" />
+            </Badge>
           </Button>
         </Link>
         <Link to="/schedule">
