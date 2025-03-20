@@ -4,7 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { TaskForm } from './TaskForm';
 import { useSchedule } from '@/context/ScheduleContext';
-import { TaskPriority } from '@/types/schedule-types';
+
+// Define the TaskPriority type directly since we don't have the module
+type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 interface AddTaskDialogProps {
   open: boolean;
@@ -33,7 +35,7 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
     billingCodeId: string;
     quantityEstimate: number;
     priority: TaskPriority;
-    attachment?: File;
+    attachments?: File[];
   }) => {
     setIsSubmitting(true);
     
@@ -50,7 +52,7 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         quantityEstimate: formData.quantityEstimate,
         priority: formData.priority,
         status: "pending",
-        attachment: formData.attachment
+        attachments: formData.attachments
       });
       
       onOpenChange(false);

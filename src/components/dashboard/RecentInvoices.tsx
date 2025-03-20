@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
 
 // Mock data for invoices
 const mockInvoices = [
@@ -38,6 +39,13 @@ const mockInvoices = [
 ];
 
 export const RecentInvoices: React.FC = () => {
+  const { openAddInvoiceDialog } = useAddInvoiceDialog();
+  
+  const handleCreateInvoice = (e: React.MouseEvent) => {
+    e.preventDefault();
+    openAddInvoiceDialog();
+  };
+  
   if (mockInvoices.length === 0) {
     return (
       <Card className="bg-card border-border shadow-sm mb-4">
@@ -52,11 +60,13 @@ export const RecentInvoices: React.FC = () => {
           </div>
         </CardContent>
         <CardFooter className="pt-2 pb-4">
-          <Button asChild variant="default" className="w-full">
-            <Link to="/invoices/create">
-              <Plus className="mr-2" size={16} />
-              Create Invoice
-            </Link>
+          <Button 
+            variant="default" 
+            className="w-full" 
+            onClick={handleCreateInvoice}
+          >
+            <Plus className="mr-2" size={16} />
+            Create Invoice
           </Button>
         </CardFooter>
       </Card>
@@ -110,11 +120,13 @@ export const RecentInvoices: React.FC = () => {
         </ScrollArea>
       </CardContent>
       <CardFooter className="pt-2 pb-4 flex flex-col gap-2">
-        <Button asChild variant="default" className="w-full">
-          <Link to="/invoices/create">
-            <Plus className="mr-2" size={16} />
-            Create Invoice
-          </Link>
+        <Button 
+          variant="default" 
+          className="w-full" 
+          onClick={handleCreateInvoice}
+        >
+          <Plus className="mr-2" size={16} />
+          Create Invoice
         </Button>
         <Button asChild variant="outline" className="w-full">
           <Link to="/invoices">
