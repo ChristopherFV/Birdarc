@@ -37,7 +37,7 @@ export const RepositoryActions: React.FC<RepositoryActionsProps> = ({
         <Button
           onClick={toggleScheduleView}
           variant={showSchedule ? "default" : "outline"}
-          className={`flex items-center gap-2 ${showSchedule ? "bg-fieldvision-blue hover:bg-fieldvision-blue/90 text-white" : ""}`}
+          className={`flex items-center gap-2 ${showSchedule ? "bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white" : ""}`}
         >
           <Calendar className="h-4 w-4" />
           <span>Schedule</span>
@@ -59,6 +59,7 @@ export const RepositoryActions: React.FC<RepositoryActionsProps> = ({
         ) : (
           <Button 
             onClick={() => setShowUploader(true)} 
+            variant="outline"
             className="flex items-center gap-2"
             disabled={showUploader}
           >
