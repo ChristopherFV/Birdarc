@@ -6,6 +6,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon, Plus, Trash2, FileText, Send } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { InvoiceUploader } from './InvoiceUploader';
 import { useToast } from '@/hooks/use-toast';
 import { WorkEntry } from '@/types/app-types';
@@ -18,27 +25,100 @@ type InvoiceData = {
   entries: Array<Partial<WorkEntry>>;
 };
 
+type InvoiceItem = {
+  id: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+};
+
 export const AddInvoiceDialog = () => {
   const { isOpen, closeAddInvoiceDialog } = useAddInvoiceDialog();
-  const { updateWorkEntry, workEntries } = useApp();
+  const { updateWorkEntry, workEntries, projects, billingCodes, calculateRevenue } = useApp();
   const { toast } = useToast();
   
   const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [invoiceDate, setInvoiceDate] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState<Date>(new Date());
+  const [dueDate, setDueDate] = useState<Date>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 30 days from now
+  const [clientName, setClientName] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [clientAddress, setClientAddress] = useState('');
+  const [notes, setNotes] = useState('');
   const [selectedEntryIds, setSelectedEntryIds] = useState<string[]>([]);
+  const [additionalItems, setAdditionalItems] = useState<InvoiceItem[]>([]);
   const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
 
   const handleInvoiceDataImported = (data: InvoiceData) => {
     setInvoiceData(data);
     setInvoiceNumber(data.invoiceNumber);
-    setInvoiceDate(data.date);
+    setInvoiceDate(new Date(data.date));
+    setClientName(data.client);
   };
 
-  const handleMarkAsInvoiced = () => {
-    if (selectedEntryIds.length === 0) {
+  const handleAddItem = () => {
+    const newItem: InvoiceItem = {
+      id: crypto.randomUUID(),
+      description: '',
+      quantity: 0,
+      unitPrice: 0
+    };
+    setAdditionalItems([...additionalItems, newItem]);
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setAdditionalItems(additionalItems.filter(item => item.id !== id));
+  };
+
+  const updateItem = (id: string, field: keyof InvoiceItem, value: string | number) => {
+    setAdditionalItems(
+      additionalItems.map(item => 
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
+  const calculateWorkEntriesTotal = () => {
+    return selectedEntryIds.reduce((total, id) => {
+      const entry = workEntries.find(e => e.id === id);
+      if (entry) {
+        const revenue = calculateRevenue(entry, billingCodes);
+        return total + (typeof revenue === 'number' ? revenue : 0);
+      }
+      return total;
+    }, 0);
+  };
+
+  const calculateAdditionalItemsTotal = () => {
+    return additionalItems.reduce((total, item) => 
+      total + (item.quantity * item.unitPrice), 0);
+  };
+
+  const getInvoiceTotal = () => {
+    return calculateWorkEntriesTotal() + calculateAdditionalItemsTotal();
+  };
+
+  const toggleEntrySelection = (id: string) => {
+    setSelectedEntryIds(prev => 
+      prev.includes(id) 
+        ? prev.filter(entryId => entryId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSubmitInvoice = () => {
+    if (selectedEntryIds.length === 0 && additionalItems.length === 0) {
       toast({
         title: "Error",
-        description: "Please select work entries to mark as invoiced",
+        description: "Please add at least one item to the invoice",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!invoiceNumber || !clientName) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
         variant: "destructive"
       });
       return;
@@ -57,7 +137,7 @@ export const AddInvoiceDialog = () => {
 
     toast({
       title: "Success",
-      description: `${selectedEntryIds.length} entries marked as invoiced with invoice #${invoiceNumber}`,
+      description: `Invoice #${invoiceNumber} created and ready to send to ${clientName}`,
     });
     
     handleClose();
@@ -65,92 +145,287 @@ export const AddInvoiceDialog = () => {
 
   const handleClose = () => {
     setInvoiceNumber('');
-    setInvoiceDate('');
+    setInvoiceDate(new Date());
+    setDueDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+    setClientName('');
+    setClientEmail('');
+    setClientAddress('');
+    setNotes('');
     setSelectedEntryIds([]);
+    setAdditionalItems([]);
     setInvoiceData(null);
     closeAddInvoiceDialog();
-  };
-
-  const toggleEntrySelection = (id: string) => {
-    setSelectedEntryIds(prev => 
-      prev.includes(id) 
-        ? prev.filter(entryId => entryId !== id)
-        : [...prev, id]
-    );
   };
 
   // Get non-invoiced entries
   const nonInvoicedEntries = workEntries.filter(entry => entry.invoiceStatus === 'not_invoiced');
 
+  // Get project names for entries
+  const getProjectName = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.name : 'Unknown Project';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Add Invoice</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Create New Invoice
+          </DialogTitle>
           <DialogDescription>
-            Upload an invoice file or manually mark work entries as invoiced.
+            Create an invoice to send to your customer.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-6 py-4">
-          <InvoiceUploader onDataImported={handleInvoiceDataImported} />
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="invoiceNumber">Invoice Number</Label>
-              <Input
-                id="invoiceNumber"
-                value={invoiceNumber}
-                onChange={e => setInvoiceNumber(e.target.value)}
-                placeholder="e.g. INV-2023-001"
-              />
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <ScrollArea className="flex-1 pr-4">
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="invoiceNumber" className="required">Invoice Number</Label>
+                  <Input
+                    id="invoiceNumber"
+                    value={invoiceNumber}
+                    onChange={e => setInvoiceNumber(e.target.value)}
+                    placeholder="e.g. INV-2023-001"
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="invoiceDate" className="required">Invoice Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !invoiceDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {invoiceDate ? format(invoiceDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={invoiceDate}
+                        onSelect={(date) => setInvoiceDate(date || new Date())}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="clientName" className="required">Client Name</Label>
+                  <Input
+                    id="clientName"
+                    value={clientName}
+                    onChange={e => setClientName(e.target.value)}
+                    placeholder="Client name"
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !dueDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={dueDate}
+                        onSelect={(date) => setDueDate(date || new Date())}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="clientEmail">Client Email</Label>
+                  <Input
+                    id="clientEmail"
+                    type="email"
+                    value={clientEmail}
+                    onChange={e => setClientEmail(e.target.value)}
+                    placeholder="client@example.com"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="clientAddress">Client Address</Label>
+                  <Input
+                    id="clientAddress"
+                    value={clientAddress}
+                    onChange={e => setClientAddress(e.target.value)}
+                    placeholder="123 Main St, City, State, ZIP"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Work Entries to Invoice</Label>
+                  <span className="text-sm text-muted-foreground">
+                    Total: ${calculateWorkEntriesTotal().toFixed(2)}
+                  </span>
+                </div>
+                <div className="border rounded-md">
+                  {nonInvoicedEntries.length > 0 ? (
+                    <ScrollArea className="max-h-[150px]">
+                      <ul className="divide-y">
+                        {nonInvoicedEntries.map(entry => (
+                          <li key={entry.id} className="p-2 hover:bg-accent">
+                            <label className="flex items-center justify-between cursor-pointer p-1">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedEntryIds.includes(entry.id)}
+                                  onChange={() => toggleEntrySelection(entry.id)}
+                                  className="rounded"
+                                />
+                                <span>
+                                  {getProjectName(entry.projectId)} - {entry.date}
+                                </span>
+                              </div>
+                              <span className="text-sm font-medium">
+                                {entry.feetCompleted} units - ${calculateRevenue(entry, billingCodes).toFixed(2)}
+                              </span>
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
+                    </ScrollArea>
+                  ) : (
+                    <p className="p-4 text-center text-muted-foreground text-sm">
+                      No non-invoiced work entries available
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Additional Items</Label>
+                  <span className="text-sm text-muted-foreground">
+                    Total: ${calculateAdditionalItemsTotal().toFixed(2)}
+                  </span>
+                </div>
+                <div className="border rounded-md p-3">
+                  {additionalItems.length > 0 ? (
+                    <div className="space-y-3">
+                      {additionalItems.map((item, index) => (
+                        <div key={item.id} className="grid grid-cols-12 gap-2 items-center">
+                          <div className="col-span-5">
+                            <Input
+                              value={item.description}
+                              onChange={e => updateItem(item.id, 'description', e.target.value)}
+                              placeholder="Description"
+                            />
+                          </div>
+                          <div className="col-span-2">
+                            <Input
+                              type="number"
+                              value={item.quantity}
+                              onChange={e => updateItem(item.id, 'quantity', parseFloat(e.target.value))}
+                              placeholder="Qty"
+                            />
+                          </div>
+                          <div className="col-span-3">
+                            <Input
+                              type="number"
+                              value={item.unitPrice}
+                              onChange={e => updateItem(item.id, 'unitPrice', parseFloat(e.target.value))}
+                              placeholder="Price"
+                              step="0.01"
+                              min="0"
+                            />
+                          </div>
+                          <div className="col-span-1">
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleRemoveItem(item.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="col-span-1 text-right font-medium">
+                            ${(item.quantity * item.unitPrice).toFixed(2)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground text-sm py-2">
+                      No additional items added
+                    </p>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-3" 
+                    onClick={handleAddItem}
+                    size="sm"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Item
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="Additional notes or payment instructions..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="bg-muted p-4 rounded-md">
+                <div className="flex justify-between items-center font-medium">
+                  <span>Total Invoice Amount:</span>
+                  <span className="text-lg">${getInvoiceTotal().toFixed(2)}</span>
+                </div>
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="invoiceDate">Invoice Date</Label>
-              <Input
-                id="invoiceDate"
-                type="date"
-                value={invoiceDate}
-                onChange={e => setInvoiceDate(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Select work entries to mark as invoiced</Label>
-            <div className="border rounded-md max-h-[200px] overflow-y-auto">
-              {nonInvoicedEntries.length > 0 ? (
-                <ul className="divide-y">
-                  {nonInvoicedEntries.map(entry => (
-                    <li key={entry.id} className="p-2 hover:bg-accent">
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedEntryIds.includes(entry.id)}
-                          onChange={() => toggleEntrySelection(entry.id)}
-                          className="rounded"
-                        />
-                        <span>
-                          {entry.date} - {entry.feetCompleted} units
-                        </span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="p-4 text-center text-muted-foreground text-sm">
-                  No non-invoiced work entries available
-                </p>
-              )}
-            </div>
-          </div>
+          </ScrollArea>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleMarkAsInvoiced} disabled={selectedEntryIds.length === 0 || !invoiceNumber}>
-            Mark as Invoiced
+        <DialogFooter className="pt-4">
+          <Button variant="outline" onClick={handleClose} className="mr-2">
+            Cancel
+          </Button>
+          <Button 
+            variant="default" 
+            onClick={handleSubmitInvoice} 
+            disabled={!invoiceNumber || !clientName || (selectedEntryIds.length === 0 && additionalItems.length === 0)}
+            className="gap-2"
+          >
+            <Send className="h-4 w-4" />
+            Create & Send Invoice
           </Button>
         </DialogFooter>
       </DialogContent>

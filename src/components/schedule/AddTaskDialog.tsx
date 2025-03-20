@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { TaskForm } from './TaskForm';
 import { useSchedule } from '@/context/ScheduleContext';
 
-// Define the TaskPriority type directly since we don't have the module
-type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+// Import the TaskPriority from ScheduleContext
+import { TaskPriority } from '@/context/ScheduleContext';
 
 interface AddTaskDialogProps {
   open: boolean;
