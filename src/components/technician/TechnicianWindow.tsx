@@ -5,12 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronLeft, Download, Maximize2, RotateCw, ZoomIn, ZoomOut, Type, Pencil, Circle, Square } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
+import { useToast } from "@/hooks/use-toast";
 
 export const TechnicianWindow: React.FC = () => {
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages] = useState(3); // Example - in a real app this would come from the PDF
   const [zoomLevel, setZoomLevel] = useState(100);
   const [currentTool, setCurrentTool] = useState<'pen' | 'text' | 'circle' | 'square'>('pen');
+  const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 10, 200));
@@ -27,9 +31,24 @@ export const TechnicianWindow: React.FC = () => {
   const handlePrevPage = () => {
     setCurrentPage(prev => Math.max(prev - 1, 1));
   };
+
+  const handleCompleteReview = () => {
+    toast({
+      title: "Review marked as complete",
+      description: "Please log your work entry for this review.",
+    });
+    setWorkEntryDialogOpen(true);
+  };
   
   return (
     <div className="flex flex-col h-screen bg-background">
+      {/* Work Entry Dialog */}
+      <TechnicianWorkEntryDialog 
+        open={workEntryDialogOpen} 
+        onOpenChange={setWorkEntryDialogOpen} 
+        projectId="project-1" // In a real app, this would be dynamically set
+      />
+      
       {/* Header */}
       <header className="border-b border-border p-4">
         <div className="flex justify-between items-center">
@@ -47,7 +66,12 @@ export const TechnicianWindow: React.FC = () => {
               <Download className="h-4 w-4 mr-2" />
               Save Changes
             </Button>
-            <Button variant="default" size="sm" style={{ backgroundColor: "#F18E1D", color: "white" }}>
+            <Button 
+              variant="default" 
+              size="sm" 
+              style={{ backgroundColor: "#F18E1D", color: "white" }}
+              onClick={handleCompleteReview}
+            >
               Complete Review
             </Button>
           </div>
