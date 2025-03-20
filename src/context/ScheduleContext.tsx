@@ -1,134 +1,89 @@
 
 import React, { createContext, useContext, useState } from 'react';
-import { format, addDays } from 'date-fns';
+import { format } from 'date-fns';
 
+// Types
 export type TaskPriority = 'low' | 'medium' | 'high';
-export type TaskStatus = 'pending' | 'in-progress' | 'completed';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 
-export type Task = {
+export interface TaskLocation {
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+export interface Task {
   id: string;
   title: string;
   description: string;
-  location: {
-    address: string;
-    lat: number;
-    lng: number;
-  };
+  location: TaskLocation;
   startDate: Date;
   endDate: Date;
   projectId: string | null;
   teamMemberId: string | null;
   priority: TaskPriority;
   status: TaskStatus;
-};
+  billingCodeId: string | null;
+  quantityEstimate: number;
+}
 
-// Mock data
-const generateMockTasks = (): Task[] => {
-  const today = new Date();
-  
-  return [
-    {
-      id: '1',
-      title: 'Site Survey - Downtown Project',
-      description: 'Complete initial site survey for downtown fiber installation',
-      location: {
-        address: '123 Main St, City Center',
-        lat: 37.7749,
-        lng: -122.4194
-      },
-      startDate: today,
-      endDate: addDays(today, 1),
-      projectId: 'project1',
-      teamMemberId: 'team1',
-      priority: 'high',
-      status: 'pending'
-    },
-    {
-      id: '2',
-      title: 'Conduit Installation - North Side',
-      description: 'Install underground conduit along northern route',
-      location: {
-        address: '456 North Ave, North District',
-        lat: 37.7850,
-        lng: -122.4300
-      },
-      startDate: addDays(today, 1),
-      endDate: addDays(today, 3),
-      projectId: 'project2',
-      teamMemberId: 'team2',
-      priority: 'medium',
-      status: 'pending'
-    },
-    {
-      id: '3',
-      title: 'Fiber Splicing - East Campus',
-      description: 'Complete fiber splicing at junction boxes in east campus area',
-      location: {
-        address: '789 East Blvd, Campus Area',
-        lat: 37.7650,
-        lng: -122.4050
-      },
-      startDate: addDays(today, 2),
-      endDate: addDays(today, 2),
-      projectId: 'project3',
-      teamMemberId: 'team3',
-      priority: 'medium',
-      status: 'pending'
-    },
-    {
-      id: '4',
-      title: 'Equipment Delivery - South Site',
-      description: 'Coordinate equipment delivery to south construction site',
-      location: {
-        address: '1010 South St, Industrial Park',
-        lat: 37.7550,
-        lng: -122.4250
-      },
-      startDate: addDays(today, 3),
-      endDate: addDays(today, 3),
-      projectId: 'project1',
-      teamMemberId: 'team1',
-      priority: 'low',
-      status: 'pending'
-    },
-    {
-      id: '5',
-      title: 'Final Testing - West Zone',
-      description: 'Perform final signal testing on newly installed lines in west zone',
-      location: {
-        address: '555 West Ave, Commercial District',
-        lat: 37.7700,
-        lng: -122.4350
-      },
-      startDate: addDays(today, 4),
-      endDate: addDays(today, 5),
-      projectId: 'project2',
-      teamMemberId: 'team2',
-      priority: 'high',
-      status: 'pending'
-    }
-  ];
-};
-
-type ScheduleContextType = {
+interface ScheduleContextType {
   tasks: Task[];
   selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
   addTask: (task: Omit<Task, 'id'>) => void;
   updateTask: (task: Task) => void;
   deleteTask: (id: string) => void;
-  setSelectedDate: (date: Date) => void;
   getTasksForDate: (date: Date) => Task[];
-  getTasksForDateRange: (startDate: Date, endDate: Date) => Task[];
-};
+}
 
 const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
 
 export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>(generateMockTasks());
+  const [tasks, setTasks] = useState<Task[]>([
+    // Sample tasks
+    {
+      id: '1',
+      title: 'Install Pipe Section',
+      description: 'Complete 50ft of irrigation pipe installation',
+      location: {
+        address: '123 Main St, San Francisco, CA',
+        lat: 37.774,
+        lng: -122.419
+      },
+      startDate: new Date('2023-08-15'),
+      endDate: new Date('2023-08-15'),
+      projectId: '1',
+      teamMemberId: '2',
+      priority: 'high',
+      status: 'pending',
+      billingCodeId: '1',
+      quantityEstimate: 50
+    },
+    {
+      id: '2',
+      title: 'Site Survey',
+      description: 'Conduct preliminary site survey for new project',
+      location: {
+        address: '456 Market St, San Francisco, CA',
+        lat: 37.789,
+        lng: -122.401
+      },
+      startDate: new Date('2023-08-18'),
+      endDate: new Date('2023-08-19'),
+      projectId: '2',
+      teamMemberId: '1',
+      priority: 'medium',
+      status: 'pending',
+      billingCodeId: '3',
+      quantityEstimate: 1
+    }
+  ]);
+  
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
   const addTask = (task: Omit<Task, 'id'>) => {
-    const newTask: Task = {
+    const newTask = {
       ...task,
       id: crypto.randomUUID()
     };
@@ -136,53 +91,37 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
   
   const updateTask = (updatedTask: Task) => {
-    setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
+    setTasks(tasks.map(task => 
+      task.id === updatedTask.id ? updatedTask : task
+    ));
   };
   
   const deleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
   
-  const getTasksForDate = (date: Date) => {
+  const getTasksForDate = (date: Date): Task[] => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return tasks.filter(task => {
       const taskStartDate = format(task.startDate, 'yyyy-MM-dd');
       const taskEndDate = format(task.endDate, 'yyyy-MM-dd');
-      
-      return (
-        dateStr >= taskStartDate && 
-        dateStr <= taskEndDate
-      );
+      return dateStr >= taskStartDate && dateStr <= taskEndDate;
     });
   };
   
-  const getTasksForDateRange = (startDate: Date, endDate: Date) => {
-    const startStr = format(startDate, 'yyyy-MM-dd');
-    const endStr = format(endDate, 'yyyy-MM-dd');
-    
-    return tasks.filter(task => {
-      const taskStartDate = format(task.startDate, 'yyyy-MM-dd');
-      const taskEndDate = format(task.endDate, 'yyyy-MM-dd');
-      
-      // Task overlaps with the given date range
-      return (
-        (taskStartDate <= endStr && taskEndDate >= startStr)
-      );
-    });
-  };
-  
-  const value: ScheduleContextType = {
-    tasks,
-    selectedDate,
-    addTask,
-    updateTask,
-    deleteTask,
-    setSelectedDate,
-    getTasksForDate,
-    getTasksForDateRange
-  };
-  
-  return <ScheduleContext.Provider value={value}>{children}</ScheduleContext.Provider>;
+  return (
+    <ScheduleContext.Provider value={{
+      tasks,
+      selectedDate,
+      setSelectedDate,
+      addTask,
+      updateTask,
+      deleteTask,
+      getTasksForDate
+    }}>
+      {children}
+    </ScheduleContext.Provider>
+  );
 };
 
 export const useSchedule = () => {

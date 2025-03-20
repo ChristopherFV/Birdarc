@@ -1,13 +1,15 @@
 
 import React, { useState } from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin, DollarSign } from 'lucide-react';
 import { useSchedule } from '@/context/ScheduleContext';
+import { useApp } from '@/context/AppContext';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 export const ScheduleMap: React.FC = () => {
   const { tasks } = useSchedule();
+  const { billingCodes, projects } = useApp();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   
   // This is a placeholder for the actual map implementation
@@ -18,6 +20,21 @@ export const ScheduleMap: React.FC = () => {
   };
   
   const selectedTask = tasks.find(task => task.id === selectedTaskId);
+  
+  // Helper to get billing code details
+  const getBillingCode = (codeId: string | null) => {
+    if (!codeId) return null;
+    return billingCodes.find(code => code.id === codeId);
+  };
+  
+  // Helper to get project name
+  const getProjectName = (projectId: string | null) => {
+    if (!projectId) return "No Project";
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.name : "Unknown Project";
+  };
+  
+  const selectedBillingCode = selectedTask ? getBillingCode(selectedTask.billingCodeId) : null;
   
   return (
     <div className="relative h-full w-full bg-gray-100 overflow-hidden">
@@ -74,7 +91,19 @@ export const ScheduleMap: React.FC = () => {
                 {selectedTask.priority}
               </Badge>
             </div>
+            <p className="text-xs mb-2">{getProjectName(selectedTask.projectId)}</p>
             <p className="text-xs text-muted-foreground mb-2">{selectedTask.description}</p>
+            
+            {selectedBillingCode && (
+              <div className="text-xs mb-2 flex items-center">
+                <DollarSign className="h-3 w-3 mr-1" />
+                <span>
+                  {selectedBillingCode.code} - {selectedTask.quantityEstimate} units 
+                  (${(selectedBillingCode.ratePerFoot * selectedTask.quantityEstimate).toFixed(2)})
+                </span>
+              </div>
+            )}
+            
             <div className="text-xs mb-1">
               <span className="font-medium">Location: </span> 
               {selectedTask.location.address}
