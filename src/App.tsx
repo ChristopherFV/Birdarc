@@ -9,7 +9,6 @@ import { ScheduleProvider } from "@/context/ScheduleContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import WorkEntriesPage from "./pages/WorkEntriesPage";
-import SchedulePage from "./pages/SchedulePage";
 import RepositoryPage from "./pages/RepositoryPage";
 import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
@@ -29,7 +28,6 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/work-entries" element={<WorkEntriesPage />} />
-              <Route path="/schedule" element={<SchedulePage />} />
               <Route path="/repository" element={<RepositoryPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

@@ -1,19 +1,18 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useSchedule, TaskPriority } from '@/context/ScheduleContext';
-import { CalendarIcon, MapPin, Ruler } from 'lucide-react';
-import { format } from 'date-fns';
-import { useApp } from '@/context/AppContext';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { BillingCodeSelector } from '@/components/forms/work-entry/BillingCodeSelector';
-import { FeetCompletedInput } from '@/components/forms/work-entry/FeetCompletedInput';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, MapPin } from 'lucide-react';
+import { useSchedule, TaskPriority } from '@/context/ScheduleContext';
+import { useApp } from '@/context/AppContext';
+import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface TaskFormProps {
   open: boolean;
@@ -23,78 +22,87 @@ interface TaskFormProps {
 export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
   const { addTask } = useSchedule();
   const { projects, teamMembers, billingCodes } = useApp();
-  
+  const { toast } = useToast();
+
+  // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [address, setAddress] = useState('');
-  const [projectId, setProjectId] = useState<string>('');
-  const [teamMemberId, setTeamMemberId] = useState<string>('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [projectId, setProjectId] = useState('');
+  const [teamMemberId, setTeamMemberId] = useState('');
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+  const [address, setAddress] = useState('');
   const [billingCodeId, setBillingCodeId] = useState('');
-  const [quantityEstimate, setQuantityEstimate] = useState('0');
-  
-  // Get filtered billing codes based on selected project
-  const filteredBillingCodes = billingCodes.filter(
-    code => projectId ? code.projectId === projectId : true
-  );
-  
+  const [quantityEstimate, setQuantityEstimate] = useState<number>(0);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // In a real app, you would geocode the address to get lat/lng
-    // For this example, we'll use a dummy location
+    // Basic validation
+    if (!title || !projectId || !address) {
+      toast({
+        title: "Error",
+        description: "Please fill out all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const newTask = {
       title,
       description,
       location: {
         address,
-        lat: 37.7749 + (Math.random() * 0.03 - 0.015),
-        lng: -122.4194 + (Math.random() * 0.03 - 0.015)
+        lat: 37.7749, // Default to San Francisco coordinates for now
+        lng: -122.4194,
       },
       startDate,
       endDate,
-      projectId: projectId || null,
-      teamMemberId: teamMemberId || null,
+      projectId,
+      teamMemberId,
       priority,
       status: 'pending' as const,
-      billingCodeId: billingCodeId || null,
-      quantityEstimate: quantityEstimate ? parseFloat(quantityEstimate) : 0
+      billingCodeId, 
+      quantityEstimate,
     };
     
     addTask(newTask);
-    resetForm();
-    onOpenChange(false);
+    toast({
+      title: "Success",
+      description: "Task created successfully",
+    });
+    handleClose();
   };
   
-  const resetForm = () => {
+  const handleClose = () => {
+    // Reset form
     setTitle('');
     setDescription('');
-    setAddress('');
+    setPriority('medium');
     setProjectId('');
     setTeamMemberId('');
-    setPriority('medium');
     setStartDate(new Date());
     setEndDate(new Date());
+    setAddress('');
     setBillingCodeId('');
-    setQuantityEstimate('0');
+    setQuantityEstimate(0);
+    onOpenChange(false);
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Schedule New Task</DialogTitle>
+          <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Task Title</Label>
-            <Input 
-              id="title" 
-              value={title} 
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter task title"
               required
@@ -103,163 +111,162 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
           
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea 
-              id="description" 
-              value={description} 
+            <Textarea
+              id="description"
+              value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter task description"
+              placeholder="Enter task details"
               rows={3}
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="address" className="flex items-center">
-              <MapPin className="h-4 w-4 mr-1" />
-              Location
-            </Label>
-            <Input 
-              id="address" 
-              value={address} 
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Enter address or location"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="date" className="flex items-center">
-              <CalendarIcon className="h-4 w-4 mr-1" />
-              Date Range
-            </Label>
-            <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !startDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? (
-                    format(startDate, "MMM dd, yyyy") + 
-                    (format(startDate, "yyyy-MM-dd") !== format(endDate, "yyyy-MM-dd") 
-                      ? ` - ${format(endDate, "MMM dd, yyyy")}` 
-                      : "")
-                  ) : (
-                    <span>Pick a date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="range"
-                  selected={{
-                    from: startDate,
-                    to: endDate,
-                  }}
-                  onSelect={(range) => {
-                    if (range?.from) {
-                      setStartDate(range.from);
-                      setEndDate(range.to || range.from);
-                    }
-                  }}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="project">Project *</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="teamMember">Team Member</Label>
+              <Select value={teamMemberId} onValueChange={setTeamMemberId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Assign to" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teamMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="project">Project</Label>
-              <select
-                id="project"
-                value={projectId}
-                onChange={(e) => {
-                  setProjectId(e.target.value);
-                  setBillingCodeId(''); // Reset billing code when project changes
-                }}
-                className="w-full px-3 py-2 bg-background border rounded-md text-sm"
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, 'PPP') : 'Select date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && setStartDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>End Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, 'PPP') : 'Select date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => date && setEndDate(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="address">Location *</Label>
+            <div className="flex">
+              <Input
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter address"
+                className="flex-1"
                 required
-              >
-                <option value="">Select Project</option>
-                {projects.map(project => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="team">Team Member</Label>
-              <select
-                id="team"
-                value={teamMemberId}
-                onChange={(e) => setTeamMemberId(e.target.value)}
-                className="w-full px-3 py-2 bg-background border rounded-md text-sm"
-              >
-                <option value="">Select Team Member</option>
-                {teamMembers.map(member => (
-                  <option key={member.id} value={member.id}>
-                    {member.name}
-                  </option>
-                ))}
-              </select>
+              />
+              <Button type="button" variant="outline" className="ml-2">
+                <MapPin className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <BillingCodeSelector
-              billingCodeId={billingCodeId}
-              billingCodes={filteredBillingCodes}
-              onChange={(e) => setBillingCodeId(e.target.value)}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             
-            <FeetCompletedInput
-              value={quantityEstimate}
-              onChange={(e) => setQuantityEstimate(e.target.value)}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="billingCode">Billing Code</Label>
+              <Select value={billingCodeId} onValueChange={setBillingCodeId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select code" />
+                </SelectTrigger>
+                <SelectContent>
+                  {billingCodes.map((code) => (
+                    <SelectItem key={code.id} value={code.id}>
+                      {code.code} (${code.ratePerFoot}/unit)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="priority">Priority</Label>
-            <div className="flex space-x-2">
-              {(['low', 'medium', 'high'] as const).map((p) => (
-                <Button
-                  key={p}
-                  type="button"
-                  variant={priority === p ? 'default' : 'outline'}
-                  className={cn(
-                    "flex-1 capitalize",
-                    priority === p && p === 'high' && "bg-red-500 hover:bg-red-600",
-                    priority === p && p === 'medium' && "bg-amber-500 hover:bg-amber-600",
-                    priority === p && p === 'low' && "bg-blue-500 hover:bg-blue-600"
-                  )}
-                  onClick={() => setPriority(p)}
-                >
-                  {p}
-                </Button>
-              ))}
-            </div>
+            <Label htmlFor="quantity">Quantity Estimate (units)</Label>
+            <Input
+              id="quantity"
+              type="number"
+              min="0"
+              value={quantityEstimate.toString()}
+              onChange={(e) => setQuantityEstimate(Number(e.target.value))}
+            />
           </div>
           
           <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button 
-              type="submit"
-              className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
-            >
-              Schedule Task
-            </Button>
+            <Button type="submit">Create Task</Button>
           </DialogFooter>
         </form>
       </DialogContent>

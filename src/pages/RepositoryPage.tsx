@@ -4,10 +4,15 @@ import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Plus, Check, XCircle, Filter, SortDesc, CircleAlert } from 'lucide-react';
+import { Upload, Plus, Check, XCircle, Filter, SortDesc, CircleAlert, Calendar, MapPin } from 'lucide-react';
 import { FileRepository } from '@/components/repository/FileRepository';
 import { FileUploader } from '@/components/repository/FileUploader';
 import { Badge } from '@/components/ui/badge';
+import { useSchedule } from '@/context/ScheduleContext';
+import { FilterBar } from '@/components/ui/FilterBar';
+import { ScheduleMap } from '@/components/schedule/ScheduleMap';
+import { ScheduleCalendar } from '@/components/schedule/ScheduleCalendar';
+import { TaskForm } from '@/components/schedule/TaskForm';
 
 // Mock project data with pending files count
 const projectsWithPendingFiles = [
@@ -19,15 +24,17 @@ const projectsWithPendingFiles = [
 
 const RepositoryPage = () => {
   const [showUploader, setShowUploader] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'schedule'>('all');
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const { tasks } = useSchedule();
 
   // Total pending files across all projects
   const totalPendingFiles = projectsWithPendingFiles.reduce((sum, project) => sum + project.pendingCount, 0);
 
   return (
     <SimplePageLayout 
-      title="Field Repository" 
-      subtitle="Upload and manage project files for review and approval"
+      title="Field Repository & Schedule" 
+      subtitle="Upload and manage project files, schedule tasks and monitor field operations"
     >
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
@@ -40,18 +47,33 @@ const RepositoryPage = () => {
             <span>Sort</span>
           </Button>
         </div>
-        <Button 
-          onClick={() => setShowUploader(true)} 
-          className="flex items-center gap-2"
-          disabled={showUploader}
-        >
-          <Upload className="h-4 w-4" />
-          <span>Upload Files</span>
-        </Button>
+        <div className="flex gap-2">
+          {selectedTab === 'schedule' && (
+            <Button 
+              onClick={() => setIsTaskFormOpen(true)} 
+              className="flex items-center gap-2 bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+            >
+              <Plus className="h-4 w-4" />
+              <span>New Task</span>
+            </Button>
+          )}
+          {selectedTab !== 'schedule' && (
+            <Button 
+              onClick={() => setShowUploader(true)} 
+              className="flex items-center gap-2"
+              disabled={showUploader}
+            >
+              <Upload className="h-4 w-4" />
+              <span>Upload Files</span>
+            </Button>
+          )}
+        </div>
       </div>
 
+      {selectedTab === 'schedule' && <FilterBar />}
+
       {/* Project summary with pending files */}
-      {totalPendingFiles > 0 && (
+      {totalPendingFiles > 0 && selectedTab !== 'schedule' && (
         <Card className="mb-6 border-yellow-200 bg-yellow-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-yellow-700 mb-2">
@@ -83,7 +105,7 @@ const RepositoryPage = () => {
         </Card>
       )}
 
-      {showUploader && (
+      {showUploader && selectedTab !== 'schedule' && (
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <CardTitle>Upload Project Files</CardTitle>
@@ -123,6 +145,15 @@ const RepositoryPage = () => {
           </TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          <TabsTrigger value="schedule" className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span>Schedule</span>
+            {tasks.length > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {tasks.length}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="all">
@@ -137,7 +168,41 @@ const RepositoryPage = () => {
         <TabsContent value="rejected">
           <FileRepository status="rejected" />
         </TabsContent>
+        <TabsContent value="schedule">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-2">
+              <CardHeader className="pb-3">
+                <Tabs defaultValue="map">
+                  <TabsList>
+                    <TabsTrigger value="map">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Map View
+                    </TabsTrigger>
+                    <TabsTrigger value="calendar">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Calendar View
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </CardHeader>
+              <CardContent>
+                <TabsContent value="map" className="mt-0">
+                  <div className="h-[500px] w-full rounded-md overflow-hidden border">
+                    <ScheduleMap />
+                  </div>
+                </TabsContent>
+                <TabsContent value="calendar" className="mt-0">
+                  <div className="h-[500px] w-full rounded-md overflow-hidden border p-4">
+                    <ScheduleCalendar />
+                  </div>
+                </TabsContent>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
+      
+      <TaskForm open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen} />
     </SimplePageLayout>
   );
 };
