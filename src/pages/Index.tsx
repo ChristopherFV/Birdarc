@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppProvider } from '@/context/AppContext';
@@ -7,7 +6,7 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
-import { Settings, Map, ListTodo, FolderOpen, Glasses, HardHat } from 'lucide-react';
+import { Settings, FolderOpen, Glasses, HardHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
 import { Badge } from '@/components/ui/badge';
@@ -40,12 +39,6 @@ const Header = () => {
               <Glasses className="h-3 w-3" />
             </Badge>
           </div>
-        </Link>
-        <Link to="/schedule">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Map className="h-4 w-4" />
-            <span>Schedule</span>
-          </Button>
         </Link>
         <Link to="/technician">
           <Button 
