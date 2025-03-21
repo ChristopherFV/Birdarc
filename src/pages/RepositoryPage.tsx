@@ -33,7 +33,7 @@ const RepositoryPage = () => {
 
   return (
     <SimplePageLayout 
-      title="Field Repository & Schedule" 
+      title="FieldVision Sandbox" 
       subtitle="Upload and manage project files, schedule tasks and monitor field operations"
     >
       <div className="flex justify-between items-center mb-6">
