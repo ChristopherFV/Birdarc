@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
@@ -10,11 +9,10 @@ import { FileUploader } from '@/components/repository/FileUploader';
 import { Badge } from '@/components/ui/badge';
 import { useSchedule } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
-import { ScheduleMap } from '@/components/schedule/ScheduleMap';
+import { MapComponent } from '@/components/schedule/MapComponent';
 import { ScheduleCalendar } from '@/components/schedule/ScheduleCalendar';
 import { TaskForm } from '@/components/schedule/TaskForm';
 
-// Mock project data with pending files count
 const projectsWithPendingFiles = [
   { id: '1', name: 'Cedar Heights Fiber', pendingCount: 25, billingCodes: ['FBR-001'] },
   { id: '2', name: 'Oakridge Expansion', pendingCount: 12, billingCodes: ['UND-025'] },
@@ -24,11 +22,10 @@ const projectsWithPendingFiles = [
 
 const RepositoryPage = () => {
   const [showUploader, setShowUploader] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'schedule'>('all');
+  const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'schedule'>('schedule');
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const { tasks } = useSchedule();
 
-  // Total pending files across all projects
   const totalPendingFiles = projectsWithPendingFiles.reduce((sum, project) => sum + project.pendingCount, 0);
 
   return (
@@ -72,7 +69,6 @@ const RepositoryPage = () => {
 
       {selectedTab === 'schedule' && <FilterBar />}
 
-      {/* Project summary with pending files */}
       {totalPendingFiles > 0 && selectedTab !== 'schedule' && (
         <Card className="mb-6 border-yellow-200 bg-yellow-50">
           <CardContent className="p-4">
@@ -128,12 +124,21 @@ const RepositoryPage = () => {
       )}
 
       <Tabs 
-        defaultValue="all" 
+        defaultValue="schedule" 
         className="w-full"
         value={selectedTab}
         onValueChange={(value) => setSelectedTab(value as any)}
       >
         <TabsList className="mb-4">
+          <TabsTrigger value="schedule" className="flex items-center gap-1">
+            <MapPin className="h-4 w-4" />
+            <span>Field Map</span>
+            {tasks.length > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {tasks.length}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="all">All Files</TabsTrigger>
           <TabsTrigger value="pending">
             Pending Review
@@ -145,16 +150,28 @@ const RepositoryPage = () => {
           </TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
-          <TabsTrigger value="schedule" className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            <span>Schedule</span>
-            {tasks.length > 0 && (
-              <Badge variant="secondary" className="ml-1">
-                {tasks.length}
-              </Badge>
-            )}
-          </TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="schedule">
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center">
+                  <MapPin className="mr-2 h-5 w-5" />
+                  U.S. Field Operations Map
+                </CardTitle>
+                <CardDescription>
+                  View all teams and technicians across locations. Click on markers to assign tasks.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[600px] w-full rounded-md overflow-hidden">
+                  <MapComponent />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
         
         <TabsContent value="all">
           <FileRepository status="all" />
@@ -167,38 +184,6 @@ const RepositoryPage = () => {
         </TabsContent>
         <TabsContent value="rejected">
           <FileRepository status="rejected" />
-        </TabsContent>
-        <TabsContent value="schedule">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2">
-              <CardHeader className="pb-3">
-                <Tabs defaultValue="map">
-                  <TabsList>
-                    <TabsTrigger value="map">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      Map View
-                    </TabsTrigger>
-                    <TabsTrigger value="calendar">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Calendar View
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </CardHeader>
-              <CardContent>
-                <TabsContent value="map" className="mt-0">
-                  <div className="h-[500px] w-full rounded-md overflow-hidden border">
-                    <ScheduleMap />
-                  </div>
-                </TabsContent>
-                <TabsContent value="calendar" className="mt-0">
-                  <div className="h-[500px] w-full rounded-md overflow-hidden border p-4">
-                    <ScheduleCalendar />
-                  </div>
-                </TabsContent>
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
       </Tabs>
       
