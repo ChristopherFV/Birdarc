@@ -3,10 +3,28 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Download, Maximize2, RotateCw, ZoomIn, ZoomOut, Type, Pencil, Circle, Square } from 'lucide-react';
+import { ChevronLeft, Download, Maximize2, RotateCw, ZoomIn, ZoomOut, Type, Pencil, Circle, Square, MapPin, Calendar, Clock, FileText, User, HardHat } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 import { useToast } from "@/hooks/use-toast";
+
+// Mock task data - In a real app, this would come from a context or API
+const taskData = {
+  id: 'task-123',
+  title: 'Construction Drawing Review',
+  description: 'Review the construction drawings for the new commercial building project. Check for structural issues and compliance with local building codes.',
+  location: {
+    address: '123 Construction Ave, Building 3, San Francisco, CA 94103',
+    lat: 37.7749,
+    lng: -122.4194
+  },
+  startDate: new Date('2023-10-15T09:00:00'),
+  endDate: new Date('2023-10-15T17:00:00'),
+  projectId: 'project-1',
+  teamMemberId: 'team-1',
+  priority: 'high',
+  status: 'in_progress'
+};
 
 export const TechnicianWindow: React.FC = () => {
   const { toast } = useToast();
@@ -15,6 +33,7 @@ export const TechnicianWindow: React.FC = () => {
   const [zoomLevel, setZoomLevel] = useState(100);
   const [currentTool, setCurrentTool] = useState<'pen' | 'text' | 'circle' | 'square'>('pen');
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'drawing' | 'notes' | 'details'>('drawing');
   
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 10, 200));
@@ -39,6 +58,22 @@ export const TechnicianWindow: React.FC = () => {
     });
     setWorkEntryDialogOpen(true);
   };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
   
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -59,7 +94,7 @@ export const TechnicianWindow: React.FC = () => {
                 Back to Dashboard
               </Link>
             </Button>
-            <h1 className="text-xl font-semibold">Construction Drawing Review</h1>
+            <h1 className="text-xl font-semibold">{taskData.title}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm">
@@ -142,10 +177,11 @@ export const TechnicianWindow: React.FC = () => {
         
         {/* Tools Panel */}
         <div className="w-72 border-l border-border overflow-y-auto">
-          <Tabs defaultValue="drawing" className="w-full">
-            <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="drawing">Drawing Tools</TabsTrigger>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'drawing' | 'notes' | 'details')} className="w-full">
+            <TabsList className="w-full grid grid-cols-3">
+              <TabsTrigger value="drawing">Drawing</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
+              <TabsTrigger value="details">Details</TabsTrigger>
             </TabsList>
             
             <TabsContent value="drawing" className="p-4 space-y-4">
@@ -251,6 +287,87 @@ export const TechnicianWindow: React.FC = () => {
                       placeholder="Add your notes here..."
                     />
                     <Button size="sm" className="w-full">Save Notes</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="details" className="p-4">
+              <Card>
+                <CardHeader className="py-2">
+                  <CardTitle className="text-sm">Task Details</CardTitle>
+                </CardHeader>
+                <CardContent className="py-2">
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm">
+                        <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-medium">Date:</span>
+                      </div>
+                      <p className="text-sm pl-6">{formatDate(taskData.startDate)}</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm">
+                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-medium">Time:</span>
+                      </div>
+                      <p className="text-sm pl-6">{formatTime(taskData.startDate)} - {formatTime(taskData.endDate)}</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm">
+                        <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-medium">Location:</span>
+                      </div>
+                      <p className="text-sm pl-6">{taskData.location.address}</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm">
+                        <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-medium">Description:</span>
+                      </div>
+                      <p className="text-sm pl-6">{taskData.description}</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm">
+                        <HardHat className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-medium">Priority:</span>
+                      </div>
+                      <div className="pl-6">
+                        <span className={`text-xs font-medium rounded-full px-2 py-1 ${
+                          taskData.priority === 'high' 
+                            ? 'bg-red-100 text-red-800' 
+                            : taskData.priority === 'medium'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {taskData.priority.charAt(0).toUpperCase() + taskData.priority.slice(1)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm">
+                        <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="font-medium">Status:</span>
+                      </div>
+                      <div className="pl-6">
+                        <span className={`text-xs font-medium rounded-full px-2 py-1 ${
+                          taskData.status === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : taskData.status === 'in_progress'
+                            ? 'bg-blue-100 text-blue-800'
+                            : taskData.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {taskData.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
