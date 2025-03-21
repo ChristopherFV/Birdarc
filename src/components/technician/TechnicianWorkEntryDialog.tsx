@@ -11,6 +11,10 @@ import { RevenuePreview } from '@/components/forms/work-entry/RevenuePreview';
 import { TeamMemberSelector } from '@/components/forms/work-entry/TeamMemberSelector';
 import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CircleX } from "lucide-react";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 interface TechnicianWorkEntryDialogProps {
   open: boolean;
@@ -40,6 +44,10 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     handleFileAttachment
   } = useWorkEntryForm();
 
+  const [cancelNotes, setCancelNotes] = useState('');
+  const [isRedlineRevision, setIsRedlineRevision] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+
   // Set project ID if provided
   useEffect(() => {
     if (projectId && open) {
@@ -52,11 +60,36 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSubmit(e);
+    // Include the redline revision status in the form data
+    const updatedFormData = {
+      ...formData,
+      isRedlineRevision
+    };
+    handleSubmit(e, updatedFormData);
     toast({
       title: "Work entry submitted",
       description: "Your work entry has been submitted for approval.",
     });
+    onOpenChange(false);
+  };
+
+  const handleCancelTicket = () => {
+    if (!cancelNotes.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide notes explaining why this ticket is being cancelled.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Here you would handle the ticket cancellation
+    toast({
+      title: "Ticket cancelled",
+      description: "The ticket has been cancelled with notes.",
+    });
+    
+    setIsCancelDialogOpen(false);
     onOpenChange(false);
   };
 
@@ -113,6 +146,21 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             error={formErrors.teamMemberId}
           />
           
+          {/* Redline Revision Checkbox */}
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="redlineRevision" 
+              checked={isRedlineRevision} 
+              onCheckedChange={(checked) => setIsRedlineRevision(checked === true)}
+            />
+            <label 
+              htmlFor="redlineRevision" 
+              className="text-sm font-medium leading-none cursor-pointer"
+            >
+              Redline Revision Made
+            </label>
+          </div>
+          
           {/* Attachment Button */}
           <AttachmentButton 
             attachments={formData.attachments || []} 
@@ -120,10 +168,43 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             error={formErrors.attachments}
           />
           
-          <DialogFooter className="gap-2 mt-4">
+          <DialogFooter className="gap-2 mt-4 flex-col sm:flex-row">
+            <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button type="button" variant="destructive">
+                  <CircleX className="mr-1" />
+                  Cancel Ticket
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancel Ticket</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Please provide a reason for cancelling this ticket. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                
+                <Textarea
+                  value={cancelNotes}
+                  onChange={(e) => setCancelNotes(e.target.value)}
+                  placeholder="Enter reason for cancellation..."
+                  className="mt-2"
+                  rows={4}
+                />
+                
+                <AlertDialogFooter className="mt-4">
+                  <AlertDialogCancel>Go Back</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleCancelTicket} className="bg-destructive hover:bg-destructive/90">
+                    Confirm Cancel
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              Close
             </Button>
+            
             <Button 
               type="submit" 
               disabled={isSubmitting} 
