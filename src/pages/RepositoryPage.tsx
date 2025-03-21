@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
@@ -43,17 +42,15 @@ const RepositoryPage = () => {
   const { tasks } = useSchedule();
   const { toast } = useToast();
   
-  // Current user/team context (in a real app, this would come from auth context)
   const currentUser = { id: 'user-1', name: 'John Davis', teamId: 'team-1' };
 
   const totalPendingFiles = projectsWithPendingFiles.reduce((sum, project) => sum + project.pendingCount, 0);
 
   const handleKmzDataImported = (features: KmzFeature[], visibility: VisibilitySettings) => {
-    // Apply visibility settings to each feature
-    const featuresWithVisibility: KmzFeatureWithVisibility[] = features.map(feature => ({
+    const featuresWithVisibility = features.map(feature => ({
       ...feature,
       visibleTo: {
-        visibilityType: visibility.visibilityType,
+        type: visibility.visibilityType,
         teamId: visibility.teamId,
         userId: visibility.userId,
       }
@@ -69,7 +66,6 @@ const RepositoryPage = () => {
     });
   };
   
-  // Filter features based on visibility settings
   const getVisibleFeatures = () => {
     return importedKmzFeatures.filter(feature => {
       const { visibilityType, teamId, userId } = feature.visibleTo;
@@ -258,7 +254,6 @@ const RepositoryPage = () => {
                     )}
                   </span>
                   
-                  {/* User visibility indicator */}
                   <div className="flex items-center text-sm text-muted-foreground">
                     <User className="h-4 w-4 mr-1" />
                     <span>Viewing as: {currentUser.name}</span>

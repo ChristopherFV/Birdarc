@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 // Mock task data - In a real app, this would come from a context or API
 const taskData = {
   id: 'task-123',
-  title: 'Construction Drawing Review',
+  title: 'Field Dashboard',
   description: 'Review the construction drawings for the new commercial building project. Check for structural issues and compliance with local building codes.',
   location: {
     address: '123 Construction Ave, Building 3, San Francisco, CA 94103',
