@@ -5,17 +5,21 @@ interface FeetCompletedInputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
+  label?: string;
+  unitType?: string;
 }
 
 export const FeetCompletedInput: React.FC<FeetCompletedInputProps> = ({
   value,
   onChange,
-  error
+  error,
+  label = "Unit Quantity",
+  unitType = "units"
 }) => {
   return (
     <div>
       <label htmlFor="feetCompleted" className="block text-sm font-medium mb-1">
-        Unit Quantity
+        {label}
       </label>
       <div className="relative">
         <input
@@ -35,7 +39,7 @@ export const FeetCompletedInput: React.FC<FeetCompletedInputProps> = ({
           `}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-          units
+          {unitType}
         </div>
       </div>
       {error && (

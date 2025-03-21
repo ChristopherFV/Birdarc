@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +6,8 @@ import { ChevronLeft, Download, Maximize2, RotateCw, ZoomIn, ZoomOut, Type, Penc
 import { Link } from 'react-router-dom';
 import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 import { useToast } from "@/hooks/use-toast";
+import { FeetCompletedInput } from '@/components/forms/work-entry/FeetCompletedInput';
 
-// Mock task data - In a real app, this would come from a context or API
 const taskData = {
   id: 'task-123',
   title: 'Construction Drawing Review',
@@ -34,6 +33,8 @@ export const TechnicianWindow: React.FC = () => {
   const [currentTool, setCurrentTool] = useState<'pen' | 'text' | 'circle' | 'square'>('pen');
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'drawing' | 'notes'>('drawing');
+  const [completedUnits, setCompletedUnits] = useState('');
+  const [notes, setNotes] = useState('');
   
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 10, 200));
@@ -59,6 +60,21 @@ export const TechnicianWindow: React.FC = () => {
     setWorkEntryDialogOpen(true);
   };
 
+  const handleUnitsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCompletedUnits(e.target.value);
+  };
+
+  const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNotes(e.target.value);
+  };
+
+  const handleSaveNotes = () => {
+    toast({
+      title: "Notes saved",
+      description: `Saved ${completedUnits} units completed and notes.`,
+    });
+  };
+
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
       weekday: 'short',
@@ -77,14 +93,12 @@ export const TechnicianWindow: React.FC = () => {
   
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Work Entry Dialog */}
       <TechnicianWorkEntryDialog 
         open={workEntryDialogOpen} 
         onOpenChange={setWorkEntryDialogOpen} 
         projectId="project-1" // In a real app, this would be dynamically set
       />
       
-      {/* Header */}
       <header className="border-b border-border p-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -113,9 +127,7 @@ export const TechnicianWindow: React.FC = () => {
         </div>
       </header>
       
-      {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* PDF Viewer */}
         <div className="flex-1 overflow-auto p-4">
           <div 
             className="mx-auto bg-white shadow-lg border border-border rounded-md"
@@ -125,7 +137,6 @@ export const TechnicianWindow: React.FC = () => {
               position: 'relative'
             }}
           >
-            {/* Placeholder for PDF content */}
             <div className="h-full w-full flex flex-col items-center justify-center text-center p-6">
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                 <div className="text-muted-foreground p-8">
@@ -136,7 +147,6 @@ export const TechnicianWindow: React.FC = () => {
               </div>
             </div>
             
-            {/* PDF Controls */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-background/90 p-2 rounded-md shadow-sm border border-border">
               <Button 
                 variant="ghost" 
@@ -175,7 +185,6 @@ export const TechnicianWindow: React.FC = () => {
           </div>
         </div>
         
-        {/* Tools Panel */}
         <div className="w-72 border-l border-border overflow-y-auto">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'drawing' | 'notes')} className="w-full">
             <TabsList className="w-full grid grid-cols-2">
@@ -270,7 +279,6 @@ export const TechnicianWindow: React.FC = () => {
                 </CardContent>
               </Card>
               
-              {/* Task Information Card - Moved from Details tab */}
               <Card>
                 <CardHeader className="py-2">
                   <CardTitle className="text-sm">Task Details</CardTitle>
@@ -357,15 +365,24 @@ export const TechnicianWindow: React.FC = () => {
                   <CardTitle className="text-sm">Task Notes</CardTitle>
                 </CardHeader>
                 <CardContent className="py-2">
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
                       Please mark completed sections on the drawing and note any issues encountered.
                     </p>
+                    
+                    <FeetCompletedInput 
+                      value={completedUnits}
+                      onChange={handleUnitsChange}
+                      label="Total Units Completed"
+                    />
+                    
                     <textarea 
                       className="w-full border border-border rounded-md p-2 h-32 text-sm"
                       placeholder="Add your notes here..."
+                      value={notes}
+                      onChange={handleNotesChange}
                     />
-                    <Button size="sm" className="w-full">Save Notes</Button>
+                    <Button size="sm" className="w-full" onClick={handleSaveNotes}>Save Notes</Button>
                   </div>
                 </CardContent>
               </Card>
