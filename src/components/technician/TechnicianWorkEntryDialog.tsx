@@ -65,7 +65,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
       ...formData,
       isRedlineRevision
     };
-    handleSubmit(e, updatedFormData);
+    handleSubmit(e);
     toast({
       title: "Work entry submitted",
       description: "Your work entry has been submitted for approval.",
@@ -168,50 +168,48 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             error={formErrors.attachments}
           />
           
-          <DialogFooter className="gap-2 mt-4 flex-col sm:flex-row">
-            <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
-              <AlertDialogTrigger asChild>
-                <Button type="button" variant="destructive">
-                  <CircleX className="mr-1" />
-                  Cancel Ticket
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Cancel Ticket</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Please provide a reason for cancelling this ticket. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                
-                <Textarea
-                  value={cancelNotes}
-                  onChange={(e) => setCancelNotes(e.target.value)}
-                  placeholder="Enter reason for cancellation..."
-                  className="mt-2"
-                  rows={4}
-                />
-                
-                <AlertDialogFooter className="mt-4">
-                  <AlertDialogCancel>Go Back</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleCancelTicket} className="bg-destructive hover:bg-destructive/90">
-                    Confirm Cancel
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Close
-            </Button>
-            
-            <Button 
-              type="submit" 
-              disabled={isSubmitting} 
-              className="bg-fieldvision-orange hover:bg-fieldvision-orange/90"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit for Approval'}
-            </Button>
+          <DialogFooter className="mt-4">
+            <div className="flex justify-between w-full">
+              <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive/10">
+                    <CircleX className="size-4 mr-1" />
+                    Cancel Ticket
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Cancel Ticket</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Please provide a reason for cancelling this ticket. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  
+                  <Textarea
+                    value={cancelNotes}
+                    onChange={(e) => setCancelNotes(e.target.value)}
+                    placeholder="Enter reason for cancellation..."
+                    className="mt-2"
+                    rows={4}
+                  />
+                  
+                  <AlertDialogFooter className="mt-4">
+                    <AlertDialogCancel>Go Back</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleCancelTicket} className="bg-destructive hover:bg-destructive/90">
+                      Confirm Cancel
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              
+              <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="bg-fieldvision-orange hover:bg-fieldvision-orange/90"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit for Approval'}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>
