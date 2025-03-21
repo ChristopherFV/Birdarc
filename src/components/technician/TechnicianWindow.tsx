@@ -33,7 +33,7 @@ export const TechnicianWindow: React.FC = () => {
   const [zoomLevel, setZoomLevel] = useState(100);
   const [currentTool, setCurrentTool] = useState<'pen' | 'text' | 'circle' | 'square'>('pen');
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'drawing' | 'notes' | 'details'>('drawing');
+  const [activeTab, setActiveTab] = useState<'drawing' | 'notes'>('drawing');
   
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 10, 200));
@@ -177,11 +177,10 @@ export const TechnicianWindow: React.FC = () => {
         
         {/* Tools Panel */}
         <div className="w-72 border-l border-border overflow-y-auto">
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'drawing' | 'notes' | 'details')} className="w-full">
-            <TabsList className="w-full grid grid-cols-3">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'drawing' | 'notes')} className="w-full">
+            <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="drawing">Drawing</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
             </TabsList>
             
             <TabsContent value="drawing" className="p-4 space-y-4">
@@ -270,29 +269,8 @@ export const TechnicianWindow: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-            
-            <TabsContent value="notes" className="p-4">
-              <Card>
-                <CardHeader className="py-2">
-                  <CardTitle className="text-sm">Task Notes</CardTitle>
-                </CardHeader>
-                <CardContent className="py-2">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
-                      Please mark completed sections on the drawing and note any issues encountered.
-                    </p>
-                    <textarea 
-                      className="w-full border border-border rounded-md p-2 h-32 text-sm"
-                      placeholder="Add your notes here..."
-                    />
-                    <Button size="sm" className="w-full">Save Notes</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="details" className="p-4">
+              
+              {/* Task Information Card - Moved from Details tab */}
               <Card>
                 <CardHeader className="py-2">
                   <CardTitle className="text-sm">Task Details</CardTitle>
@@ -368,6 +346,26 @@ export const TechnicianWindow: React.FC = () => {
                         </span>
                       </div>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="notes" className="p-4">
+              <Card>
+                <CardHeader className="py-2">
+                  <CardTitle className="text-sm">Task Notes</CardTitle>
+                </CardHeader>
+                <CardContent className="py-2">
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Please mark completed sections on the drawing and note any issues encountered.
+                    </p>
+                    <textarea 
+                      className="w-full border border-border rounded-md p-2 h-32 text-sm"
+                      placeholder="Add your notes here..."
+                    />
+                    <Button size="sm" className="w-full">Save Notes</Button>
                   </div>
                 </CardContent>
               </Card>

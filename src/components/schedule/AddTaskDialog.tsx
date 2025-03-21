@@ -71,7 +71,7 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         <TaskForm 
           open={open} 
           onOpenChange={onOpenChange} 
-          onSubmit={handleSubmit}
+          // Removed the onSubmit prop as it doesn't exist in TaskFormProps
         />
       </DialogContent>
     </Dialog>
