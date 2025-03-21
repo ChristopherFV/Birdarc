@@ -85,8 +85,8 @@ const Index = () => {
               <ProductionChart />
             </div>
             
-            <div className="lg:col-span-1 flex flex-col" style={{ minHeight: 'calc(840px + 1.5rem)' }}>
-              {/* Work Entry Form now comes before Recent Invoices */}
+            <div className="lg:col-span-1 flex flex-col space-y-4" style={{ minHeight: 'calc(840px + 1.5rem)' }}>
+              {/* Work Entry Form now comes before Recent Invoices with spacing between them */}
               <WorkEntryForm />
               <RecentInvoices />
             </div>
