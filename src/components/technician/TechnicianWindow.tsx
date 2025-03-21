@@ -53,8 +53,8 @@ export const TechnicianWindow: React.FC = () => {
 
   const handleCompleteReview = () => {
     toast({
-      title: "Review marked as complete",
-      description: "Please log your work entry for this review.",
+      title: "Task closed",
+      description: "Please log your work entry for this task.",
     });
     setWorkEntryDialogOpen(true);
   };
@@ -107,7 +107,7 @@ export const TechnicianWindow: React.FC = () => {
               style={{ backgroundColor: "#F18E1D", color: "white" }}
               onClick={handleCompleteReview}
             >
-              Complete Review
+              Close Task
             </Button>
           </div>
         </div>
