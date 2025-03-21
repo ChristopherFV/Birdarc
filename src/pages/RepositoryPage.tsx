@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Plus, Check, XCircle, Filter, SortDesc, CircleAlert, Calendar, MapPin } from 'lucide-react';
+import { Upload, Plus, Check, XCircle, Filter, SortDesc, CircleAlert, Calendar, MapPin, FileType } from 'lucide-react';
 import { FileRepository } from '@/components/repository/FileRepository';
 import { FileUploader } from '@/components/repository/FileUploader';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,9 @@ import { FilterBar } from '@/components/ui/FilterBar';
 import { MapComponent } from '@/components/schedule/MapComponent';
 import { ScheduleCalendar } from '@/components/schedule/ScheduleCalendar';
 import { TaskForm } from '@/components/schedule/TaskForm';
+import { KmzUploader } from '@/components/repository/KmzUploader';
+import { KmzFeature } from '@/utils/kmzUtils';
+import { useToast } from '@/components/ui/use-toast';
 
 const projectsWithPendingFiles = [
   { id: '1', name: 'Cedar Heights Fiber', pendingCount: 25, billingCodes: ['FBR-001'] },
@@ -24,9 +28,27 @@ const RepositoryPage = () => {
   const [showUploader, setShowUploader] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'schedule'>('schedule');
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [showKmzUploader, setShowKmzUploader] = useState(false);
+  const [importedKmzFeatures, setImportedKmzFeatures] = useState<KmzFeature[]>([]);
   const { tasks } = useSchedule();
+  const { toast } = useToast();
 
   const totalPendingFiles = projectsWithPendingFiles.reduce((sum, project) => sum + project.pendingCount, 0);
+
+  const handleKmzDataImported = (features: KmzFeature[]) => {
+    setImportedKmzFeatures(prevFeatures => [...prevFeatures, ...features]);
+    setShowKmzUploader(false);
+    
+    toast({
+      title: "KMZ features imported",
+      description: `${features.length} features have been added to the map for tracking`,
+      variant: "default",
+    });
+  };
+  
+  const toggleKmzUploader = () => {
+    setShowKmzUploader(prev => !prev);
+  };
 
   return (
     <SimplePageLayout 
@@ -46,13 +68,23 @@ const RepositoryPage = () => {
         </div>
         <div className="flex gap-2">
           {selectedTab === 'schedule' && (
-            <Button 
-              onClick={() => setIsTaskFormOpen(true)} 
-              className="flex items-center gap-2 bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
-            >
-              <Plus className="h-4 w-4" />
-              <span>New Task</span>
-            </Button>
+            <>
+              <Button 
+                onClick={toggleKmzUploader} 
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <FileType className="h-4 w-4" />
+                <span>Import KMZ</span>
+              </Button>
+              <Button 
+                onClick={() => setIsTaskFormOpen(true)} 
+                className="flex items-center gap-2 bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+              >
+                <Plus className="h-4 w-4" />
+                <span>New Task</span>
+              </Button>
+            </>
           )}
           {selectedTab !== 'schedule' && (
             <Button 
@@ -68,6 +100,20 @@ const RepositoryPage = () => {
       </div>
 
       {selectedTab === 'schedule' && <FilterBar />}
+
+      {showKmzUploader && selectedTab === 'schedule' && (
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle>Import KMZ Data</CardTitle>
+            <CardDescription>
+              Upload KMZ files to import geographic data for your projects
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <KmzUploader onKmzDataImported={handleKmzDataImported} />
+          </CardContent>
+        </Card>
+      )}
 
       {totalPendingFiles > 0 && selectedTab !== 'schedule' && (
         <Card className="mb-6 border-yellow-200 bg-yellow-50">
@@ -162,11 +208,18 @@ const RepositoryPage = () => {
                 </CardTitle>
                 <CardDescription>
                   View all teams and technicians across locations. Click on markers to assign tasks.
+                  {importedKmzFeatures.length > 0 && (
+                    <span className="ml-1">
+                      <Badge variant="outline" className="ml-2">
+                        {importedKmzFeatures.length} imported features
+                      </Badge>
+                    </span>
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[600px] w-full rounded-md overflow-hidden">
-                  <MapComponent />
+                  <MapComponent kmzFeatures={importedKmzFeatures} />
                 </div>
               </CardContent>
             </Card>
