@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Upload, AlertCircle, Check, FileType, MapPin } from 'lucide-react';
+import { Upload, AlertCircle, Check, FileType, MapPin, Users, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -8,9 +8,53 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { parseKmzFile, KmzFeature } from '@/utils/kmzUtils';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+// Sample team and user data (in a real app, this would come from the backend)
+const teams = [
+  { id: 'team-1', name: 'North Region Team' },
+  { id: 'team-2', name: 'South Region Team' },
+  { id: 'team-3', name: 'East Region Team' },
+  { id: 'team-4', name: 'West Region Team' },
+];
+
+const users = [
+  { id: 'user-1', name: 'John Davis', team: 'team-1' },
+  { id: 'user-2', name: 'Emily Wilson', team: 'team-1' },
+  { id: 'user-3', name: 'Michael Scott', team: 'team-2' },
+  { id: 'user-4', name: 'Sarah Johnson', team: 'team-3' },
+  { id: 'user-5', name: 'Robert Chen', team: 'team-4' },
+];
+
+const visibilitySchema = z.object({
+  visibilityType: z.enum(['all', 'team', 'specific']),
+  teamId: z.string().optional(),
+  userId: z.string().optional(),
+});
+
+type VisibilityFormData = z.infer<typeof visibilitySchema>;
 
 interface KmzUploaderProps {
-  onKmzDataImported: (features: KmzFeature[]) => void;
+  onKmzDataImported: (features: KmzFeature[], visibility: VisibilityFormData) => void;
 }
 
 export const KmzUploader: React.FC<KmzUploaderProps> = ({ onKmzDataImported }) => {
@@ -19,13 +63,25 @@ export const KmzUploader: React.FC<KmzUploaderProps> = ({ onKmzDataImported }) =
   const [uploadProgress, setUploadProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showVisibilitySettings, setShowVisibilitySettings] = useState(false);
   const { toast } = useToast();
+  
+  const form = useForm<VisibilityFormData>({
+    resolver: zodResolver(visibilitySchema),
+    defaultValues: {
+      visibilityType: 'all',
+    },
+  });
+  
+  const visibilityType = form.watch('visibilityType');
   
   const resetState = () => {
     setSelectedFile(null);
     setIsUploading(false);
     setUploadProgress(0);
     setErrorMessage(null);
+    setShowVisibilitySettings(false);
+    form.reset({ visibilityType: 'all' });
   };
   
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -62,6 +118,7 @@ export const KmzUploader: React.FC<KmzUploaderProps> = ({ onKmzDataImported }) =
     
     setSelectedFile(file);
     setErrorMessage(null);
+    setShowVisibilitySettings(true);
   };
   
   const handleUpload = async () => {
@@ -83,13 +140,16 @@ export const KmzUploader: React.FC<KmzUploaderProps> = ({ onKmzDataImported }) =
       await new Promise(resolve => setTimeout(resolve, 300));
       setUploadProgress(100);
       
-      // Callback with the extracted features
-      onKmzDataImported(features);
+      // Get visibility settings
+      const visibilityData = form.getValues();
+      
+      // Callback with the extracted features and visibility settings
+      onKmzDataImported(features, visibilityData);
       
       toast({
         title: "KMZ file imported successfully",
         description: `Imported ${features.length} features from ${selectedFile.name}`,
-        variant: "success",
+        variant: "default",
       });
       
       // Reset the uploader
@@ -175,6 +235,129 @@ export const KmzUploader: React.FC<KmzUploaderProps> = ({ onKmzDataImported }) =
               </Badge>
             </div>
             
+            {showVisibilitySettings && !isUploading && (
+              <div className="text-left border border-border rounded-md p-4 mt-4 bg-background/50">
+                <h4 className="font-medium mb-3">Visibility Settings</h4>
+                <Form {...form}>
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="visibilityType"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <FormLabel>Who should see this data?</FormLabel>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="visibility-all"
+                                value="all"
+                                checked={field.value === 'all'}
+                                onChange={() => field.onChange('all')}
+                                className="rounded text-primary"
+                              />
+                              <Label htmlFor="visibility-all" className="flex items-center">
+                                <Users className="h-4 w-4 mr-2" />
+                                Everyone (All teams)
+                              </Label>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="visibility-team"
+                                value="team"
+                                checked={field.value === 'team'}
+                                onChange={() => field.onChange('team')}
+                                className="rounded text-primary"
+                              />
+                              <Label htmlFor="visibility-team" className="flex items-center">
+                                <Users className="h-4 w-4 mr-2" />
+                                Specific Team
+                              </Label>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="visibility-specific"
+                                value="specific"
+                                checked={field.value === 'specific'}
+                                onChange={() => field.onChange('specific')}
+                                className="rounded text-primary"
+                              />
+                              <Label htmlFor="visibility-specific" className="flex items-center">
+                                <User className="h-4 w-4 mr-2" />
+                                Specific User
+                              </Label>
+                            </div>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {visibilityType === 'team' && (
+                      <FormField
+                        control={form.control}
+                        name="teamId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Select Team</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a team" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {teams.map(team => (
+                                  <SelectItem key={team.id} value={team.id}>
+                                    {team.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                    
+                    {visibilityType === 'specific' && (
+                      <FormField
+                        control={form.control}
+                        name="userId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Select User</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a user" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {users.map(user => (
+                                  <SelectItem key={user.id} value={user.id}>
+                                    {user.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
+                </Form>
+              </div>
+            )}
+            
             {isUploading ? (
               <div className="space-y-2">
                 <Progress value={uploadProgress} className="h-2" />
@@ -210,4 +393,3 @@ export const KmzUploader: React.FC<KmzUploaderProps> = ({ onKmzDataImported }) =
     </div>
   );
 };
-

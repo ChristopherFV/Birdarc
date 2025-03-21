@@ -10,6 +10,11 @@ export interface KmzFeature {
   properties: Record<string, any>;
   type: 'point' | 'line' | 'polygon';
   completed: boolean;
+  visibleTo?: {
+    type: 'all' | 'team' | 'specific';
+    teamId?: string;
+    userId?: string;
+  };
 }
 
 /**
@@ -130,17 +135,19 @@ const parseKmlContent = (kmlContent: string): KmzFeature[] => {
 const parseCoordinatesString = (coordsStr?: string): Array<[number, number]> => {
   if (!coordsStr) return [];
   
-  return coordsStr
+  const result: Array<[number, number]> = [];
+  
+  coordsStr
     .trim()
     .split(/\s+/)
-    .map(coordPair => {
+    .forEach(coordPair => {
       const parts = coordPair.split(',');
       if (parts.length >= 2) {
-        return [parseFloat(parts[0]), parseFloat(parts[1])];
+        result.push([parseFloat(parts[0]), parseFloat(parts[1])]);
       }
-      return [0, 0]; // Invalid coordinate
-    })
-    .filter(coord => coord[0] !== 0 || coord[1] !== 0);
+    });
+  
+  return result;
 };
 
 /**
@@ -153,4 +160,3 @@ const getElementValue = (parent: Element, tagName: string): string | undefined =
   }
   return undefined;
 };
-

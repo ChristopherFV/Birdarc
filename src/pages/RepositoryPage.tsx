@@ -4,7 +4,7 @@ import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Plus, Check, XCircle, Filter, SortDesc, CircleAlert, Calendar, MapPin, FileType } from 'lucide-react';
+import { Upload, Plus, Check, XCircle, Filter, SortDesc, CircleAlert, Calendar, MapPin, FileType, Users, User } from 'lucide-react';
 import { FileRepository } from '@/components/repository/FileRepository';
 import { FileUploader } from '@/components/repository/FileUploader';
 import { Badge } from '@/components/ui/badge';
@@ -24,19 +24,42 @@ const projectsWithPendingFiles = [
   { id: '4', name: 'Westside Network', pendingCount: 8, billingCodes: ['SPL-072'] },
 ];
 
+type VisibilitySettings = {
+  visibilityType: 'all' | 'team' | 'specific';
+  teamId?: string;
+  userId?: string;
+};
+
+type KmzFeatureWithVisibility = KmzFeature & {
+  visibleTo: VisibilitySettings;
+};
+
 const RepositoryPage = () => {
   const [showUploader, setShowUploader] = useState(false);
   const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'schedule'>('schedule');
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [showKmzUploader, setShowKmzUploader] = useState(false);
-  const [importedKmzFeatures, setImportedKmzFeatures] = useState<KmzFeature[]>([]);
+  const [importedKmzFeatures, setImportedKmzFeatures] = useState<KmzFeatureWithVisibility[]>([]);
   const { tasks } = useSchedule();
   const { toast } = useToast();
+  
+  // Current user/team context (in a real app, this would come from auth context)
+  const currentUser = { id: 'user-1', name: 'John Davis', teamId: 'team-1' };
 
   const totalPendingFiles = projectsWithPendingFiles.reduce((sum, project) => sum + project.pendingCount, 0);
 
-  const handleKmzDataImported = (features: KmzFeature[]) => {
-    setImportedKmzFeatures(prevFeatures => [...prevFeatures, ...features]);
+  const handleKmzDataImported = (features: KmzFeature[], visibility: VisibilitySettings) => {
+    // Apply visibility settings to each feature
+    const featuresWithVisibility: KmzFeatureWithVisibility[] = features.map(feature => ({
+      ...feature,
+      visibleTo: {
+        visibilityType: visibility.visibilityType,
+        teamId: visibility.teamId,
+        userId: visibility.userId,
+      }
+    }));
+    
+    setImportedKmzFeatures(prevFeatures => [...prevFeatures, ...featuresWithVisibility]);
     setShowKmzUploader(false);
     
     toast({
@@ -45,6 +68,25 @@ const RepositoryPage = () => {
       variant: "default",
     });
   };
+  
+  // Filter features based on visibility settings
+  const getVisibleFeatures = () => {
+    return importedKmzFeatures.filter(feature => {
+      const { visibilityType, teamId, userId } = feature.visibleTo;
+      
+      if (visibilityType === 'all') {
+        return true;
+      } else if (visibilityType === 'team') {
+        return teamId === currentUser.teamId;
+      } else if (visibilityType === 'specific') {
+        return userId === currentUser.id;
+      }
+      
+      return false;
+    });
+  };
+  
+  const visibleFeatures = getVisibleFeatures();
   
   const toggleKmzUploader = () => {
     setShowKmzUploader(prev => !prev);
@@ -106,7 +148,7 @@ const RepositoryPage = () => {
           <CardHeader className="pb-3">
             <CardTitle>Import KMZ Data</CardTitle>
             <CardDescription>
-              Upload KMZ files to import geographic data for your projects
+              Upload KMZ files to import geographic data for your projects and control who can see it
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -206,20 +248,26 @@ const RepositoryPage = () => {
                   <MapPin className="mr-2 h-5 w-5" />
                   U.S. Field Operations Map
                 </CardTitle>
-                <CardDescription>
-                  View all teams and technicians across locations. Click on markers to assign tasks.
-                  {importedKmzFeatures.length > 0 && (
-                    <span className="ml-1">
+                <CardDescription className="flex items-center justify-between">
+                  <span>
+                    View all teams and technicians across locations. Click on markers to assign tasks.
+                    {visibleFeatures.length > 0 && (
                       <Badge variant="outline" className="ml-2">
-                        {importedKmzFeatures.length} imported features
+                        {visibleFeatures.length} imported features
                       </Badge>
-                    </span>
-                  )}
+                    )}
+                  </span>
+                  
+                  {/* User visibility indicator */}
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <User className="h-4 w-4 mr-1" />
+                    <span>Viewing as: {currentUser.name}</span>
+                  </div>
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[600px] w-full rounded-md overflow-hidden">
-                  <MapComponent kmzFeatures={importedKmzFeatures} />
+                  <MapComponent kmzFeatures={visibleFeatures} />
                 </div>
               </CardContent>
             </Card>
