@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppProvider } from '@/context/AppContext';
@@ -6,6 +7,7 @@ import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
 import { RecentWorkEntries } from '@/components/dashboard/RecentWorkEntries';
 import { WorkEntryForm } from '@/components/forms/WorkEntryForm';
+import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 import { Settings, FolderOpen, Glasses, HardHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
@@ -84,11 +86,13 @@ const Index = () => {
             </div>
             
             <div className="lg:col-span-1 flex flex-col" style={{ minHeight: 'calc(840px + 1.5rem)' }}>
+              {/* Work Entry Form now comes before Recent Invoices */}
               <WorkEntryForm />
+              <RecentInvoices />
             </div>
           </div>
           
-          {/* Recent Work Entries now takes full width */}
+          {/* Recent Work Entries takes full width */}
           <RecentWorkEntries />
         </main>
       </div>

@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useWorkEntryForm } from '@/hooks/useWorkEntryForm';
-import { QuickBooksSyncIndicator } from '@/components/indicators/QuickBooksSyncIndicator';
 import { DateSelector } from '@/components/forms/work-entry/DateSelector';
 import { ProjectSelector } from '@/components/forms/work-entry/ProjectSelector';
 import { BillingCodeSelector } from '@/components/forms/work-entry/BillingCodeSelector';
@@ -9,7 +8,6 @@ import { FeetCompletedInput } from '@/components/forms/work-entry/FeetCompletedI
 import { RevenuePreview } from '@/components/forms/work-entry/RevenuePreview';
 import { TeamMemberSelector } from '@/components/forms/work-entry/TeamMemberSelector';
 import { SubmitButton } from '@/components/forms/work-entry/SubmitButton';
-import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
 
 export const WorkEntryForm: React.FC = () => {
@@ -31,12 +29,6 @@ export const WorkEntryForm: React.FC = () => {
   
   return (
     <div className="space-y-4 h-full flex flex-col">
-      {/* QuickBooks Sync Box */}
-      <QuickBooksSyncIndicator />
-      
-      {/* Recent Invoices */}
-      <RecentInvoices />
-      
       {/* Work Entry Form Box */}
       <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in flex-grow" style={{ animationDelay: '200ms' }}>
         <div className="mb-4">

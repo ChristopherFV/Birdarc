@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
-import { FileText, Check, AlertCircle, Plus, List } from 'lucide-react';
+import { FileText, Check, AlertCircle, Plus, List, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Mock data for invoices
 const mockInvoices = [
@@ -46,11 +47,29 @@ export const RecentInvoices: React.FC = () => {
     openAddInvoiceDialog();
   };
   
+  // QuickBooks sync indicator component embedded in the card header
+  const QuickBooksSyncIndicator = () => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 cursor-pointer">
+            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+            <RefreshCw size={14} className="text-green-600" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="text-xs">QuickBooks sync'd</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+  
   if (mockInvoices.length === 0) {
     return (
       <Card className="bg-card border-border shadow-sm mb-4">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
           <CardTitle className="text-base font-medium">Recent Invoices</CardTitle>
+          <QuickBooksSyncIndicator />
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
@@ -75,8 +94,9 @@ export const RecentInvoices: React.FC = () => {
   
   return (
     <Card className="bg-card border-border shadow-sm mb-4">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-medium">Recent Invoices</CardTitle>
+        <QuickBooksSyncIndicator />
       </CardHeader>
       <CardContent className="pt-0">
         <ScrollArea className="max-h-[200px]">
