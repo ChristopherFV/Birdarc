@@ -1,12 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Download, Maximize2, RotateCw, ZoomIn, ZoomOut, Type, Pencil, Circle, Square, MapPin, Calendar, Clock, FileText, User, HardHat } from 'lucide-react';
+import { ChevronLeft, Download, Maximize2, RotateCw, ZoomIn, ZoomOut, Type, Pencil, Circle, Square, MapPin, Calendar, Clock, FileText, User, HardHat, MapIcon, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 import { useToast } from "@/hooks/use-toast";
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Mock task data - In a real app, this would come from a context or API
 const taskData = {
@@ -34,6 +36,53 @@ export const TechnicianWindow: React.FC = () => {
   const [currentTool, setCurrentTool] = useState<'pen' | 'text' | 'circle' | 'square'>('pen');
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'drawing' | 'notes'>('drawing');
+  const [mapboxToken, setMapboxToken] = useState<string>('');
+  const [showMapTokenInput, setShowMapTokenInput] = useState(true);
+  
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  
+  // Initialize map when mapbox token is available
+  useEffect(() => {
+    if (!mapboxToken || !mapContainer.current || map.current) return;
+    
+    mapboxgl.accessToken = mapboxToken;
+    
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [taskData.location.lng, taskData.location.lat],
+        zoom: 15
+      });
+      
+      // Add marker for task location
+      new mapboxgl.Marker({ color: '#F18E1D' })
+        .setLngLat([taskData.location.lng, taskData.location.lat])
+        .addTo(map.current);
+      
+      // Add navigation controls
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      
+      // Show success message
+      toast({
+        title: "Map loaded successfully",
+        description: "Task location is now visible on the map",
+      });
+      
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      toast({
+        title: "Map initialization failed",
+        description: "Please check your Mapbox token and try again",
+        variant: "destructive"
+      });
+    }
+    
+    return () => {
+      map.current?.remove();
+    };
+  }, [mapboxToken, toast]);
   
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 10, 200));
@@ -75,6 +124,29 @@ export const TechnicianWindow: React.FC = () => {
     });
   };
   
+  const handleSetMapboxToken = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const token = formData.get('mapboxToken') as string;
+    
+    if (token) {
+      setMapboxToken(token);
+      setShowMapTokenInput(false);
+      
+      // Save token to localStorage for convenience during development
+      localStorage.setItem('mapbox_token', token);
+    }
+  };
+  
+  // Try to get token from localStorage on first load
+  useEffect(() => {
+    const savedToken = localStorage.getItem('mapbox_token');
+    if (savedToken) {
+      setMapboxToken(savedToken);
+      setShowMapTokenInput(false);
+    }
+  }, []);
+  
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Work Entry Dialog */}
@@ -115,13 +187,69 @@ export const TechnicianWindow: React.FC = () => {
       
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* PDF Viewer */}
+        {/* Document and Map Viewer */}
         <div className="flex-1 overflow-auto p-4">
+          {/* Map Section */}
+          <div className="mb-4">
+            <Card className="overflow-hidden">
+              <CardHeader className="py-2 px-4 bg-fieldvision-navy/10">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <MapIcon className="h-4 w-4" />
+                    Job Location
+                  </CardTitle>
+                  {!showMapTokenInput && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-xs"
+                      onClick={() => window.open(`https://maps.google.com/?q=${taskData.location.lat},${taskData.location.lng}`, '_blank')}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Open in Google Maps
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {showMapTokenInput ? (
+                  <div className="p-4">
+                    <form onSubmit={handleSetMapboxToken} className="space-y-2">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Please enter your Mapbox public token to display the map. You can get a token by creating an account at{' '}
+                        <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          mapbox.com
+                        </a>
+                      </p>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          name="mapboxToken" 
+                          placeholder="pk.eyJ1IjoieW91..." 
+                          className="flex-1 px-2 py-1 text-sm border rounded"
+                        />
+                        <Button type="submit" size="sm">
+                          Set Token
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div 
+                    ref={mapContainer} 
+                    className="w-full h-[250px]"
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Drawing Viewer */}
           <div 
             className="mx-auto bg-white shadow-lg border border-border rounded-md"
             style={{ 
               width: `${zoomLevel}%`, 
-              height: 'calc(100vh - 180px)',
+              height: 'calc(100vh - 440px)', // Adjusted for map's height
               position: 'relative'
             }}
           >

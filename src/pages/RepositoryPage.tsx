@@ -49,12 +49,8 @@ const RepositoryPage = () => {
   const handleKmzDataImported = (features: KmzFeature[], visibility: VisibilitySettings) => {
     const featuresWithVisibility = features.map(feature => ({
       ...feature,
-      visibleTo: {
-        type: visibility.visibilityType,
-        teamId: visibility.teamId,
-        userId: visibility.userId,
-      }
-    }));
+      visibleTo: visibility
+    })) as KmzFeatureWithVisibility[];
     
     setImportedKmzFeatures(prevFeatures => [...prevFeatures, ...featuresWithVisibility]);
     setShowKmzUploader(false);
