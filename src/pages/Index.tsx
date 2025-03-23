@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppProvider } from '@/context/AppContext';
@@ -17,13 +18,13 @@ const Header = () => {
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col">
         <img 
           src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
           alt="Fieldvision Logo" 
-          className="h-10 w-auto object-contain" 
+          className="h-8 w-auto object-contain mb-1" 
         />
-        <p className="text-muted-foreground text-sm">Powering Payments and Performance for Contractors</p>
+        <p className="text-muted-foreground text-xs">Powering Payments and Performance for Contractors</p>
       </div>
       <div className="flex items-center gap-4">
         <Link to="/repository">
