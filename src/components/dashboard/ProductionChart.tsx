@@ -22,10 +22,9 @@ import {
   CardTitle,
   CardDescription 
 } from "@/components/ui/card";
-import { BillingUnitFilter } from './BillingUnitFilter';
 
 export const ProductionChart: React.FC = () => {
-  const { getFilteredEntries, startDate, endDate, groupBy, billingUnit, setBillingUnit } = useApp();
+  const { getFilteredEntries, startDate, endDate, groupBy, billingUnit } = useApp();
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   
@@ -80,7 +79,6 @@ export const ProductionChart: React.FC = () => {
               Units completed over time
             </CardDescription>
           </div>
-          <BillingUnitFilter />
         </div>
       </CardHeader>
       
