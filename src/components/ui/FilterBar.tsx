@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { 
@@ -102,13 +103,54 @@ export const FilterBar: React.FC = () => {
   
   return (
     <div className="bg-card border border-border rounded-lg shadow-subtle mb-6 p-3">
-      <div className="flex flex-wrap justify-between items-center gap-2">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center text-sm font-medium text-muted-foreground">
-            <Filter size={14} className="mr-1" />
-            <span>Filters:</span>
-          </div>
+      {/* Top row with title and export button */}
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center text-sm font-medium text-muted-foreground">
+          <Filter size={14} className="mr-1" />
+          <span>Filters:</span>
+        </div>
+        
+        <div className="relative">
+          <button
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            className="flex items-center px-2 py-1 rounded-md bg-fieldvision-blue text-white text-xs font-medium hover:bg-fieldvision-blue/90 transition-colors"
+          >
+            <Download size={14} className="mr-1" />
+            <span>Export</span>
+            <ChevronDown size={12} className="ml-1" />
+          </button>
           
+          {showExportMenu && (
+            <>
+              <div 
+                className="fixed inset-0 z-10" 
+                onClick={() => setShowExportMenu(false)}
+              />
+              <div className="absolute right-0 mt-1 z-20 w-48 bg-card shadow-md rounded-md border border-border animate-in slide-up">
+                <div className="p-1">
+                  <button
+                    onClick={() => handleExport('raw')}
+                    className="w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-secondary"
+                  >
+                    <span>Raw Data (CSV)</span>
+                  </button>
+                  <button
+                    onClick={() => handleExport('summary')}
+                    className="w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-secondary"
+                  >
+                    <span>Summary Report (CSV)</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      
+      {/* Bottom row with all filters in a single line */}
+      <div className="flex flex-wrap justify-between items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Date Range Filter */}
           <div className="relative">
             <button
               onClick={() => setShowDatePicker(!showDatePicker)}
@@ -151,6 +193,7 @@ export const FilterBar: React.FC = () => {
             )}
           </div>
           
+          {/* Group By Filter */}
           <div className="relative">
             <button
               onClick={() => setShowGroupByMenu(!showGroupByMenu)}
@@ -186,9 +229,8 @@ export const FilterBar: React.FC = () => {
               </>
             )}
           </div>
-        </div>
         
-        <div className="flex items-center gap-2">
+          {/* Project Filter */}
           <div className="relative">
             <button
               onClick={() => setShowProjectsMenu(!showProjectsMenu)}
@@ -237,6 +279,7 @@ export const FilterBar: React.FC = () => {
             )}
           </div>
           
+          {/* Team Member Filter */}
           <div className="relative">
             <button
               onClick={() => setShowTeamMenu(!showTeamMenu)}
@@ -285,6 +328,7 @@ export const FilterBar: React.FC = () => {
             )}
           </div>
           
+          {/* Billing Code Filter */}
           <div className="relative">
             <button
               onClick={() => setShowBillingCodeMenu(!showBillingCodeMenu)}
@@ -332,42 +376,6 @@ export const FilterBar: React.FC = () => {
               </>
             )}
           </div>
-        </div>
-        
-        <div className="relative">
-          <button
-            onClick={() => setShowExportMenu(!showExportMenu)}
-            className="flex items-center px-2 py-1 rounded-md bg-fieldvision-blue text-white text-xs font-medium hover:bg-fieldvision-blue/90 transition-colors"
-          >
-            <Download size={14} className="mr-1" />
-            <span>Export</span>
-            <ChevronDown size={12} className="ml-1" />
-          </button>
-          
-          {showExportMenu && (
-            <>
-              <div 
-                className="fixed inset-0 z-10" 
-                onClick={() => setShowExportMenu(false)}
-              />
-              <div className="absolute right-0 mt-1 z-20 w-48 bg-card shadow-card rounded-md border border-border animate-in slide-up">
-                <div className="p-1">
-                  <button
-                    onClick={() => handleExport('raw')}
-                    className="w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-secondary"
-                  >
-                    <span>Raw Data (CSV)</span>
-                  </button>
-                  <button
-                    onClick={() => handleExport('summary')}
-                    className="w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-secondary"
-                  >
-                    <span>Summary Report (CSV)</span>
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
         </div>
       </div>
     </div>
