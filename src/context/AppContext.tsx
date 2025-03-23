@@ -1,8 +1,7 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format, subDays, subMonths } from 'date-fns';
 import { mockProjects, mockBillingCodes, mockTeamMembers, mockWorkEntries, mockCompanies } from '@/utils/mockData';
-import { calculateRevenue, exportDataToCSV } from '@/utils/app-utils';
+import { calculateRevenue, calculateContractorCost, exportDataToCSV } from '@/utils/app-utils';
 
 // Import the types
 import {
@@ -31,7 +30,7 @@ export type {
 };
 
 // Re-export the utility functions for backward compatibility
-export { calculateRevenue };
+export { calculateRevenue, calculateContractorCost };
 
 // Create context
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -176,6 +175,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     getFilteredEntries,
     exportData,
     calculateRevenue,
+    calculateContractorCost,
   };
   
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

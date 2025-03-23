@@ -6,7 +6,10 @@ import { WorkEntry, BillingCode, Project, GroupByType, calculateRevenue } from '
 export type RevenueData = {
   date: string;
   revenue: number;
+  contractorCost: number;
+  profit: number;
   cumulativeRevenue: number;
+  cumulativeProfit: number;
   formattedDate: string;
 };
 
@@ -22,18 +25,31 @@ export type ProductionData = {
 export type ChartData = {
   formattedDate: string;
   revenue?: number;
+  contractorCost?: number;
+  profit?: number;
   cumulativeRevenue?: number;
+  cumulativeProfit?: number;
   feet?: number;
   cumulativeFeet?: number;
+};
+
+// Calculate contractor cost based on margin
+const calculateContractorCost = (revenue: number, marginPercentage: number): number => {
+  if (!marginPercentage || marginPercentage <= 0) return 0;
+  
+  // Calculate the contractor cost based on the margin percentage
+  // For example, if revenue is $100 and margin is 20%, the contractor cost is $80
+  return revenue * (1 - marginPercentage / 100);
 };
 
 // Group entries by time unit
 const groupEntriesByTimeUnit = (
   entries: WorkEntry[],
   billingCodes: BillingCode[],
+  projects: Project[],
   groupBy: GroupByType
-): { [key: string]: { revenue: number; feet: number } } => {
-  const groupedData: { [key: string]: { revenue: number; feet: number } } = {};
+): { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } } => {
+  const groupedData: { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } } = {};
   
   entries.forEach(entry => {
     const date = parseISO(entry.date);
@@ -57,11 +73,24 @@ const groupEntriesByTimeUnit = (
     }
     
     if (!groupedData[period]) {
-      groupedData[period] = { revenue: 0, feet: 0 };
+      groupedData[period] = { revenue: 0, contractorCost: 0, profit: 0, feet: 0 };
     }
     
     const revenue = calculateRevenue(entry, billingCodes);
+    
+    // Find project to check for contractor info
+    const project = projects.find(p => p.id === entry.projectId);
+    let contractorCost = 0;
+    
+    if (project?.useContractor && project.contractorHourlyRate) {
+      contractorCost = calculateContractorCost(revenue, project.contractorHourlyRate);
+    }
+    
+    const profit = revenue - contractorCost;
+    
     groupedData[period].revenue += revenue;
+    groupedData[period].contractorCost += contractorCost;
+    groupedData[period].profit += profit;
     groupedData[period].feet += entry.feetCompleted;
   });
   
@@ -90,12 +119,12 @@ const getFormattedLabel = (date: string, groupBy: GroupByType): string => {
 
 // Fill in missing periods for continuous timeline
 const fillMissingPeriods = (
-  data: { [key: string]: { revenue: number; feet: number } },
+  data: { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } },
   startDate: Date,
   endDate: Date,
   groupBy: GroupByType
 ) => {
-  const filledData: { [key: string]: { revenue: number; feet: number } } = { ...data };
+  const filledData: { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } } = { ...data };
   let currentDate = startDate;
   
   while (currentDate <= endDate) {
@@ -125,7 +154,7 @@ const fillMissingPeriods = (
     }
     
     if (!filledData[period]) {
-      filledData[period] = { revenue: 0, feet: 0 };
+      filledData[period] = { revenue: 0, contractorCost: 0, profit: 0, feet: 0 };
     }
     
     currentDate = nextDate;
@@ -138,12 +167,13 @@ const fillMissingPeriods = (
 export const prepareRevenueData = (
   entries: WorkEntry[],
   billingCodes: BillingCode[],
+  projects: Project[],
   startDate: Date,
   endDate: Date,
   groupBy: GroupByType
 ): ChartData[] => {
   // Group data by time period
-  const groupedData = groupEntriesByTimeUnit(entries, billingCodes, groupBy);
+  const groupedData = groupEntriesByTimeUnit(entries, billingCodes, projects, groupBy);
   
   // Fill in any missing periods for a continuous timeline
   const filledData = fillMissingPeriods(groupedData, startDate, endDate, groupBy);
@@ -162,15 +192,20 @@ export const prepareRevenueData = (
   
   // Calculate cumulative values and format
   let cumulativeRevenue = 0;
+  let cumulativeProfit = 0;
   
   return sortedPeriods.map(period => {
-    const { revenue, feet } = filledData[period];
+    const { revenue, contractorCost, profit, feet } = filledData[period];
     cumulativeRevenue += revenue;
+    cumulativeProfit += profit;
     
     return {
       formattedDate: getFormattedLabel(period, groupBy),
       revenue,
+      contractorCost,
+      profit,
       cumulativeRevenue,
+      cumulativeProfit,
       feet
     };
   });
@@ -184,7 +219,7 @@ export const prepareProductionData = (
   groupBy: GroupByType
 ): ChartData[] => {
   // Group data by time period
-  const groupedData = groupEntriesByTimeUnit(entries, [], groupBy);
+  const groupedData = groupEntriesByTimeUnit(entries, [], [], groupBy);
   
   // Fill in any missing periods for a continuous timeline
   const filledData = fillMissingPeriods(groupedData, startDate, endDate, groupBy);

@@ -63,7 +63,7 @@ export const AddProjectDialog = () => {
     if (useContractor && !contractorHourlyRate) {
       toast({
         title: "Error",
-        description: "Margin percentage is required",
+        description: "Contractor margin percentage is required",
         variant: "destructive"
       });
       return;
@@ -277,7 +277,7 @@ export const AddProjectDialog = () => {
               
               {useContractor && (
                 <div className="pt-2">
-                  <Label htmlFor="contractorRate">Margin (%) <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="contractorRate">Contractor Margin (%) <span className="text-destructive">*</span></Label>
                   <Input
                     id="contractorRate"
                     type="number"

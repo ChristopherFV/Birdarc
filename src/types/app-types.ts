@@ -95,4 +95,5 @@ export type AppContextType = {
   exportData: (type: 'raw' | 'summary') => void;
   
   calculateRevenue: (entry: WorkEntry, billingCodes: BillingCode[]) => number;
+  calculateContractorCost: (entry: WorkEntry, billingCodes: BillingCode[], projects: Project[]) => number;
 };

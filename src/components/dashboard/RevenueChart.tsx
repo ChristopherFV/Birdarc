@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/card";
 
 export const RevenueChart: React.FC = () => {
-  const { getFilteredEntries, billingCodes, startDate, endDate, groupBy } = useApp();
+  const { getFilteredEntries, billingCodes, projects, startDate, endDate, groupBy } = useApp();
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   
@@ -37,14 +37,15 @@ export const RevenueChart: React.FC = () => {
   useEffect(() => {
     if (isMounted) {
       const entries = getFilteredEntries();
-      const data = prepareRevenueData(entries, billingCodes, startDate, endDate, groupBy);
+      const data = prepareRevenueData(entries, billingCodes, projects, startDate, endDate, groupBy);
       setChartData(data);
     }
-  }, [getFilteredEntries, billingCodes, startDate, endDate, groupBy, isMounted]);
+  }, [getFilteredEntries, billingCodes, projects, startDate, endDate, groupBy, isMounted]);
   
   // Calculate max values for scaling
   const maxRevenue = Math.max(...chartData.map(item => item.revenue || 0));
-  const maxCumulative = Math.max(...chartData.map(item => item.cumulativeRevenue || 0));
+  const maxContractorCost = Math.max(...chartData.map(item => item.contractorCost || 0));
+  const maxCumulative = Math.max(...chartData.map(item => item.cumulativeProfit || 0));
   const dataScale = maxCumulative > maxRevenue * 5 ? 1.2 : 2;
   
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -75,7 +76,7 @@ export const RevenueChart: React.FC = () => {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium">Revenue Overview</CardTitle>
         <CardDescription>
-          Expected revenue from completed work
+          Expected revenue from completed work with contractor costs
         </CardDescription>
       </CardHeader>
       
@@ -91,7 +92,11 @@ export const RevenueChart: React.FC = () => {
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.2}/>
                 </linearGradient>
-                <linearGradient id="colorCumulativeRevenue" x1="0" y1="0" x2="1" y2="0">
+                <linearGradient id="colorContractorCost" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2}/>
+                </linearGradient>
+                <linearGradient id="colorCumulativeProfit" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
                   <stop offset="95%" stopColor="#10b981" stopOpacity={1}/>
                 </linearGradient>
@@ -138,13 +143,23 @@ export const RevenueChart: React.FC = () => {
                 fill="url(#colorRevenue)" 
                 radius={[4, 4, 0, 0]}
                 animationDuration={1000}
+                stackId="a"
+              />
+              <Bar 
+                yAxisId="left" 
+                dataKey="contractorCost" 
+                name="Contractor Cost" 
+                fill="url(#colorContractorCost)" 
+                radius={[4, 4, 0, 0]}
+                animationDuration={1000}
+                stackId="a"
               />
               <Line 
                 yAxisId="right" 
-                dataKey="cumulativeRevenue" 
-                name="Cumulative Revenue" 
+                dataKey="cumulativeProfit" 
+                name="Cumulative Profit" 
                 type="monotone" 
-                stroke="url(#colorCumulativeRevenue)"
+                stroke="url(#colorCumulativeProfit)"
                 strokeWidth={2}
                 dot={{ r: 3, strokeWidth: 0, fill: "#10b981" }}
                 activeDot={{ r: 6, strokeWidth: 0, fill: "#10b981" }}
