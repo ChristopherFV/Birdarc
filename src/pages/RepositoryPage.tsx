@@ -88,15 +88,6 @@ const RepositoryPage = () => {
     <SimplePageLayout 
       subtitle="Upload and manage project files, schedule tasks and monitor field operations"
     >
-      <div className="flex items-center gap-2 mb-4">
-        <img 
-          src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-          alt="Fieldvision Logo" 
-          className="h-6 w-auto object-contain" 
-        />
-        <span className="text-xl font-semibold">Fieldview</span>
-      </div>
-      
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="flex items-center gap-2">
