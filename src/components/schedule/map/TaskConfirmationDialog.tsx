@@ -16,19 +16,29 @@ interface TaskConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
+  onWorkEntry?: () => void; // New prop for work entry form
   actionType: 'complete' | 'cancel';
   taskTitle: string;
+  projectId?: string; // Added projectId prop
 }
 
 export const TaskConfirmationDialog: React.FC<TaskConfirmationDialogProps> = ({
   open,
   onOpenChange,
   onConfirm,
+  onWorkEntry,
   actionType,
   taskTitle,
+  projectId,
 }) => {
   const handleConfirm = () => {
     onConfirm();
+    
+    // If completing a task and we have a work entry handler and project ID, open the work entry form
+    if (actionType === 'complete' && onWorkEntry && projectId) {
+      onWorkEntry();
+    }
+    
     onOpenChange(false);
   };
 

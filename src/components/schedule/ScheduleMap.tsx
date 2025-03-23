@@ -11,6 +11,8 @@ import { useMapMarkers } from './map/useMapMarkers';
 import { AddTaskDialog } from './AddTaskDialog';
 import { mockProjectLocations } from '@/utils/mockMapData';
 import { useToast } from '@/hooks/use-toast';
+import { TechnicianWorkEntryDialog } from '@/components/technician/TechnicianWorkEntryDialog';
+import { TaskConfirmationDialog } from './map/TaskConfirmationDialog';
 
 interface ScheduleMapProps {
   mapboxApiKey?: string;
@@ -23,6 +25,10 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false);
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false);
+  const [confirmationAction, setConfirmationAction] = useState<'complete' | 'cancel'>('complete');
+  const [isWorkEntryDialogOpen, setIsWorkEntryDialogOpen] = useState(false);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [usingMapbox, setUsingMapbox] = useState(false);
@@ -82,60 +88,54 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
     }
   };
   
-  const handleCloseTask = (taskId: string) => {
+  const handleCompleteTask = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setConfirmationAction('complete');
+    setIsConfirmationDialogOpen(true);
+    
+    // Set project ID for work entry form
     const task = allTasks.find(t => t.id === taskId);
-    if (task) {
-      const updatedTask = { ...task, status: 'completed' as const };
-      
-      try {
-        // Update the task in the context
-        updateTask(updatedTask);
-        
-        // Show success message
-        toast({
-          title: "Task completed",
-          description: `Task "${task.title}" has been marked as completed.`,
-        });
-        
-        // Reset selected task id
-        setSelectedTaskId(null);
-      } catch (error) {
-        console.error('Error closing task:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to complete task. Please try again.",
-        });
-      }
+    if (task && task.projectId) {
+      setCurrentProjectId(task.projectId);
     }
   };
 
   const handleCancelTask = (taskId: string) => {
-    const task = allTasks.find(t => t.id === taskId);
-    if (task) {
-      const updatedTask = { ...task, status: 'cancelled' as const };
-      
-      try {
-        // Update the task in the context
-        updateTask(updatedTask);
+    setSelectedTaskId(taskId);
+    setConfirmationAction('cancel');
+    setIsConfirmationDialogOpen(true);
+  };
+  
+  const confirmTaskAction = () => {
+    if (selectedTaskId) {
+      const task = allTasks.find(t => t.id === selectedTaskId);
+      if (task) {
+        const newStatus = confirmationAction === 'complete' ? 'completed' : 'cancelled';
+        const updatedTask = { ...task, status: newStatus as const };
         
-        // Show success message
-        toast({
-          title: "Task cancelled",
-          description: `Task "${task.title}" has been cancelled.`,
-        });
-        
-        // Reset selected task id
-        setSelectedTaskId(null);
-      } catch (error) {
-        console.error('Error cancelling task:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to cancel task. Please try again.",
-        });
+        try {
+          // Update the task in the context
+          updateTask(updatedTask);
+          
+          // Show success message
+          toast({
+            title: confirmationAction === 'complete' ? "Task completed" : "Task cancelled",
+            description: `Task "${task.title}" has been ${confirmationAction === 'complete' ? 'marked as completed' : 'cancelled'}.`,
+          });
+        } catch (error) {
+          console.error(`Error ${confirmationAction}ing task:`, error);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: `Failed to ${confirmationAction} task. Please try again.`,
+          });
+        }
       }
     }
+  };
+  
+  const openWorkEntryForm = () => {
+    setIsWorkEntryDialogOpen(true);
   };
   
   // Use custom hook to manage markers
@@ -219,7 +219,7 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
             billingCode={selectedBillingCode}
             onClose={() => setSelectedTaskId(null)}
             onEdit={handleEditTask}
-            onCloseTask={() => handleCloseTask(selectedTask.id)}
+            onCloseTask={() => handleCompleteTask(selectedTask.id)}
             onCancelTask={() => handleCancelTask(selectedTask.id)}
           />
         </div>
@@ -229,6 +229,24 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
       <AddTaskDialog 
         open={isAddTaskDialogOpen} 
         onOpenChange={setIsAddTaskDialogOpen} 
+      />
+      
+      {/* Confirmation Dialog */}
+      <TaskConfirmationDialog
+        open={isConfirmationDialogOpen}
+        onOpenChange={setIsConfirmationDialogOpen}
+        onConfirm={confirmTaskAction}
+        onWorkEntry={openWorkEntryForm}
+        actionType={confirmationAction}
+        taskTitle={selectedTask?.title || ''}
+        projectId={selectedTask?.projectId || undefined}
+      />
+      
+      {/* Work Entry Dialog */}
+      <TechnicianWorkEntryDialog
+        open={isWorkEntryDialogOpen}
+        onOpenChange={setIsWorkEntryDialogOpen}
+        projectId={currentProjectId || undefined}
       />
     </div>
   );
