@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/card";
 
 export const ProductionChart: React.FC = () => {
-  const { getFilteredEntries, startDate, endDate, groupBy, billingUnit } = useApp();
+  const { getFilteredEntries, startDate, endDate, groupBy, billingUnit, selectedBillingCodeId, billingCodes } = useApp();
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   
@@ -39,7 +39,18 @@ export const ProductionChart: React.FC = () => {
       const data = prepareProductionData(entries, startDate, endDate, groupBy);
       setChartData(data);
     }
-  }, [getFilteredEntries, startDate, endDate, groupBy, billingUnit, isMounted]);
+  }, [getFilteredEntries, startDate, endDate, groupBy, selectedBillingCodeId, isMounted]);
+  
+  // Get the selected billing code's unit type if available
+  const getSelectedUnitType = () => {
+    if (selectedBillingCodeId) {
+      const selectedCode = billingCodes.find(code => code.id === selectedBillingCodeId);
+      return selectedCode?.unitType || billingUnit;
+    }
+    return billingUnit;
+  };
+  
+  const currentUnitType = getSelectedUnitType();
   
   // Calculate max values for scaling
   const maxUnits = Math.max(...chartData.map(item => item.units || 0));
@@ -59,7 +70,7 @@ export const ProductionChart: React.FC = () => {
               />
               <span className="mr-2 text-gray-600">{entry.name}:</span>
               <span className="font-medium text-gray-800">
-                {formatUnits(entry.value, billingUnit)}
+                {formatUnits(entry.value, currentUnitType)}
               </span>
             </div>
           ))}
@@ -109,7 +120,7 @@ export const ProductionChart: React.FC = () => {
               />
               <YAxis 
                 yAxisId="left"
-                tickFormatter={value => formatUnits(value, billingUnit)}
+                tickFormatter={value => formatUnits(value, currentUnitType)}
                 tick={{ fontSize: 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={false}
@@ -119,7 +130,7 @@ export const ProductionChart: React.FC = () => {
                 yAxisId="right" 
                 orientation="right" 
                 domain={[0, (maxUnits * dataScale) || 1000]}
-                tickFormatter={value => formatUnits(value, billingUnit)}
+                tickFormatter={value => formatUnits(value, currentUnitType)}
                 tick={{ fontSize: 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={false}

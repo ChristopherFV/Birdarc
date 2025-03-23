@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -8,10 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAddProjectDialog } from '@/hooks/useAddProjectDialog';
 import { useApp } from '@/context/AppContext';
 import { CSVImporter } from '@/components/forms/CSVImporter';
-import { BillingCode } from '@/types/app-types';
+import { BillingCode, BillingUnitType } from '@/types/app-types';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Info, Plus, Trash2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const AddProjectDialog = () => {
   const { isOpen, closeAddProjectDialog } = useAddProjectDialog();
@@ -26,8 +28,13 @@ export const AddProjectDialog = () => {
   const [useContractor, setUseContractor] = useState(false);
   const [contractorHourlyRate, setContractorHourlyRate] = useState('');
   const [billingCodes, setBillingCodes] = useState<Omit<BillingCode, 'id'>[]>([]);
-  const [manualBillingCodes, setManualBillingCodes] = useState<{ code: string; description: string; ratePerFoot: string }[]>([
-    { code: '', description: '', ratePerFoot: '' }
+  const [manualBillingCodes, setManualBillingCodes] = useState<{ 
+    code: string; 
+    description: string; 
+    ratePerFoot: string;
+    unitType: BillingUnitType;
+  }[]>([
+    { code: '', description: '', ratePerFoot: '', unitType: 'foot' }
   ]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -87,7 +94,8 @@ export const AddProjectDialog = () => {
         finalBillingCodes = filteredCodes.map(code => ({
           code: code.code,
           description: code.description,
-          ratePerFoot: parseFloat(code.ratePerFoot || '0')
+          ratePerFoot: parseFloat(code.ratePerFoot || '0'),
+          unitType: code.unitType
         }));
       }
 
@@ -115,7 +123,7 @@ export const AddProjectDialog = () => {
       setUseContractor(false);
       setContractorHourlyRate('');
       setBillingCodes([]);
-      setManualBillingCodes([{ code: '', description: '', ratePerFoot: '' }]);
+      setManualBillingCodes([{ code: '', description: '', ratePerFoot: '', unitType: 'foot' }]);
       closeAddProjectDialog();
     } catch (error) {
       toast({
@@ -131,7 +139,8 @@ export const AddProjectDialog = () => {
       const parsedCodes = data.map(row => ({
         code: row.code || row.Code || '',
         description: row.description || row.Description || '',
-        ratePerFoot: parseFloat(row.rate || row.Rate || row.ratePerFoot || row.RatePerFoot || '0')
+        ratePerFoot: parseFloat(row.rate || row.Rate || row.ratePerFoot || row.RatePerFoot || '0'),
+        unitType: (row.unitType || row.UnitType || 'foot') as BillingUnitType
       }));
       
       setBillingCodes(parsedCodes);
@@ -150,7 +159,7 @@ export const AddProjectDialog = () => {
   };
 
   const addBillingCodeRow = () => {
-    setManualBillingCodes([...manualBillingCodes, { code: '', description: '', ratePerFoot: '' }]);
+    setManualBillingCodes([...manualBillingCodes, { code: '', description: '', ratePerFoot: '', unitType: 'foot' }]);
   };
 
   const removeBillingCodeRow = (index: number) => {
@@ -161,9 +170,13 @@ export const AddProjectDialog = () => {
     }
   };
 
-  const updateBillingCodeField = (index: number, field: 'code' | 'description' | 'ratePerFoot', value: string) => {
+  const updateBillingCodeField = (index: number, field: 'code' | 'description' | 'ratePerFoot' | 'unitType', value: string) => {
     const updatedCodes = [...manualBillingCodes];
-    updatedCodes[index][field] = value;
+    if (field === 'unitType') {
+      updatedCodes[index][field] = value as BillingUnitType;
+    } else {
+      updatedCodes[index][field] = value;
+    }
     setManualBillingCodes(updatedCodes);
   };
 
@@ -301,7 +314,7 @@ export const AddProjectDialog = () => {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Option 1: Import from CSV</Label>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Upload a CSV file with columns: code, description, rate
+                      Upload a CSV file with columns: code, description, rate, unitType
                     </p>
                     <CSVImporter onDataImported={handleCSVData} />
                     
@@ -339,6 +352,19 @@ export const AddProjectDialog = () => {
                             onChange={(e) => updateBillingCodeField(index, 'ratePerFoot', e.target.value)}
                             className="flex-1"
                           />
+                          <Select
+                            value={code.unitType}
+                            onValueChange={(value) => updateBillingCodeField(index, 'unitType', value)}
+                          >
+                            <SelectTrigger className="w-[110px]">
+                              <SelectValue placeholder="Unit" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="foot">Foot</SelectItem>
+                              <SelectItem value="meter">Meter</SelectItem>
+                              <SelectItem value="each">Each</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <Button
                             type="button"
                             variant="ghost"

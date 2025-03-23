@@ -15,6 +15,16 @@ export const BillingCodeSelector: React.FC<BillingCodeSelectorProps> = ({
   onChange,
   error
 }) => {
+  const getUnitLabel = (code: BillingCode) => {
+    const unitType = code.unitType || 'foot';
+    switch (unitType) {
+      case 'foot': return 'ft';
+      case 'meter': return 'm';
+      case 'each': return 'ea';
+      default: return 'unit';
+    }
+  };
+  
   return (
     <div>
       <label htmlFor="billingCodeId" className="block text-sm font-medium mb-1">
@@ -35,7 +45,7 @@ export const BillingCodeSelector: React.FC<BillingCodeSelectorProps> = ({
         <option value="">Select Billing Code</option>
         {billingCodes.map(code => (
           <option key={code.id} value={code.id}>
-            {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/unit)
+            {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/{getUnitLabel(code)})
           </option>
         ))}
       </select>

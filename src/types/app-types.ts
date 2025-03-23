@@ -1,4 +1,3 @@
-
 // Define types for the application
 export type DateRangeType = 'day' | 'week' | 'month' | 'custom';
 export type GroupByType = 'day' | 'week' | 'month' | 'year';
@@ -20,6 +19,7 @@ export type BillingCode = {
   code: string;
   description: string;
   ratePerFoot: number;
+  unitType?: BillingUnitType; // Default is 'foot' if not specified
 };
 
 export type TeamMember = {

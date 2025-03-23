@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useApp, WorkEntry } from '@/context/AppContext';
 import { 
@@ -42,6 +43,18 @@ export const EditWorkEntryDialog: React.FC<EditWorkEntryDialogProps> = ({
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const selectedBillingCode = billingCodes.find(code => code.id === formData.billingCodeId);
+  const unitType = selectedBillingCode?.unitType || 'foot';
+  
+  const getUnitLabel = () => {
+    switch (unitType) {
+      case 'foot': return 'ft';
+      case 'meter': return 'm';
+      case 'each': return 'ea';
+      default: return 'unit';
+    }
+  };
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
@@ -79,7 +92,7 @@ export const EditWorkEntryDialog: React.FC<EditWorkEntryDialogProps> = ({
     }
     
     if (!formData.feetCompleted) {
-      errors.feetCompleted = 'Please enter feet completed';
+      errors.feetCompleted = 'Please enter units completed';
     } else if (isNaN(parseFloat(formData.feetCompleted)) || parseFloat(formData.feetCompleted) <= 0) {
       errors.feetCompleted = 'Please enter a valid positive number';
     }
@@ -203,20 +216,24 @@ export const EditWorkEntryDialog: React.FC<EditWorkEntryDialogProps> = ({
                 ${formErrors.billingCodeId ? 'border-destructive' : 'border-input'}`}
             >
               <option value="">Select Billing Code</option>
-              {billingCodes.map(code => (
-                <option key={code.id} value={code.id}>
-                  {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/ft)
-                </option>
-              ))}
+              {billingCodes.map(code => {
+                const codeUnitType = code.unitType || 'foot';
+                const unitLabel = codeUnitType === 'foot' ? 'ft' : codeUnitType === 'meter' ? 'm' : 'ea';
+                return (
+                  <option key={code.id} value={code.id}>
+                    {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/{unitLabel})
+                  </option>
+                );
+              })}
             </select>
             {formErrors.billingCodeId && (
               <p className="text-destructive text-xs">{formErrors.billingCodeId}</p>
             )}
           </div>
           
-          {/* Feet Completed Input */}
+          {/* Units Completed Input */}
           <div className="space-y-2">
-            <Label htmlFor="feetCompleted">Feet Completed</Label>
+            <Label htmlFor="feetCompleted">Units Completed</Label>
             <div className="relative">
               <Input
                 type="number"
@@ -229,7 +246,7 @@ export const EditWorkEntryDialog: React.FC<EditWorkEntryDialogProps> = ({
                 className={formErrors.feetCompleted ? 'border-destructive' : ''}
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                ft
+                {getUnitLabel()}
               </div>
             </div>
             {formErrors.feetCompleted && (
