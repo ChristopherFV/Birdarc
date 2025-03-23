@@ -108,12 +108,12 @@ export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({
         </div>
       </CardContent>
       {task.status !== 'completed' && task.status !== 'cancelled' && (
-        <CardFooter className="pt-0 flex justify-between gap-2">
+        <CardFooter className="pt-0 grid grid-cols-3 gap-2">
           {onEdit && (
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-xs h-8 flex-1" 
+              className="text-xs h-8" 
               onClick={onEdit}
             >
               <Edit className="h-3 w-3 mr-1" /> Edit
@@ -123,7 +123,7 @@ export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-xs h-8 text-green-600 border-green-200 hover:bg-green-50 flex-1" 
+              className="text-xs h-8 text-green-600 border-green-200 hover:bg-green-50" 
               onClick={() => setCompleteDialogOpen(true)}
             >
               <CheckSquare className="h-3 w-3 mr-1" /> Complete
@@ -133,7 +133,7 @@ export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-xs h-8 text-red-600 border-red-200 hover:bg-red-50 flex-1" 
+              className="text-xs h-8 text-red-600 border-red-200 hover:bg-red-50" 
               onClick={() => setCancelDialogOpen(true)}
             >
               <XCircle className="h-3 w-3 mr-1" /> Cancel

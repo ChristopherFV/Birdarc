@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useSchedule, Task } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
@@ -37,7 +36,7 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
   // Combine original tasks with mock tasks
   const mockTasks = mockProjectLocations.map(loc => ({
     ...loc,
-    status: loc.status as any
+    status: loc.status
   }));
   
   const allTasks = [...originalTasks, ...mockTasks];
@@ -111,7 +110,7 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
       const task = allTasks.find(t => t.id === selectedTaskId);
       if (task) {
         const newStatus = confirmationAction === 'complete' ? 'completed' : 'cancelled';
-        const updatedTask = { ...task, status: newStatus as const };
+        const updatedTask = { ...task, status: newStatus };
         
         try {
           // Update the task in the context
