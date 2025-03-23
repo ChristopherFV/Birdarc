@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { 
@@ -7,7 +8,8 @@ import {
   ChevronDown,
   Check,
   Users,
-  Briefcase
+  Briefcase,
+  Tag
 } from 'lucide-react';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { DateRangeType, GroupByType } from '@/context/AppContext';
@@ -16,6 +18,7 @@ export const FilterBar: React.FC = () => {
   const { 
     projects,
     teamMembers,
+    billingCodes,
     dateRange,
     setDateRange,
     groupBy,
@@ -24,6 +27,8 @@ export const FilterBar: React.FC = () => {
     setSelectedProject,
     selectedTeamMember,
     setSelectedTeamMember,
+    selectedBillingCodeId,
+    setSelectedBillingCodeId,
     exportData
   } = useApp();
   
@@ -31,6 +36,7 @@ export const FilterBar: React.FC = () => {
   const [showGroupByMenu, setShowGroupByMenu] = React.useState(false);
   const [showProjectsMenu, setShowProjectsMenu] = React.useState(false);
   const [showTeamMenu, setShowTeamMenu] = React.useState(false);
+  const [showBillingCodeMenu, setShowBillingCodeMenu] = React.useState(false);
   const [showExportMenu, setShowExportMenu] = React.useState(false);
   
   const dateRangeLabels: Record<DateRangeType, string> = {
@@ -67,6 +73,11 @@ export const FilterBar: React.FC = () => {
     setShowTeamMenu(false);
   };
   
+  const handleBillingCodeChange = (billingCodeId: string | null) => {
+    setSelectedBillingCodeId(billingCodeId);
+    setShowBillingCodeMenu(false);
+  };
+  
   const handleExport = (type: 'raw' | 'summary') => {
     exportData(type);
     setShowExportMenu(false);
@@ -82,6 +93,12 @@ export const FilterBar: React.FC = () => {
     if (!selectedTeamMember) return 'All Team Members';
     const member = teamMembers.find(m => m.id === selectedTeamMember);
     return member ? member.name : 'All Team Members';
+  };
+  
+  const getSelectedBillingCodeName = () => {
+    if (!selectedBillingCodeId) return 'All Billing Codes';
+    const code = billingCodes.find(c => c.id === selectedBillingCodeId);
+    return code ? `${code.code} - ${code.description}` : 'All Billing Codes';
   };
   
   return (
@@ -258,6 +275,54 @@ export const FilterBar: React.FC = () => {
                     >
                       <span className="truncate">{member.name}</span>
                       {selectedTeamMember === member.id && <Check size={16} className="ml-auto flex-shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        
+        <div className="relative">
+          <button
+            onClick={() => setShowBillingCodeMenu(!showBillingCodeMenu)}
+            className="flex items-center px-3 py-1.5 rounded-md bg-secondary text-sm font-medium hover:bg-secondary/80 transition-colors"
+          >
+            <Tag size={16} className="mr-1.5" />
+            <span className="truncate max-w-[150px]">{getSelectedBillingCodeName()}</span>
+            <ChevronDown size={14} className="ml-1.5 text-muted-foreground" />
+          </button>
+          
+          {showBillingCodeMenu && (
+            <>
+              <div 
+                className="fixed inset-0 z-10" 
+                onClick={() => setShowBillingCodeMenu(false)}
+              />
+              <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-80 overflow-y-auto">
+                <div className="p-1">
+                  <button
+                    onClick={() => handleBillingCodeChange(null)}
+                    className={`
+                      w-full flex items-center px-3 py-2 text-sm rounded-md
+                      ${!selectedBillingCodeId ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                    `}
+                  >
+                    <span>All Billing Codes</span>
+                    {!selectedBillingCodeId && <Check size={16} className="ml-auto" />}
+                  </button>
+                  
+                  {billingCodes.map((code) => (
+                    <button
+                      key={code.id}
+                      onClick={() => handleBillingCodeChange(code.id)}
+                      className={`
+                        w-full flex items-center px-3 py-2 text-sm rounded-md
+                        ${selectedBillingCodeId === code.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                      `}
+                    >
+                      <span className="truncate">{code.code} - {code.description}</span>
+                      {selectedBillingCodeId === code.id && <Check size={16} className="ml-auto flex-shrink-0" />}
                     </button>
                   ))}
                 </div>

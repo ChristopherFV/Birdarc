@@ -99,6 +99,7 @@ export type AppContextType = {
   selectedProject: string | null;
   selectedTeamMember: string | null;
   billingUnit: BillingUnitType;
+  selectedBillingCodeId: string | null;
   
   // CRUD operations
   addWorkEntry: (entry: Omit<WorkEntry, 'id'>) => void;
@@ -114,6 +115,7 @@ export type AppContextType = {
   setSelectedTeamMember: (teamMemberId: string | null) => void;
   setSelectedCompany: (company: Company) => void;
   setBillingUnit: (unit: BillingUnitType) => void;
+  setSelectedBillingCodeId: (billingCodeId: string | null) => void;
   
   // Utilities
   getFilteredEntries: () => WorkEntry[];

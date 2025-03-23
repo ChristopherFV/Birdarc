@@ -35,7 +35,7 @@ export const BillingCodeSelector: React.FC<BillingCodeSelectorProps> = ({
         <option value="">Select Billing Code</option>
         {billingCodes.map(code => (
           <option key={code.id} value={code.id}>
-            {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/ft)
+            {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/unit)
           </option>
         ))}
       </select>
