@@ -20,7 +20,11 @@ const Header = () => {
   return (
     <div className="flex justify-between items-center mb-6">
       <div>
-        <h1 className="text-2xl font-semibold mb-1">FieldVision</h1>
+        <img 
+          src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+          alt="Fieldvision Logo" 
+          className="h-12 mb-2" 
+        />
         <p className="text-muted-foreground">Powering Payments and Performance for Contractors.</p>
       </div>
       <div className="flex items-center gap-4">
