@@ -25,7 +25,15 @@ import {
 import { BillingUnitFilter } from './BillingUnitFilter';
 
 export const ProductionChart: React.FC = () => {
-  const { getFilteredEntries, startDate, endDate, groupBy, billingUnit, setBillingUnit } = useApp();
+  const { 
+    getFilteredEntries, 
+    startDate, 
+    endDate, 
+    groupBy, 
+    billingUnit, 
+    selectedBillingCodeId,
+    billingCodes
+  } = useApp();
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   
@@ -40,7 +48,14 @@ export const ProductionChart: React.FC = () => {
       const data = prepareProductionData(entries, startDate, endDate, groupBy);
       setChartData(data);
     }
-  }, [getFilteredEntries, startDate, endDate, groupBy, billingUnit, isMounted]);
+  }, [getFilteredEntries, startDate, endDate, groupBy, billingUnit, selectedBillingCodeId, isMounted]);
+  
+  // Get the selected billing code description if any
+  const getSelectedBillingCodeDescription = () => {
+    if (!selectedBillingCodeId) return '';
+    const billingCode = billingCodes.find(code => code.id === selectedBillingCodeId);
+    return billingCode ? ` - ${billingCode.code} ${billingCode.description}` : '';
+  };
   
   // Calculate max values for scaling
   const maxUnits = Math.max(...chartData.map(item => item.units || 0));
@@ -75,7 +90,9 @@ export const ProductionChart: React.FC = () => {
       <CardHeader className="pb-2">
         <div className="flex flex-row justify-between items-center">
           <div>
-            <CardTitle className="text-lg font-medium">Production Overview</CardTitle>
+            <CardTitle className="text-lg font-medium">
+              Production Overview{getSelectedBillingCodeDescription()}
+            </CardTitle>
             <CardDescription>
               Units completed over time
             </CardDescription>
