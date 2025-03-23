@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, X, CheckSquare } from 'lucide-react';
+import { Edit, X, CheckSquare, MapPin, Calendar, DollarSign, User, Briefcase } from 'lucide-react';
 import { Task } from '@/context/ScheduleContext';
 
 interface TaskInfoCardProps {
@@ -66,24 +66,37 @@ export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({
         <div className="space-y-2 text-sm">
           <p className="text-gray-700">{task.description}</p>
           
-          <div className="grid grid-cols-3 gap-1 text-xs">
-            <div className="col-span-1 font-medium text-gray-500">Project:</div>
-            <div className="col-span-2">{projectName}</div>
+          <div className="grid grid-cols-1 gap-2 text-xs mt-3">
+            <div className="flex items-center">
+              <Briefcase className="h-3 w-3 mr-2 text-gray-500" />
+              <span className="font-medium text-gray-500 mr-2">Project:</span>
+              <span>{projectName}</span>
+            </div>
             
-            <div className="col-span-1 font-medium text-gray-500">Location:</div>
-            <div className="col-span-2">{task.location.address}</div>
+            <div className="flex items-center">
+              <User className="h-3 w-3 mr-2 text-gray-500" />
+              <span className="font-medium text-gray-500 mr-2">Assigned to:</span>
+              <span>{task.teamMemberName || "Unassigned"}</span>
+            </div>
             
-            <div className="col-span-1 font-medium text-gray-500">Timeline:</div>
-            <div className="col-span-2">{formattedStartDate} to {formattedEndDate}</div>
+            <div className="flex items-center">
+              <MapPin className="h-3 w-3 mr-2 text-gray-500" />
+              <span className="font-medium text-gray-500 mr-2">Location:</span>
+              <span className="break-words">{task.location.address}</span>
+            </div>
+            
+            <div className="flex items-center">
+              <Calendar className="h-3 w-3 mr-2 text-gray-500" />
+              <span className="font-medium text-gray-500 mr-2">Timeline:</span>
+              <span>{formattedStartDate} to {formattedEndDate}</span>
+            </div>
             
             {billingCode && (
-              <>
-                <div className="col-span-1 font-medium text-gray-500">Billing Code:</div>
-                <div className="col-span-2">{billingCode.code}</div>
-                
-                <div className="col-span-1 font-medium text-gray-500">Est. Quantity:</div>
-                <div className="col-span-2">{task.quantityEstimate} units</div>
-              </>
+              <div className="flex items-center">
+                <DollarSign className="h-3 w-3 mr-2 text-gray-500" />
+                <span className="font-medium text-gray-500 mr-2">Billing:</span>
+                <span>{billingCode.code} ({task.quantityEstimate} units)</span>
+              </div>
             )}
           </div>
         </div>

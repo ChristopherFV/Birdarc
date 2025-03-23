@@ -26,7 +26,9 @@ export interface Task {
   startDate: Date;
   endDate: Date;
   projectId: string | null;
+  projectName?: string;
   teamMemberId: string | null;
+  teamMemberName?: string;
   priority: TaskPriority;
   status: TaskStatus;
   billingCodeId: string | null;

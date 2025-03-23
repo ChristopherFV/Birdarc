@@ -2,13 +2,13 @@
 import React from 'react';
 import { useSchedule } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
-import { Check, Clock, Calendar, ArrowRight, DollarSign } from 'lucide-react';
+import { Check, Clock, Calendar, ArrowRight, DollarSign, MapPin, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format, isToday, isTomorrow, addDays, isSameDay } from 'date-fns';
 
 export const TaskList: React.FC = () => {
   const { tasks } = useSchedule();
-  const { billingCodes, projects } = useApp();
+  const { billingCodes, projects, teamMembers } = useApp();
   
   // Sort tasks by start date (soonest first)
   const sortedTasks = [...tasks].sort((a, b) => 
@@ -44,6 +44,13 @@ export const TaskList: React.FC = () => {
     return project ? project.name : "Unknown Project";
   };
   
+  // Helper to get team member name
+  const getTeamMemberName = (teamMemberId: string | null) => {
+    if (!teamMemberId) return "Unassigned";
+    const teamMember = teamMembers.find(tm => tm.id === teamMemberId);
+    return teamMember ? teamMember.name : "Unknown";
+  };
+  
   return (
     <div className="space-y-4">
       {upcomingTasks.length === 0 ? (
@@ -65,7 +72,12 @@ export const TaskList: React.FC = () => {
               </div>
               
               <div className="text-xs text-muted-foreground mb-1">
-                {getProjectName(task.projectId)}
+                {task.projectName || getProjectName(task.projectId)}
+              </div>
+              
+              <div className="flex items-center text-xs text-muted-foreground mb-1">
+                <User className="h-3 w-3 mr-1" />
+                <span>{task.teamMemberName || getTeamMemberName(task.teamMemberId)}</span>
               </div>
               
               <div className="flex items-center text-xs text-muted-foreground mb-2">
@@ -90,7 +102,7 @@ export const TaskList: React.FC = () => {
               )}
               
               <div className="text-xs flex items-start">
-                <Calendar className="h-3 w-3 mr-1 mt-0.5" />
+                <MapPin className="h-3 w-3 mr-1 mt-0.5" />
                 <span className="line-clamp-1">{task.location.address}</span>
               </div>
             </div>

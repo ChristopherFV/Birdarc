@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useSchedule, Task } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
@@ -18,7 +17,7 @@ interface ScheduleMapProps {
 
 export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
   const { tasks: originalTasks, updateTask } = useSchedule();
-  const { billingCodes, projects } = useApp();
+  const { billingCodes, projects, teamMembers } = useApp();
   const { toast } = useToast();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
@@ -129,8 +128,29 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
   // Helper to get project name
   const getProjectName = (projectId: string | null) => {
     if (!projectId) return "No Project";
+    
+    // First check if task has projectName directly
+    if (selectedTask && selectedTask.projectName) {
+      return selectedTask.projectName;
+    }
+    
+    // Otherwise look it up from projects array
     const project = projects.find(p => p.id === projectId);
     return project ? project.name : "Unknown Project";
+  };
+  
+  // Helper to get team member name
+  const getTeamMemberName = (teamMemberId: string | null) => {
+    if (!teamMemberId) return "Unassigned";
+    
+    // First check if task has teamMemberName directly
+    if (selectedTask && selectedTask.teamMemberName) {
+      return selectedTask.teamMemberName;
+    }
+    
+    // Otherwise look it up from teamMembers array
+    const teamMember = teamMembers.find(tm => tm.id === teamMemberId);
+    return teamMember ? teamMember.name : "Unknown";
   };
   
   const selectedBillingCode = selectedTask ? getBillingCode(selectedTask.billingCodeId) : null;
