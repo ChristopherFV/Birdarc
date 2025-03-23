@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { 
@@ -103,235 +102,239 @@ export const FilterBar: React.FC = () => {
   
   return (
     <div className="bg-card border border-border rounded-lg shadow-subtle mb-6 p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center text-sm font-medium text-muted-foreground mr-1">
-          <Filter size={14} className="mr-1" />
-          <span>Filters:</span>
-        </div>
-        
-        <div className="relative">
-          <button
-            onClick={() => setShowDatePicker(!showDatePicker)}
-            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
-          >
-            <CalendarDays size={14} className="mr-1" />
-            <span>{dateRangeLabels[dateRange]}</span>
-            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
-          </button>
+      <div className="flex flex-wrap justify-between items-center gap-2">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center text-sm font-medium text-muted-foreground">
+            <Filter size={14} className="mr-1" />
+            <span>Filters:</span>
+          </div>
           
-          {showDatePicker && (
-            <>
-              <div 
-                className="fixed inset-0 z-10" 
-                onClick={() => setShowDatePicker(false)}
-              />
-              <div className="absolute mt-1 left-0 z-20 bg-card shadow-card rounded-md border border-border animate-in slide-up">
-                <div className="p-2">
-                  <div className="flex flex-col space-y-1">
-                    {(['day', 'week', 'month'] as DateRangeType[]).map((range) => (
+          <div className="relative">
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
+            >
+              <CalendarDays size={14} className="mr-1" />
+              <span>{dateRangeLabels[dateRange]}</span>
+              <ChevronDown size={12} className="ml-1 text-muted-foreground" />
+            </button>
+            
+            {showDatePicker && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowDatePicker(false)}
+                />
+                <div className="absolute mt-1 left-0 z-20 bg-card shadow-card rounded-md border border-border animate-in slide-up">
+                  <div className="p-2">
+                    <div className="flex flex-col space-y-1">
+                      {(['day', 'week', 'month'] as DateRangeType[]).map((range) => (
+                        <button
+                          key={range}
+                          onClick={() => handleDateRangeChange(range)}
+                          className={`
+                            w-full flex items-center px-3 py-2 text-sm rounded-md
+                            ${dateRange === range ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                          `}
+                        >
+                          <span>{dateRangeLabels[range]}</span>
+                          {dateRange === range && <Check size={16} className="ml-auto" />}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-2">
+                      <DateRangePicker />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowGroupByMenu(!showGroupByMenu)}
+              className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
+            >
+              <span>{groupByLabels[groupBy]}</span>
+              <ChevronDown size={12} className="ml-1 text-muted-foreground" />
+            </button>
+            
+            {showGroupByMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowGroupByMenu(false)}
+                />
+                <div className="absolute mt-1 z-20 w-36 bg-card shadow-card rounded-md border border-border animate-in slide-up">
+                  <div className="p-1">
+                    {(Object.keys(groupByLabels) as GroupByType[]).map((group) => (
                       <button
-                        key={range}
-                        onClick={() => handleDateRangeChange(range)}
+                        key={group}
+                        onClick={() => handleGroupByChange(group)}
                         className={`
                           w-full flex items-center px-3 py-2 text-sm rounded-md
-                          ${dateRange === range ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                          ${groupBy === group ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
                         `}
                       >
-                        <span>{dateRangeLabels[range]}</span>
-                        {dateRange === range && <Check size={16} className="ml-auto" />}
+                        <span>{groupByLabels[group]}</span>
+                        {groupBy === group && <Check size={16} className="ml-auto" />}
                       </button>
                     ))}
                   </div>
-                  <div className="mt-2">
-                    <DateRangePicker />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowProjectsMenu(!showProjectsMenu)}
+              className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
+            >
+              <Briefcase size={14} className="mr-1" />
+              <span className="truncate max-w-[100px]">{getSelectedProjectName()}</span>
+              <ChevronDown size={12} className="ml-1 text-muted-foreground" />
+            </button>
+            
+            {showProjectsMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowProjectsMenu(false)}
+                />
+                <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-80 overflow-y-auto">
+                  <div className="p-1">
+                    <button
+                      onClick={() => handleProjectChange(null)}
+                      className={`
+                        w-full flex items-center px-3 py-2 text-sm rounded-md
+                        ${!selectedProject ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                      `}
+                    >
+                      <span>All Projects</span>
+                      {!selectedProject && <Check size={16} className="ml-auto" />}
+                    </button>
+                    
+                    {projects.map((project) => (
+                      <button
+                        key={project.id}
+                        onClick={() => handleProjectChange(project.id)}
+                        className={`
+                          w-full flex items-center px-3 py-2 text-sm rounded-md
+                          ${selectedProject === project.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                        `}
+                      >
+                        <span className="truncate">{project.name}</span>
+                        {selectedProject === project.id && <Check size={16} className="ml-auto flex-shrink-0" />}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowTeamMenu(!showTeamMenu)}
+              className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
+            >
+              <Users size={14} className="mr-1" />
+              <span className="truncate max-w-[100px]">{getSelectedTeamMemberName()}</span>
+              <ChevronDown size={12} className="ml-1 text-muted-foreground" />
+            </button>
+            
+            {showTeamMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowTeamMenu(false)}
+                />
+                <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-80 overflow-y-auto">
+                  <div className="p-1">
+                    <button
+                      onClick={() => handleTeamMemberChange(null)}
+                      className={`
+                        w-full flex items-center px-3 py-2 text-sm rounded-md
+                        ${!selectedTeamMember ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                      `}
+                    >
+                      <span>All Team Members</span>
+                      {!selectedTeamMember && <Check size={16} className="ml-auto" />}
+                    </button>
+                    
+                    {teamMembers.map((member) => (
+                      <button
+                        key={member.id}
+                        onClick={() => handleTeamMemberChange(member.id)}
+                        className={`
+                          w-full flex items-center px-3 py-2 text-sm rounded-md
+                          ${selectedTeamMember === member.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                        `}
+                      >
+                        <span className="truncate">{member.name}</span>
+                        {selectedTeamMember === member.id && <Check size={16} className="ml-auto flex-shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          
+          <div className="relative">
+            <button
+              onClick={() => setShowBillingCodeMenu(!showBillingCodeMenu)}
+              className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
+            >
+              <Tag size={14} className="mr-1" />
+              <span className="truncate max-w-[100px]">{getSelectedBillingCodeName()}</span>
+              <ChevronDown size={12} className="ml-1 text-muted-foreground" />
+            </button>
+            
+            {showBillingCodeMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setShowBillingCodeMenu(false)}
+                />
+                <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-80 overflow-y-auto">
+                  <div className="p-1">
+                    <button
+                      onClick={() => handleBillingCodeChange(null)}
+                      className={`
+                        w-full flex items-center px-3 py-2 text-sm rounded-md
+                        ${!selectedBillingCodeId ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                      `}
+                    >
+                      <span>All Billing Codes</span>
+                      {!selectedBillingCodeId && <Check size={16} className="ml-auto" />}
+                    </button>
+                    
+                    {billingCodes.map((code) => (
+                      <button
+                        key={code.id}
+                        onClick={() => handleBillingCodeChange(code.id)}
+                        className={`
+                          w-full flex items-center px-3 py-2 text-sm rounded-md
+                          ${selectedBillingCodeId === code.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                        `}
+                      >
+                        <span className="truncate">{code.code} - {code.description}</span>
+                        {selectedBillingCodeId === code.id && <Check size={16} className="ml-auto flex-shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         
         <div className="relative">
-          <button
-            onClick={() => setShowGroupByMenu(!showGroupByMenu)}
-            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
-          >
-            <span>{groupByLabels[groupBy]}</span>
-            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
-          </button>
-          
-          {showGroupByMenu && (
-            <>
-              <div 
-                className="fixed inset-0 z-10" 
-                onClick={() => setShowGroupByMenu(false)}
-              />
-              <div className="absolute mt-1 z-20 w-36 bg-card shadow-card rounded-md border border-border animate-in slide-up">
-                <div className="p-1">
-                  {(Object.keys(groupByLabels) as GroupByType[]).map((group) => (
-                    <button
-                      key={group}
-                      onClick={() => handleGroupByChange(group)}
-                      className={`
-                        w-full flex items-center px-3 py-2 text-sm rounded-md
-                        ${groupBy === group ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                      `}
-                    >
-                      <span>{groupByLabels[group]}</span>
-                      {groupBy === group && <Check size={16} className="ml-auto" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        
-        <div className="relative">
-          <button
-            onClick={() => setShowProjectsMenu(!showProjectsMenu)}
-            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
-          >
-            <Briefcase size={14} className="mr-1" />
-            <span className="truncate max-w-[100px]">{getSelectedProjectName()}</span>
-            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
-          </button>
-          
-          {showProjectsMenu && (
-            <>
-              <div 
-                className="fixed inset-0 z-10" 
-                onClick={() => setShowProjectsMenu(false)}
-              />
-              <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-80 overflow-y-auto">
-                <div className="p-1">
-                  <button
-                    onClick={() => handleProjectChange(null)}
-                    className={`
-                      w-full flex items-center px-3 py-2 text-sm rounded-md
-                      ${!selectedProject ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                    `}
-                  >
-                    <span>All Projects</span>
-                    {!selectedProject && <Check size={16} className="ml-auto" />}
-                  </button>
-                  
-                  {projects.map((project) => (
-                    <button
-                      key={project.id}
-                      onClick={() => handleProjectChange(project.id)}
-                      className={`
-                        w-full flex items-center px-3 py-2 text-sm rounded-md
-                        ${selectedProject === project.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                      `}
-                    >
-                      <span className="truncate">{project.name}</span>
-                      {selectedProject === project.id && <Check size={16} className="ml-auto flex-shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        
-        <div className="relative">
-          <button
-            onClick={() => setShowTeamMenu(!showTeamMenu)}
-            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
-          >
-            <Users size={14} className="mr-1" />
-            <span className="truncate max-w-[100px]">{getSelectedTeamMemberName()}</span>
-            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
-          </button>
-          
-          {showTeamMenu && (
-            <>
-              <div 
-                className="fixed inset-0 z-10" 
-                onClick={() => setShowTeamMenu(false)}
-              />
-              <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-80 overflow-y-auto">
-                <div className="p-1">
-                  <button
-                    onClick={() => handleTeamMemberChange(null)}
-                    className={`
-                      w-full flex items-center px-3 py-2 text-sm rounded-md
-                      ${!selectedTeamMember ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                    `}
-                  >
-                    <span>All Team Members</span>
-                    {!selectedTeamMember && <Check size={16} className="ml-auto" />}
-                  </button>
-                  
-                  {teamMembers.map((member) => (
-                    <button
-                      key={member.id}
-                      onClick={() => handleTeamMemberChange(member.id)}
-                      className={`
-                        w-full flex items-center px-3 py-2 text-sm rounded-md
-                        ${selectedTeamMember === member.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                      `}
-                    >
-                      <span className="truncate">{member.name}</span>
-                      {selectedTeamMember === member.id && <Check size={16} className="ml-auto flex-shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        
-        <div className="relative">
-          <button
-            onClick={() => setShowBillingCodeMenu(!showBillingCodeMenu)}
-            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
-          >
-            <Tag size={14} className="mr-1" />
-            <span className="truncate max-w-[100px]">{getSelectedBillingCodeName()}</span>
-            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
-          </button>
-          
-          {showBillingCodeMenu && (
-            <>
-              <div 
-                className="fixed inset-0 z-10" 
-                onClick={() => setShowBillingCodeMenu(false)}
-              />
-              <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-80 overflow-y-auto">
-                <div className="p-1">
-                  <button
-                    onClick={() => handleBillingCodeChange(null)}
-                    className={`
-                      w-full flex items-center px-3 py-2 text-sm rounded-md
-                      ${!selectedBillingCodeId ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                    `}
-                  >
-                    <span>All Billing Codes</span>
-                    {!selectedBillingCodeId && <Check size={16} className="ml-auto" />}
-                  </button>
-                  
-                  {billingCodes.map((code) => (
-                    <button
-                      key={code.id}
-                      onClick={() => handleBillingCodeChange(code.id)}
-                      className={`
-                        w-full flex items-center px-3 py-2 text-sm rounded-md
-                        ${selectedBillingCodeId === code.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                      `}
-                    >
-                      <span className="truncate">{code.code} - {code.description}</span>
-                      {selectedBillingCodeId === code.id && <Check size={16} className="ml-auto flex-shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        
-        <div className="relative ml-auto">
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}
             className="flex items-center px-2 py-1 rounded-md bg-fieldvision-blue text-white text-xs font-medium hover:bg-fieldvision-blue/90 transition-colors"

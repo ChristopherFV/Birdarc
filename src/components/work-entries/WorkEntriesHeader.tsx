@@ -30,7 +30,7 @@ export const WorkEntriesHeader: React.FC<WorkEntriesHeaderProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-2 flex-wrap items-center">
+      <div className="flex justify-between items-center">
         <div className="flex-1 min-w-[200px] max-w-md">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -42,38 +42,42 @@ export const WorkEntriesHeader: React.FC<WorkEntriesHeaderProps> = ({
             />
           </div>
         </div>
-        <Button 
-          variant="outline" 
-          onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className="flex items-center gap-1 h-9 px-3"
-          size="sm"
-        >
-          <Filter size={14} />
-          Filters
-        </Button>
-        <Button 
-          variant={selectMode ? "secondary" : "default"}
-          className="flex items-center gap-1 h-9 px-3"
-          size="sm"
-          onClick={handleCreateInvoice}
-        >
-          <FileCheck size={14} />
-          {selectMode ? (
-            selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
-          ) : "Create Invoice"}
-        </Button>
         
-        {selectMode && (
+        <div className="flex items-center gap-2">
           <Button 
-            variant="destructive"
+            variant="outline" 
+            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
             className="flex items-center gap-1 h-9 px-3"
             size="sm"
-            onClick={handleCancelInvoice}
           >
-            <X size={14} />
-            Cancel
+            <Filter size={14} />
+            Filters
           </Button>
-        )}
+          
+          <Button 
+            variant={selectMode ? "secondary" : "default"}
+            className="flex items-center gap-1 h-9 px-3"
+            size="sm"
+            onClick={handleCreateInvoice}
+          >
+            <FileCheck size={14} />
+            {selectMode ? (
+              selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
+            ) : "Create Invoice"}
+          </Button>
+          
+          {selectMode && (
+            <Button 
+              variant="destructive"
+              className="flex items-center gap-1 h-9 px-3"
+              size="sm"
+              onClick={handleCancelInvoice}
+            >
+              <X size={14} />
+              Cancel
+            </Button>
+          )}
+        </div>
       </div>
       
       <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
