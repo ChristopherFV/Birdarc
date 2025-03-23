@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -14,8 +13,6 @@ import { KmzFeature } from '@/utils/kmzUtils';
 import { Checkbox } from '../ui/checkbox';
 import { Progress } from '../ui/progress';
 
-// You would normally store this in an environment variable
-// For this demo, we're using a temporary public token
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibG92YWJsZWFpIiwiYSI6ImNscWdydDU0cTBocnUya25zODBoN2dtcWEifQ.a7mUVdXHjPSMcmYxnkVscA';
 
 interface TeamLocation {
@@ -30,7 +27,6 @@ interface TeamLocation {
   projectId: string | null;
 }
 
-// Mock team locations across the US
 const teamLocations: TeamLocation[] = [
   { 
     id: '1', 
@@ -126,7 +122,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
   
   const selectedTeam = selectedTeamId ? teamLocations.find(team => team.id === selectedTeamId) : null;
   
-  // Update completion progress whenever kmzFeatures changes
   useEffect(() => {
     if (kmzFeatures.length === 0) {
       setKmzCompletionProgress(0);
@@ -137,7 +132,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
     }
   }, [kmzFeatures]);
   
-  // Initialize map when component mounts
   useEffect(() => {
     if (!mapContainer.current) return;
     
@@ -152,21 +146,17 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
     
-    // Clean up on unmount
     return () => {
       map.current?.remove();
     };
   }, []);
   
-  // Add KMZ features to map
   useEffect(() => {
     if (!map.current || kmzFeatures.length === 0) return;
     
-    // Wait for map to be loaded
     const loadHandler = () => {
       if (!map.current) return;
       
-      // Remove any existing KMZ layers
       kmzLayersRef.current.forEach(layerId => {
         if (map.current?.getLayer(layerId)) {
           map.current.removeLayer(layerId);
@@ -178,7 +168,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
       
       kmzLayersRef.current = [];
       
-      // Add KMZ features to map based on their type
       kmzFeatures.forEach((feature, index) => {
         if (!map.current) return;
         
@@ -186,7 +175,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         const layerId = `kmz-layer-${feature.id}`;
         kmzLayersRef.current.push(layerId);
         
-        // Create appropriate source and layer based on feature type
         if (feature.type === 'point') {
           map.current.addSource(sourceId, {
             type: 'geojson',
@@ -280,16 +268,14 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
           });
         }
         
-        // Add click event for KMZ feature
         map.current.on('click', layerId, (e) => {
           if (e.features && e.features[0]) {
             const featureProperties = e.features[0].properties;
             const clickedFeature = kmzFeatures.find(f => f.id === feature.id);
             if (clickedFeature) {
               setSelectedKmzFeature(clickedFeature);
-              setSelectedTeamId(null); // Clear team selection
+              setSelectedTeamId(null);
               
-              // Fly to feature
               if (feature.type === 'point' && feature.coordinates[0]) {
                 map.current?.flyTo({
                   center: feature.coordinates[0],
@@ -297,7 +283,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
                   duration: 1000
                 });
               } else if (feature.coordinates.length > 0) {
-                // Calculate bounds for lines and polygons
                 const bounds = new mapboxgl.LngLatBounds();
                 feature.coordinates.forEach(coord => {
                   bounds.extend(new mapboxgl.LngLat(coord[0], coord[1]));
@@ -320,7 +305,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
       map.current.on('load', loadHandler);
     }
     
-    // Make KMZ layers visible/invisible based on showKmzLayers state
     if (map.current.loaded()) {
       kmzLayersRef.current.forEach(layerId => {
         if (map.current?.getLayer(layerId)) {
@@ -328,25 +312,19 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         }
       });
     }
-    
   }, [kmzFeatures, showKmzLayers]);
   
-  // Add markers when map is loaded
   useEffect(() => {
     if (!map.current) return;
     
-    // Wait for map to load before adding markers
     map.current.on('load', () => {
       teamLocations.forEach(team => {
-        // Create custom marker element
         const marker = document.createElement('div');
         marker.className = 'cursor-pointer';
         
-        // Create React element inside marker
         const root = document.createElement('div');
         marker.appendChild(root);
         
-        // Create color based on role
         let color = 'bg-blue-500';
         if (team.role === 'Installation') color = 'bg-green-500';
         if (team.role === 'Survey') color = 'bg-amber-500';
@@ -354,7 +332,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         if (team.role === 'Inspection') color = 'bg-red-500';
         if (team.role === 'Repair') color = 'bg-pink-500';
         
-        // Render icon based on number of people
         marker.innerHTML = `
           <div class="${color} text-white p-2 rounded-full shadow-lg flex items-center justify-center" style="width: 40px; height: 40px;">
             ${team.numPeople > 1 
@@ -363,7 +340,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
           </div>
         `;
         
-        // Create popup but don't add it to map yet
         const popup = new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
@@ -376,16 +352,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
           </div>
         `);
         
-        // Create and add the marker to the map
         const mapboxMarker = new mapboxgl.Marker(marker)
           .setLngLat([team.location.lng, team.location.lat])
           .addTo(map.current!);
           
-        // Store references to markers and popups
         markersRef.current[team.id] = mapboxMarker;
         popupsRef.current[team.id] = popup;
         
-        // Add event listeners
         marker.addEventListener('mouseenter', () => {
           if (taskAssignMode) return;
           mapboxMarker.setPopup(popup).togglePopup();
@@ -402,19 +375,16 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         
         marker.addEventListener('click', () => {
           setSelectedTeamId(prevId => prevId === team.id ? null : team.id);
-          setSelectedKmzFeature(null); // Clear KMZ feature selection
+          setSelectedKmzFeature(null);
         });
       });
       
-      // Add task markers
       tasks.forEach(task => {
         const { lat, lng } = task.location;
         
-        // Create custom marker for tasks
         const taskMarker = document.createElement('div');
         taskMarker.className = 'cursor-pointer';
         
-        // Render based on task priority
         let priorityColor = 'bg-blue-500';
         if (task.priority === 'high') priorityColor = 'bg-red-500';
         else if (task.priority === 'medium') priorityColor = 'bg-amber-500';
@@ -425,7 +395,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
           </div>
         `;
         
-        // Create task popup
         const taskPopup = new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
@@ -443,7 +412,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
           .setPopup(taskPopup)
           .addTo(map.current!);
           
-        // Mouse events for task markers
         taskMarker.addEventListener('mouseenter', () => {
           taskPopup.addTo(map.current!);
         });
@@ -457,35 +425,29 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
     });
   }, [projects, tasks]);
   
-  // Handle showing selected team details  
   useEffect(() => {
     if (!map.current) return;
     
-    // Close all popups first
     Object.values(popupsRef.current).forEach(popup => {
       popup.remove();
     });
     
-    // If we have a selected team, fly to it and show popup
     if (selectedTeamId && markersRef.current[selectedTeamId]) {
       const team = teamLocations.find(t => t.id === selectedTeamId);
       if (!team) return;
       
-      // Fly to the selected team
       map.current.flyTo({
         center: [team.location.lng, team.location.lat],
         zoom: 8,
         duration: 1500
       });
       
-      // Show the popup for the selected team
       const marker = markersRef.current[selectedTeamId];
       const popup = popupsRef.current[selectedTeamId];
       marker.setPopup(popup).togglePopup();
     } else if (map.current && !selectedTeamId && !selectedKmzFeature) {
-      // If no team is selected, reset the map view
       map.current.flyTo({
-        center: [-98.5795, 39.8283], // Center of USA
+        center: [-98.5795, 39.8283],
         zoom: 3.5,
         duration: 1500
       });
@@ -505,7 +467,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
   };
   
   const toggleFeatureCompletion = (feature: KmzFeature) => {
-    // Find feature index and toggle its completion status
     const updatedFeatures = kmzFeatures.map(f => {
       if (f.id === feature.id) {
         return { ...f, completed: !f.completed };
@@ -513,12 +474,11 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
       return f;
     });
     
-    // Update map sources if we have a reference to them
     if (map.current) {
       const sourceId = `kmz-source-${feature.id}`;
       if (map.current.getSource(sourceId)) {
         const source = map.current.getSource(sourceId) as mapboxgl.GeoJSONSource;
-        const isCompleted = !feature.completed; // The new status after toggle
+        const isCompleted = !feature.completed;
         
         let newData: any = { properties: { completed: isCompleted } };
         
@@ -566,10 +526,9 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         source.setData(newData);
       }
       
-      // Update layer properties based on completion status
       const layerId = `kmz-layer-${feature.id}`;
       if (map.current.getLayer(layerId)) {
-        const isCompleted = !feature.completed; // The new status after toggle
+        const isCompleted = !feature.completed;
         
         if (feature.type === 'point') {
           map.current.setPaintProperty(layerId, 'circle-color', isCompleted ? '#10B981' : '#F59E0B');
@@ -581,9 +540,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
       }
     }
     
-    // Update the KMZ feature in the parent component
-    // We're assuming we have a way to propagate this update back up
-    // This would ideally be done through a context or prop callback
     setSelectedKmzFeature(prev => prev ? { ...prev, completed: !prev.completed } : null);
   };
   
@@ -591,7 +547,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
     <div className="relative h-full">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg shadow-lg" />
       
-      {/* KMZ Import Info */}
       {kmzFeatures.length > 0 && (
         <div className="absolute left-4 top-4 z-10">
           <Card className="p-2 shadow-md">
@@ -617,13 +572,12 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         </div>
       )}
       
-      {/* Selected Team Info Card */}
       {selectedTeam && (
         <div className="absolute right-4 top-4 w-72 z-10">
           <Card className="p-3 shadow-lg border-l-4 border-l-fieldvision-orange">
             <div className="flex justify-between items-start mb-2">
               <h3 className="font-medium">{selectedTeam.name}</h3>
-              <Badge variant="outline">{selectedTeam.role}</Badge>
+              <Badge variant="soft-green">{selectedTeam.role}</Badge>
             </div>
             
             <p className="text-xs mb-2">
@@ -674,7 +628,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         </div>
       )}
       
-      {/* Selected KMZ Feature Info */}
       {selectedKmzFeature && (
         <div className="absolute right-4 top-4 w-72 z-10">
           <Card className="p-3 shadow-lg border-l-4 border-l-indigo-500">
@@ -689,7 +642,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
               <p className="text-xs mb-2">{selectedKmzFeature.description}</p>
             )}
             
-            {/* Feature properties */}
             {Object.keys(selectedKmzFeature.properties).length > 0 && (
               <div className="mb-3 bg-muted/50 p-2 rounded-md text-xs">
                 {Object.entries(selectedKmzFeature.properties).map(([key, value]) => (
@@ -736,7 +688,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({ kmzFeatures = [] }) 
         </div>
       )}
       
-      {/* Legend */}
       <div className="absolute left-4 bottom-4 z-10 bg-white/90 p-2 rounded-md shadow-md text-xs">
         <div className="font-medium mb-1">Map Legend</div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1">

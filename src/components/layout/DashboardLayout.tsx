@@ -12,6 +12,7 @@ import {
   LogOut 
 } from 'lucide-react';
 import { CompanySelector } from '@/components/ui/CompanySelector';
+import { Link } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -33,10 +34,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 h-16 border-b border-border`}>
           {!collapsed && (
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-fieldvision-blue rounded-md flex items-center justify-center">
-                <span className="text-white font-bold">FV</span>
-              </div>
-              <span className="ml-2 font-semibold text-lg">Fieldvision</span>
+              <img 
+                src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+                alt="Fieldvision Logo" 
+                className="h-8" 
+              />
             </div>
           )}
           {collapsed && (
@@ -69,21 +71,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             <NavItem 
               icon={<LayoutDashboard size={20} />} 
               label="Dashboard" 
-              href="#" 
+              href="/" 
               collapsed={collapsed} 
-              active={true}
+              active={location.pathname === '/'}
             />
             <NavItem 
               icon={<ListTodo size={20} />} 
               label="Work Entries" 
-              href="#" 
+              href="/work-entries" 
               collapsed={collapsed} 
+              active={location.pathname === '/work-entries'}
             />
             <NavItem 
               icon={<FileText size={20} />} 
-              label="Reports" 
-              href="#" 
-              collapsed={collapsed} 
+              label="Repository" 
+              href="/repository" 
+              collapsed={collapsed}
+              active={location.pathname === '/repository'} 
             />
             <NavItem 
               icon={<Building2 size={20} />} 
@@ -130,8 +134,8 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({ icon, label, href, collapsed, active }) => {
   return (
     <li>
-      <a 
-        href={href}
+      <Link 
+        to={href}
         className={`
           flex items-center ${collapsed ? 'justify-center' : 'justify-start'} px-3 py-2.5 
           rounded-md transition-colors duration-200
@@ -143,7 +147,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, href, collapsed, active 
       >
         <span className="flex-shrink-0">{icon}</span>
         {!collapsed && <span className="ml-3">{label}</span>}
-      </a>
+      </Link>
     </li>
   );
 };
