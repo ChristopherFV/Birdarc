@@ -36,7 +36,7 @@ export const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
             {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
           </div>
           
-          <div className="hidden md:flex flex-col items-end">
+          <div className="hidden md:block">
             <img 
               src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
               alt="Fieldvision Logo"

@@ -18,7 +18,7 @@ const Header = () => {
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <div className="flex flex-col">
+      <div>
         <img 
           src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
           alt="Fieldvision Logo" 
