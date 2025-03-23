@@ -501,6 +501,15 @@ export const TechnicianWindow: React.FC = () => {
           </Tabs>
         </div>
       </div>
+      
+      {/* Fieldvision Logo - Added at the bottom center */}
+      <div className="flex flex-col items-center justify-center mt-4 mb-6">
+        <img 
+          src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+          alt="Fieldvision Logo" 
+          className="h-8 w-auto object-contain" 
+        />
+      </div>
     </div>
   );
 };
