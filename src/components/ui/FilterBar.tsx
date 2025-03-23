@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { 
@@ -103,8 +104,8 @@ export const FilterBar: React.FC = () => {
   return (
     <div className="bg-card border border-border rounded-lg shadow-subtle mb-6 p-3">
       <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center text-sm font-medium text-muted-foreground">
-          <Filter size={14} className="mr-1" />
+        <div className="flex items-center text-xs font-medium text-muted-foreground">
+          <Filter size={12} className="mr-1" />
           <span>Filters:</span>
         </div>
         
@@ -113,9 +114,9 @@ export const FilterBar: React.FC = () => {
             onClick={() => setShowExportMenu(!showExportMenu)}
             className="flex items-center px-2 py-1 rounded-md bg-fieldvision-blue text-white text-xs font-medium hover:bg-fieldvision-blue/90 transition-colors"
           >
-            <Download size={14} className="mr-1" />
+            <Download size={12} className="mr-1" />
             <span>Export</span>
-            <ChevronDown size={12} className="ml-1" />
+            <ChevronDown size={10} className="ml-1" />
           </button>
           
           {showExportMenu && (
@@ -145,15 +146,15 @@ export const FilterBar: React.FC = () => {
         </div>
       </div>
       
-      <div className="flex items-center gap-2 flex-nowrap overflow-x-auto pb-1">
-        <div className="relative flex-shrink-0">
+      <div className="grid grid-cols-5 gap-2 w-full overflow-x-auto pb-1">
+        <div className="relative">
           <button
             onClick={() => setShowDatePicker(!showDatePicker)}
-            className="flex items-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
+            className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
-            <CalendarDays size={12} className="mr-1" />
-            <span>{dateRangeLabels[dateRange]}</span>
-            <ChevronDown size={10} className="ml-1 text-muted-foreground" />
+            <CalendarDays size={10} className="mr-1" />
+            <span className="truncate">{dateRangeLabels[dateRange]}</span>
+            <ChevronDown size={8} className="ml-1 text-muted-foreground" />
           </button>
           
           {showDatePicker && (
@@ -188,13 +189,13 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
-        <div className="relative flex-shrink-0">
+        <div className="relative">
           <button
             onClick={() => setShowGroupByMenu(!showGroupByMenu)}
-            className="flex items-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
+            className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
-            <span>{groupByLabels[groupBy]}</span>
-            <ChevronDown size={10} className="ml-1 text-muted-foreground" />
+            <span className="truncate">{groupByLabels[groupBy]}</span>
+            <ChevronDown size={8} className="ml-1 text-muted-foreground" />
           </button>
           
           {showGroupByMenu && (
@@ -224,14 +225,14 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
       
-        <div className="relative flex-shrink-0">
+        <div className="relative">
           <button
             onClick={() => setShowProjectsMenu(!showProjectsMenu)}
-            className="flex items-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
+            className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
-            <Briefcase size={12} className="mr-1" />
-            <span className="truncate max-w-[80px]">{getSelectedProjectName()}</span>
-            <ChevronDown size={10} className="ml-1 text-muted-foreground" />
+            <Briefcase size={10} className="mr-1" />
+            <span className="truncate">{getSelectedProjectName()}</span>
+            <ChevronDown size={8} className="ml-1 text-muted-foreground" />
           </button>
           
           {showProjectsMenu && (
@@ -272,14 +273,14 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
-        <div className="relative flex-shrink-0">
+        <div className="relative">
           <button
             onClick={() => setShowTeamMenu(!showTeamMenu)}
-            className="flex items-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
+            className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
-            <Users size={12} className="mr-1" />
-            <span className="truncate max-w-[80px]">{getSelectedTeamMemberName()}</span>
-            <ChevronDown size={10} className="ml-1 text-muted-foreground" />
+            <Users size={10} className="mr-1" />
+            <span className="truncate">{getSelectedTeamMemberName()}</span>
+            <ChevronDown size={8} className="ml-1 text-muted-foreground" />
           </button>
           
           {showTeamMenu && (
@@ -320,14 +321,14 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
-        <div className="relative flex-shrink-0">
+        <div className="relative">
           <button
             onClick={() => setShowBillingCodeMenu(!showBillingCodeMenu)}
-            className="flex items-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
+            className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
-            <Tag size={12} className="mr-1" />
-            <span className="truncate max-w-[80px]">{getSelectedBillingCodeName()}</span>
-            <ChevronDown size={10} className="ml-1 text-muted-foreground" />
+            <Tag size={10} className="mr-1" />
+            <span className="truncate">{getSelectedBillingCodeName()}</span>
+            <ChevronDown size={8} className="ml-1 text-muted-foreground" />
           </button>
           
           {showBillingCodeMenu && (
