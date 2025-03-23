@@ -30,15 +30,25 @@ export const useMapMarkers = (
       // Add markers for each task if tasks are visible
       if (showTasks) {
         tasks.forEach(task => {
-          // Validate coordinates to make sure they are within bounds
+          // Strict validation to ensure coordinates are not in the ocean
           if (task.location && 
-              task.location.lat >= 20 && task.location.lat <= 50 && 
-              task.location.lng >= -130 && task.location.lng <= -65) {
+              isValidCoordinate(task.location.lat, task.location.lng)) {
             const marker = createTaskMarker(map, task, handleTaskClick);
             markers.current.push(marker);
+          } else {
+            console.warn('Invalid task coordinates:', task.title, task.location);
           }
         });
       }
+    }
+    
+    // Helper function to validate coordinates are in continental US
+    function isValidCoordinate(lat: number, lng: number): boolean {
+      // These boundaries are intentionally restrictive to ensure tasks stay on land
+      return (
+        lat >= 30 && lat <= 47 && // North-South bounds
+        lng >= -119 && lng <= -75 // East-West bounds
+      );
     }
     
     return () => {

@@ -1,12 +1,12 @@
 
-// Generate 100 random task locations across the United States
-// These coordinates roughly cover the continental United States
-export const generateMockProjectLocations = (count: number = 100) => {
+// Generate 20 random task locations across the United States
+// These coordinates precisely cover only the continental United States
+export const generateMockProjectLocations = (count: number = 20) => {
   // More precise boundaries for continental US to avoid tasks in the ocean
-  const minLat = 25.0; // Southern tip of Florida
-  const maxLat = 48.0; // Northern border with Canada
-  const minLng = -123.0; // Western coast
-  const maxLng = -71.0; // Eastern coast
+  const minLat = 30.0; // Southern border (excluding southern Florida)
+  const maxLat = 47.0; // Northern border with Canada
+  const minLng = -119.0; // Western coast (avoiding coastal waters)
+  const maxLng = -75.0; // Eastern coast (avoiding coastal waters)
 
   const projectTypes = [
     'Fiber Installation',
@@ -57,4 +57,4 @@ export const generateMockProjectLocations = (count: number = 100) => {
   return locations;
 };
 
-export const mockProjectLocations = generateMockProjectLocations(100);
+export const mockProjectLocations = generateMockProjectLocations(20);
