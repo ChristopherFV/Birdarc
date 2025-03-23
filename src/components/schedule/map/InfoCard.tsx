@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Edit, X, CheckSquare, MapPin, Calendar, DollarSign, User, Briefcase } from 'lucide-react';
+import { Edit, X, CheckSquare, MapPin, Calendar, DollarSign, User, Briefcase, XCircle } from 'lucide-react';
 import { Task } from '@/context/ScheduleContext';
+import { TaskConfirmationDialog } from './TaskConfirmationDialog';
 
 interface TaskInfoCardProps {
   task: Task;
@@ -13,6 +14,7 @@ interface TaskInfoCardProps {
   onClose?: () => void;
   onEdit?: () => void;
   onCloseTask?: () => void;
+  onCancelTask?: () => void;
 }
 
 export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({ 
@@ -21,8 +23,12 @@ export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({
   billingCode,
   onClose,
   onEdit,
-  onCloseTask
+  onCloseTask,
+  onCancelTask
 }) => {
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+
   const priorityColors = {
     high: 'bg-red-500',
     medium: 'bg-amber-500',
@@ -101,30 +107,57 @@ export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({
           </div>
         </div>
       </CardContent>
-      {(onEdit || onCloseTask) && task.status !== 'completed' && (
-        <CardFooter className="pt-0 flex justify-between">
+      {task.status !== 'completed' && task.status !== 'cancelled' && (
+        <CardFooter className="pt-0 flex justify-between gap-2">
           {onEdit && (
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-xs h-8" 
+              className="text-xs h-8 flex-1" 
               onClick={onEdit}
             >
-              <Edit className="h-3 w-3 mr-1" /> Edit Task
+              <Edit className="h-3 w-3 mr-1" /> Edit
             </Button>
           )}
           {onCloseTask && (
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-xs h-8 text-green-600 border-green-200 hover:bg-green-50" 
-              onClick={onCloseTask}
+              className="text-xs h-8 text-green-600 border-green-200 hover:bg-green-50 flex-1" 
+              onClick={() => setCompleteDialogOpen(true)}
             >
               <CheckSquare className="h-3 w-3 mr-1" /> Complete
             </Button>
           )}
+          {onCancelTask && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs h-8 text-red-600 border-red-200 hover:bg-red-50 flex-1" 
+              onClick={() => setCancelDialogOpen(true)}
+            >
+              <XCircle className="h-3 w-3 mr-1" /> Cancel
+            </Button>
+          )}
         </CardFooter>
       )}
+
+      {/* Confirmation Dialogs */}
+      <TaskConfirmationDialog
+        open={completeDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        onConfirm={() => onCloseTask && onCloseTask()}
+        actionType="complete"
+        taskTitle={task.title}
+      />
+
+      <TaskConfirmationDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        onConfirm={() => onCancelTask && onCancelTask()}
+        actionType="cancel"
+        taskTitle={task.title}
+      />
     </Card>
   );
 };

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 import { useToast } from "@/hooks/use-toast";
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { TaskConfirmationDialog } from '../schedule/map/TaskConfirmationDialog';
 
 const taskData = {
   id: 'task-123',
@@ -33,6 +35,7 @@ export const TechnicianWindow: React.FC = () => {
   const [zoomLevel, setZoomLevel] = useState(100);
   const [currentTool, setCurrentTool] = useState<'pen' | 'text' | 'circle' | 'square'>('pen');
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'drawing' | 'notes'>('drawing');
   const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   const [showMapTokenInput, setShowMapTokenInput] = useState(false);
@@ -95,6 +98,10 @@ export const TechnicianWindow: React.FC = () => {
   };
 
   const handleCompleteReview = () => {
+    setConfirmDialogOpen(true);
+  };
+  
+  const completeTask = () => {
     toast({
       title: "Task closed",
       description: "Please log your work entry for this task.",
@@ -141,6 +148,14 @@ export const TechnicianWindow: React.FC = () => {
         open={workEntryDialogOpen} 
         onOpenChange={setWorkEntryDialogOpen} 
         projectId="project-1"
+      />
+      
+      <TaskConfirmationDialog
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        onConfirm={completeTask}
+        actionType="complete"
+        taskTitle={taskData.title}
       />
       
       <header className="border-b border-border p-4">

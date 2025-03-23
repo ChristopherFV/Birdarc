@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useSchedule, Task } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
@@ -92,7 +93,7 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
         
         // Show success message
         toast({
-          title: "Task closed",
+          title: "Task completed",
           description: `Task "${task.title}" has been marked as completed.`,
         });
         
@@ -103,7 +104,35 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to close task. Please try again.",
+          description: "Failed to complete task. Please try again.",
+        });
+      }
+    }
+  };
+
+  const handleCancelTask = (taskId: string) => {
+    const task = allTasks.find(t => t.id === taskId);
+    if (task) {
+      const updatedTask = { ...task, status: 'cancelled' as const };
+      
+      try {
+        // Update the task in the context
+        updateTask(updatedTask);
+        
+        // Show success message
+        toast({
+          title: "Task cancelled",
+          description: `Task "${task.title}" has been cancelled.`,
+        });
+        
+        // Reset selected task id
+        setSelectedTaskId(null);
+      } catch (error) {
+        console.error('Error cancelling task:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to cancel task. Please try again.",
         });
       }
     }
@@ -191,6 +220,7 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
             onClose={() => setSelectedTaskId(null)}
             onEdit={handleEditTask}
             onCloseTask={() => handleCloseTask(selectedTask.id)}
+            onCancelTask={() => handleCancelTask(selectedTask.id)}
           />
         </div>
       )}
