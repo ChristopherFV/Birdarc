@@ -12,7 +12,7 @@ import { CSVImporter } from '@/components/forms/CSVImporter';
 import { BillingCode } from '@/types/app-types';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { InfoCircle, Plus, Trash2 } from 'lucide-react';
+import { Info, Plus, Trash2 } from 'lucide-react';
 
 export const AddProjectDialog = () => {
   const { isOpen, closeAddProjectDialog } = useAddProjectDialog();
@@ -271,7 +271,7 @@ export const AddProjectDialog = () => {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-6 w-6">
-                      <InfoCircle className="h-4 w-4" />
+                      <Info className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80">
