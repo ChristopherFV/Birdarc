@@ -7,6 +7,11 @@ export type Project = {
   id: string;
   name: string;
   client: string;
+  billingType?: 'hourly' | 'unit';
+  hourlyRate?: number;
+  serviceName?: string;
+  useContractor?: boolean;
+  contractorHourlyRate?: number;
 };
 
 export type BillingCode = {
@@ -46,6 +51,11 @@ export type NewProject = {
   name: string;
   client: string;
   billingCodes: Omit<BillingCode, 'id'>[];
+  billingType?: 'hourly' | 'unit';
+  hourlyRate?: number;
+  serviceName?: string;
+  useContractor?: boolean;
+  contractorHourlyRate?: number;
 };
 
 // Context type
