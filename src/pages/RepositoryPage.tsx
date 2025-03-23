@@ -263,17 +263,11 @@ const RepositoryPage = () => {
             </Card>
             
             <div className="flex flex-col items-center justify-center mt-4 mb-6">
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-                  alt="Fieldvision Logo" 
-                  className="h-8 w-auto object-contain" 
-                />
-                <span className="text-xl font-semibold">Fieldview</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Streamlining field operations and project management
-              </p>
+              <img 
+                src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+                alt="Fieldvision Logo" 
+                className="h-8 w-auto object-contain" 
+              />
             </div>
           </div>
         </TabsContent>
