@@ -37,7 +37,7 @@ const RepositoryPage = () => {
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [showKmzUploader, setShowKmzUploader] = useState(false);
   const [importedKmzFeatures, setImportedKmzFeatures] = useState<KmzFeatureWithVisibility[]>([]);
-  const [mapboxApiKey, setMapboxApiKey] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
+  const [mapboxApiKey] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   const { tasks } = useSchedule();
   const { toast } = useToast();
   
@@ -81,12 +81,6 @@ const RepositoryPage = () => {
   
   const toggleKmzUploader = () => {
     setShowKmzUploader(prev => !prev);
-  };
-
-  const handleMapboxApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setMapboxApiKey(value);
-    localStorage.setItem('mapbox_api_key', value);
   };
 
   return (
@@ -234,58 +228,48 @@ const RepositoryPage = () => {
           </Card>
         )}
         
-        <TabsContent value="schedule">
-          <div className="grid grid-cols-1 gap-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-5 w-5" />
-                    Fieldmap
-                  </div>
-                  <div className="flex items-center text-sm">
-                    <User className="h-4 w-4 mr-1" />
-                    <span className="text-muted-foreground">Viewing as: {currentUser.name}</span>
-                  </div>
-                </CardTitle>
-                <CardDescription className="flex items-center justify-between">
-                  <span>
-                    View all teams and technicians across locations. Click on markers to assign tasks.
-                    {visibleFeatures.length > 0 && (
-                      <Badge variant="outline" className="ml-2">
-                        {visibleFeatures.length} imported features
-                      </Badge>
-                    )}
-                  </span>
-                  
-                  <div className="flex items-center">
-                    <input
-                      type="text"
-                      placeholder="Enter Mapbox API Key"
-                      value={mapboxApiKey}
-                      onChange={handleMapboxApiKeyChange}
-                      className="text-xs p-1 border rounded mr-2 w-48"
-                    />
-                  </div>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[600px] w-full rounded-md overflow-hidden">
-                  <ScheduleMap mapboxApiKey={mapboxApiKey} />
+      <TabsContent value="schedule">
+        <div className="grid grid-cols-1 gap-6">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <MapPin className="mr-2 h-5 w-5" />
+                  Fieldmap
                 </div>
-              </CardContent>
-            </Card>
-            
-            <div className="flex flex-col items-center justify-center mt-4 mb-6">
-              <img 
-                src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-                alt="Fieldvision Logo" 
-                className="h-8 w-auto object-contain" 
-              />
-            </div>
+                <div className="flex items-center text-sm">
+                  <User className="h-4 w-4 mr-1" />
+                  <span className="text-muted-foreground">Viewing as: {currentUser.name}</span>
+                </div>
+              </CardTitle>
+              <CardDescription>
+                <span>
+                  View all teams and technicians across locations. Click on markers to assign tasks.
+                  {visibleFeatures.length > 0 && (
+                    <Badge variant="outline" className="ml-2">
+                      {visibleFeatures.length} imported features
+                    </Badge>
+                  )}
+                </span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[600px] w-full rounded-md overflow-hidden">
+                <ScheduleMap mapboxApiKey={mapboxApiKey} />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <div className="flex flex-col items-center justify-center mt-4 mb-6">
+            <img 
+              src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+              alt="Fieldvision Logo" 
+              className="h-8 w-auto object-contain" 
+            />
           </div>
-        </TabsContent>
-        
+        </div>
+      </TabsContent>
+      
         <TabsContent value="all">
           <FileRepository status="all" />
         </TabsContent>
