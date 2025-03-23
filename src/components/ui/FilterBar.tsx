@@ -122,10 +122,10 @@ export const FilterBar: React.FC = () => {
           {showExportMenu && (
             <>
               <div 
-                className="fixed inset-0 z-10" 
+                className="fixed inset-0 z-50" 
                 onClick={() => setShowExportMenu(false)}
               />
-              <div className="absolute right-0 mt-1 z-20 w-48 bg-card shadow-md rounded-md border border-border animate-in slide-up">
+              <div className="absolute right-0 mt-1 z-50 w-48 bg-card shadow-md rounded-md border border-border animate-in slide-in-from-top-5">
                 <div className="p-1">
                   <button
                     onClick={() => handleExport('raw')}
@@ -146,10 +146,16 @@ export const FilterBar: React.FC = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-5 gap-2 w-full overflow-x-auto pb-1">
+      <div className="grid grid-cols-5 gap-2 w-full">
         <div className="relative">
           <button
-            onClick={() => setShowDatePicker(!showDatePicker)}
+            onClick={() => {
+              setShowDatePicker(!showDatePicker);
+              setShowGroupByMenu(false);
+              setShowProjectsMenu(false);
+              setShowTeamMenu(false);
+              setShowBillingCodeMenu(false);
+            }}
             className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
             <CalendarDays size={10} className="mr-1" />
@@ -160,10 +166,10 @@ export const FilterBar: React.FC = () => {
           {showDatePicker && (
             <>
               <div 
-                className="fixed inset-0 z-10" 
+                className="fixed inset-0 z-50" 
                 onClick={() => setShowDatePicker(false)}
               />
-              <div className="absolute mt-1 left-0 z-20 bg-card shadow-card rounded-md border border-border animate-in slide-up">
+              <div className="absolute mt-1 left-0 z-50 bg-card shadow-card rounded-md border border-border animate-in slide-in-from-top-5">
                 <div className="p-2">
                   <div className="flex flex-col space-y-1">
                     {(['day', 'week', 'month'] as DateRangeType[]).map((range) => (
@@ -191,7 +197,13 @@ export const FilterBar: React.FC = () => {
         
         <div className="relative">
           <button
-            onClick={() => setShowGroupByMenu(!showGroupByMenu)}
+            onClick={() => {
+              setShowGroupByMenu(!showGroupByMenu);
+              setShowDatePicker(false);
+              setShowProjectsMenu(false);
+              setShowTeamMenu(false);
+              setShowBillingCodeMenu(false);
+            }}
             className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
             <span className="truncate">{groupByLabels[groupBy]}</span>
@@ -201,10 +213,10 @@ export const FilterBar: React.FC = () => {
           {showGroupByMenu && (
             <>
               <div 
-                className="fixed inset-0 z-10" 
+                className="fixed inset-0 z-50" 
                 onClick={() => setShowGroupByMenu(false)}
               />
-              <div className="absolute mt-1 z-20 w-36 bg-card shadow-card rounded-md border border-border animate-in slide-up">
+              <div className="absolute mt-1 z-50 w-36 bg-card shadow-card rounded-md border border-border animate-in slide-in-from-top-5">
                 <div className="p-1">
                   {(Object.keys(groupByLabels) as GroupByType[]).map((group) => (
                     <button
@@ -227,7 +239,13 @@ export const FilterBar: React.FC = () => {
       
         <div className="relative">
           <button
-            onClick={() => setShowProjectsMenu(!showProjectsMenu)}
+            onClick={() => {
+              setShowProjectsMenu(!showProjectsMenu);
+              setShowDatePicker(false);
+              setShowGroupByMenu(false);
+              setShowTeamMenu(false);
+              setShowBillingCodeMenu(false);
+            }}
             className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
             <Briefcase size={10} className="mr-1" />
@@ -238,10 +256,10 @@ export const FilterBar: React.FC = () => {
           {showProjectsMenu && (
             <>
               <div 
-                className="fixed inset-0 z-10" 
+                className="fixed inset-0 z-50" 
                 onClick={() => setShowProjectsMenu(false)}
               />
-              <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-64 overflow-y-auto">
+              <div className="absolute mt-1 z-50 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-in-from-top-5 max-h-64 overflow-y-auto">
                 <div className="p-1">
                   <button
                     onClick={() => handleProjectChange(null)}
@@ -275,7 +293,13 @@ export const FilterBar: React.FC = () => {
         
         <div className="relative">
           <button
-            onClick={() => setShowTeamMenu(!showTeamMenu)}
+            onClick={() => {
+              setShowTeamMenu(!showTeamMenu);
+              setShowDatePicker(false);
+              setShowGroupByMenu(false);
+              setShowProjectsMenu(false);
+              setShowBillingCodeMenu(false);
+            }}
             className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
             <Users size={10} className="mr-1" />
@@ -286,10 +310,10 @@ export const FilterBar: React.FC = () => {
           {showTeamMenu && (
             <>
               <div 
-                className="fixed inset-0 z-10" 
+                className="fixed inset-0 z-50" 
                 onClick={() => setShowTeamMenu(false)}
               />
-              <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-64 overflow-y-auto">
+              <div className="absolute mt-1 z-50 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-in-from-top-5 max-h-64 overflow-y-auto">
                 <div className="p-1">
                   <button
                     onClick={() => handleTeamMemberChange(null)}
@@ -323,7 +347,13 @@ export const FilterBar: React.FC = () => {
         
         <div className="relative">
           <button
-            onClick={() => setShowBillingCodeMenu(!showBillingCodeMenu)}
+            onClick={() => {
+              setShowBillingCodeMenu(!showBillingCodeMenu);
+              setShowDatePicker(false);
+              setShowGroupByMenu(false);
+              setShowProjectsMenu(false);
+              setShowTeamMenu(false);
+            }}
             className="w-full flex items-center justify-center px-1.5 py-1 text-xs rounded-md bg-secondary hover:bg-secondary/80 transition-colors whitespace-nowrap"
           >
             <Tag size={10} className="mr-1" />
@@ -334,10 +364,10 @@ export const FilterBar: React.FC = () => {
           {showBillingCodeMenu && (
             <>
               <div 
-                className="fixed inset-0 z-10" 
+                className="fixed inset-0 z-50" 
                 onClick={() => setShowBillingCodeMenu(false)}
               />
-              <div className="absolute mt-1 z-20 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-up max-h-64 overflow-y-auto">
+              <div className="absolute mt-1 z-50 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-in-from-top-5 max-h-64 overflow-y-auto">
                 <div className="p-1">
                   <button
                     onClick={() => handleBillingCodeChange(null)}
