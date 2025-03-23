@@ -38,6 +38,12 @@ export type WorkEntry = {
   teamMemberId: string;
   companyId: string;
   invoiceStatus: InvoiceStatus;
+  geoJsonId?: string; // Reference to a GeoJSON feature
+  locationData?: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
 };
 
 export type Company = {
@@ -56,6 +62,22 @@ export type NewProject = {
   serviceName?: string;
   useContractor?: boolean;
   contractorHourlyRate?: number;
+};
+
+// GeoJSON Feature properties
+export type GeoJsonFeatureProperties = {
+  id: string;
+  name: string;
+  description?: string;
+  billingCodeId?: string;
+  projectId?: string;
+  ratePerUnit?: number;
+  unitType?: 'foot' | 'meter' | 'each';
+  completed?: boolean;
+  completedDate?: string;
+  completedBy?: string;
+  teamMemberId?: string;
+  workEntryId?: string;
 };
 
 // Context type

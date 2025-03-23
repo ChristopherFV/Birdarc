@@ -56,7 +56,7 @@ const RepositoryPage = () => {
     setShowKmzUploader(false);
     
     toast({
-      title: "KMZ features imported",
+      title: "Map features imported",
       description: `${features.length} features have been added to the map for tracking`,
       variant: "default",
     });
@@ -108,7 +108,7 @@ const RepositoryPage = () => {
                 className="flex items-center gap-2"
               >
                 <FileType className="h-4 w-4" />
-                <span>Import KMZ</span>
+                <span>Import Map File</span>
               </Button>
               <Button 
                 onClick={() => setIsTaskFormOpen(true)} 
@@ -137,9 +137,9 @@ const RepositoryPage = () => {
       {showKmzUploader && selectedTab === 'schedule' && (
         <Card className="mb-6">
           <CardHeader className="pb-3">
-            <CardTitle>Import KMZ Data</CardTitle>
+            <CardTitle>Import Map Data</CardTitle>
             <CardDescription>
-              Upload KMZ files to import geographic data for your projects and control who can see it
+              Upload KMZ or GeoJSON files to import geographic data for your projects and control who can see it
             </CardDescription>
           </CardHeader>
           <CardContent>
