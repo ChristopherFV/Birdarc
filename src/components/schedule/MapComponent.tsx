@@ -13,7 +13,7 @@ import { KmzFeature } from '@/utils/kmzUtils';
 import { Checkbox } from '../ui/checkbox';
 import { Progress } from '../ui/progress';
 
-const MAPBOX_TOKEN = 'pk.eyJ1IjoibG92YWJsZWFpIiwiYSI6ImNscWdydDU0cTBocnUya25zODBoN2dtcWEifQ.a7mUVdXHjPSMcmYxnkVscA';
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg';
 
 interface TeamLocation {
   id: string;

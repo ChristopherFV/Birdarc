@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,7 @@ const RepositoryPage = () => {
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [showKmzUploader, setShowKmzUploader] = useState(false);
   const [importedKmzFeatures, setImportedKmzFeatures] = useState<KmzFeatureWithVisibility[]>([]);
-  const [mapboxApiKey, setMapboxApiKey] = useState<string>(localStorage.getItem('mapbox_api_key') || '');
+  const [mapboxApiKey, setMapboxApiKey] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   const { tasks } = useSchedule();
   const { toast } = useToast();
   
@@ -181,7 +180,6 @@ const RepositoryPage = () => {
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
         </TabsList>
         
-        {/* Always show pending files section below the tabs when there are pending files */}
         {totalPendingFiles > 0 && (
           <Card className="mb-6 border-yellow-200 bg-yellow-50">
             <CardContent className="p-4">

@@ -13,6 +13,7 @@ import { FilterBar } from '@/components/ui/FilterBar';
 
 const SchedulePage: React.FC = () => {
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [mapboxApiKey] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   
   return (
     <div className="min-h-screen bg-background">
@@ -51,7 +52,7 @@ const SchedulePage: React.FC = () => {
             <CardContent>
               <TabsContent value="map" className="mt-0">
                 <div className="h-[500px] w-full rounded-md overflow-hidden border">
-                  <ScheduleMap />
+                  <ScheduleMap mapboxApiKey={mapboxApiKey} />
                 </div>
               </TabsContent>
               <TabsContent value="calendar" className="mt-0">

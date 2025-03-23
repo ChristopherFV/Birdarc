@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-// Mock task data - In a real app, this would come from a context or API
 const taskData = {
   id: 'task-123',
   title: 'Field Dashboard',
@@ -31,18 +29,17 @@ const taskData = {
 export const TechnicianWindow: React.FC = () => {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages] = useState(3); // Example - in a real app this would come from the PDF
+  const [totalPages] = useState(3);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [currentTool, setCurrentTool] = useState<'pen' | 'text' | 'circle' | 'square'>('pen');
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'drawing' | 'notes'>('drawing');
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [showMapTokenInput, setShowMapTokenInput] = useState(true);
+  const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
+  const [showMapTokenInput, setShowMapTokenInput] = useState(false);
   
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   
-  // Initialize map when mapbox token is available
   useEffect(() => {
     if (!mapboxToken || !mapContainer.current || map.current) return;
     
@@ -56,15 +53,12 @@ export const TechnicianWindow: React.FC = () => {
         zoom: 15
       });
       
-      // Add marker for task location
       new mapboxgl.Marker({ color: '#F18E1D' })
         .setLngLat([taskData.location.lng, taskData.location.lat])
         .addTo(map.current);
       
-      // Add navigation controls
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
       
-      // Show success message
       toast({
         title: "Map loaded successfully",
         description: "Task location is now visible on the map",
@@ -133,30 +127,22 @@ export const TechnicianWindow: React.FC = () => {
       setMapboxToken(token);
       setShowMapTokenInput(false);
       
-      // Save token to localStorage for convenience during development
       localStorage.setItem('mapbox_token', token);
     }
   };
   
-  // Try to get token from localStorage on first load
   useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_token');
-    if (savedToken) {
-      setMapboxToken(savedToken);
-      setShowMapTokenInput(false);
-    }
+    setShowMapTokenInput(false);
   }, []);
   
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Work Entry Dialog */}
       <TechnicianWorkEntryDialog 
         open={workEntryDialogOpen} 
         onOpenChange={setWorkEntryDialogOpen} 
-        projectId="project-1" // In a real app, this would be dynamically set
+        projectId="project-1"
       />
       
-      {/* Header */}
       <header className="border-b border-border p-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -185,11 +171,8 @@ export const TechnicianWindow: React.FC = () => {
         </div>
       </header>
       
-      {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Document and Map Viewer */}
         <div className="flex-1 overflow-auto p-4">
-          {/* Map Section */}
           <div className="mb-4">
             <Card className="overflow-hidden">
               <CardHeader className="py-2 px-4 bg-fieldvision-navy/10">
@@ -227,6 +210,7 @@ export const TechnicianWindow: React.FC = () => {
                           name="mapboxToken" 
                           placeholder="pk.eyJ1IjoieW91..." 
                           className="flex-1 px-2 py-1 text-sm border rounded"
+                          defaultValue={mapboxToken}
                         />
                         <Button type="submit" size="sm">
                           Set Token
@@ -244,16 +228,14 @@ export const TechnicianWindow: React.FC = () => {
             </Card>
           </div>
           
-          {/* Drawing Viewer */}
           <div 
             className="mx-auto bg-white shadow-lg border border-border rounded-md"
             style={{ 
               width: `${zoomLevel}%`, 
-              height: 'calc(100vh - 440px)', // Adjusted for map's height
+              height: 'calc(100vh - 440px)', 
               position: 'relative'
             }}
           >
-            {/* Placeholder for PDF content */}
             <div className="h-full w-full flex flex-col items-center justify-center text-center p-6">
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                 <div className="text-muted-foreground p-8">
@@ -264,7 +246,6 @@ export const TechnicianWindow: React.FC = () => {
               </div>
             </div>
             
-            {/* PDF Controls */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-background/90 p-2 rounded-md shadow-sm border border-border">
               <Button 
                 variant="ghost" 
@@ -303,7 +284,6 @@ export const TechnicianWindow: React.FC = () => {
           </div>
         </div>
         
-        {/* Tools Panel */}
         <div className="w-72 border-l border-border overflow-y-auto">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'drawing' | 'notes')} className="w-full">
             <TabsList className="w-full grid grid-cols-2">
@@ -398,7 +378,6 @@ export const TechnicianWindow: React.FC = () => {
                 </CardContent>
               </Card>
               
-              {/* Task Information Card - Moved from Details tab */}
               <Card>
                 <CardHeader className="py-2">
                   <CardTitle className="text-sm">Task Details</CardTitle>
@@ -502,7 +481,6 @@ export const TechnicianWindow: React.FC = () => {
         </div>
       </div>
       
-      {/* Fieldvision Logo - Added at the bottom center */}
       <div className="flex flex-col items-center justify-center mt-4 mb-6">
         <img 
           src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
