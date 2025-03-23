@@ -17,7 +17,7 @@ const Header = () => {
   const { selectedCompany } = useApp();
 
   return (
-    <div className="flex justify-between items-center mb-6">
+    <div className="flex justify-between items-center mb-4">
       <div>
         <img 
           src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
@@ -33,6 +33,7 @@ const Header = () => {
               variant="outline" 
               className="flex items-center gap-2"
               style={{ backgroundColor: "#F18E1D", color: "white", borderColor: "#F18E1D" }}
+              size="sm"
             >
               <FolderOpen className="h-4 w-4" />
               <span>Fieldvision</span>
@@ -50,6 +51,7 @@ const Header = () => {
             variant="outline" 
             className="flex items-center gap-2"
             style={{ backgroundColor: "#F18E1D", color: "white", borderColor: "#F18E1D" }}
+            size="sm"
           >
             <HardHat className="h-4 w-4" />
             <span>Technician View</span>

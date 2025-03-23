@@ -102,21 +102,21 @@ export const FilterBar: React.FC = () => {
   };
   
   return (
-    <div className="bg-card border border-border rounded-lg shadow-subtle mb-6 p-4">
-      <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3">
-        <div className="flex items-center text-sm font-medium text-muted-foreground">
-          <Filter size={16} className="mr-1.5" />
+    <div className="bg-card border border-border rounded-lg shadow-subtle mb-6 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center text-sm font-medium text-muted-foreground mr-1">
+          <Filter size={14} className="mr-1" />
           <span>Filters:</span>
         </div>
         
         <div className="relative">
           <button
             onClick={() => setShowDatePicker(!showDatePicker)}
-            className="flex items-center px-3 py-1.5 rounded-md bg-secondary text-sm font-medium hover:bg-secondary/80 transition-colors"
+            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
           >
-            <CalendarDays size={16} className="mr-1.5" />
+            <CalendarDays size={14} className="mr-1" />
             <span>{dateRangeLabels[dateRange]}</span>
-            <ChevronDown size={14} className="ml-1.5 text-muted-foreground" />
+            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
           </button>
           
           {showDatePicker && (
@@ -154,10 +154,10 @@ export const FilterBar: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowGroupByMenu(!showGroupByMenu)}
-            className="flex items-center px-3 py-1.5 rounded-md bg-secondary text-sm font-medium hover:bg-secondary/80 transition-colors"
+            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
           >
             <span>{groupByLabels[groupBy]}</span>
-            <ChevronDown size={14} className="ml-1.5 text-muted-foreground" />
+            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
           </button>
           
           {showGroupByMenu && (
@@ -166,7 +166,7 @@ export const FilterBar: React.FC = () => {
                 className="fixed inset-0 z-10" 
                 onClick={() => setShowGroupByMenu(false)}
               />
-              <div className="absolute mt-1 z-20 w-40 bg-card shadow-card rounded-md border border-border animate-in slide-up">
+              <div className="absolute mt-1 z-20 w-36 bg-card shadow-card rounded-md border border-border animate-in slide-up">
                 <div className="p-1">
                   {(Object.keys(groupByLabels) as GroupByType[]).map((group) => (
                     <button
@@ -190,11 +190,11 @@ export const FilterBar: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowProjectsMenu(!showProjectsMenu)}
-            className="flex items-center px-3 py-1.5 rounded-md bg-secondary text-sm font-medium hover:bg-secondary/80 transition-colors"
+            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
           >
-            <Briefcase size={16} className="mr-1.5" />
-            <span className="truncate max-w-[150px]">{getSelectedProjectName()}</span>
-            <ChevronDown size={14} className="ml-1.5 text-muted-foreground" />
+            <Briefcase size={14} className="mr-1" />
+            <span className="truncate max-w-[100px]">{getSelectedProjectName()}</span>
+            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
           </button>
           
           {showProjectsMenu && (
@@ -238,11 +238,11 @@ export const FilterBar: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowTeamMenu(!showTeamMenu)}
-            className="flex items-center px-3 py-1.5 rounded-md bg-secondary text-sm font-medium hover:bg-secondary/80 transition-colors"
+            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
           >
-            <Users size={16} className="mr-1.5" />
-            <span className="truncate max-w-[150px]">{getSelectedTeamMemberName()}</span>
-            <ChevronDown size={14} className="ml-1.5 text-muted-foreground" />
+            <Users size={14} className="mr-1" />
+            <span className="truncate max-w-[100px]">{getSelectedTeamMemberName()}</span>
+            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
           </button>
           
           {showTeamMenu && (
@@ -286,11 +286,11 @@ export const FilterBar: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setShowBillingCodeMenu(!showBillingCodeMenu)}
-            className="flex items-center px-3 py-1.5 rounded-md bg-secondary text-sm font-medium hover:bg-secondary/80 transition-colors"
+            className="flex items-center px-2 py-1 rounded-md bg-secondary text-xs font-medium hover:bg-secondary/80 transition-colors"
           >
-            <Tag size={16} className="mr-1.5" />
-            <span className="truncate max-w-[150px]">{getSelectedBillingCodeName()}</span>
-            <ChevronDown size={14} className="ml-1.5 text-muted-foreground" />
+            <Tag size={14} className="mr-1" />
+            <span className="truncate max-w-[100px]">{getSelectedBillingCodeName()}</span>
+            <ChevronDown size={12} className="ml-1 text-muted-foreground" />
           </button>
           
           {showBillingCodeMenu && (
@@ -334,11 +334,11 @@ export const FilterBar: React.FC = () => {
         <div className="relative ml-auto">
           <button
             onClick={() => setShowExportMenu(!showExportMenu)}
-            className="flex items-center px-3 py-1.5 rounded-md bg-fieldvision-blue text-white text-sm font-medium hover:bg-fieldvision-blue/90 transition-colors"
+            className="flex items-center px-2 py-1 rounded-md bg-fieldvision-blue text-white text-xs font-medium hover:bg-fieldvision-blue/90 transition-colors"
           >
-            <Download size={16} className="mr-1.5" />
+            <Download size={14} className="mr-1" />
             <span>Export</span>
-            <ChevronDown size={14} className="ml-1.5" />
+            <ChevronDown size={12} className="ml-1" />
           </button>
           
           {showExportMenu && (
