@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useSchedule } from '@/context/ScheduleContext';
+import { useSchedule, Task } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -8,64 +8,33 @@ import { MapLayerControls } from './map/MapLayerControls';
 import { TaskInfoCard } from './map/InfoCard';
 import { MapFallback } from './map/MapFallback';
 import { useMapMarkers } from './map/useMapMarkers';
-
-// Generate 100 mock task locations spread across the US
-const generateMockTaskLocations = () => {
-  const mockTasks = [];
-  
-  const usaBounds = {
-    west: -125.0,
-    east: -66.0,
-    south: 24.0,
-    north: 49.0
-  };
-  
-  const priorities = ['high', 'medium', 'low'];
-  const projectIds = ['1', '2', '3', '4', '5'];
-  const billingCodeIds = ['1', '2', '3', '4', '5', '6'];
-  
-  for (let i = 0; i < 100; i++) {
-    const lng = usaBounds.west + (Math.random() * (usaBounds.east - usaBounds.west));
-    const lat = usaBounds.south + (Math.random() * (usaBounds.north - usaBounds.south));
-    
-    mockTasks.push({
-      id: `mock-${i}`,
-      title: `Task ${i + 1}`,
-      description: `Mock task description for task ${i + 1}`,
-      location: {
-        address: `Location ${i + 1}, USA`,
-        lat,
-        lng
-      },
-      startDate: new Date(),
-      endDate: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000),
-      projectId: projectIds[Math.floor(Math.random() * projectIds.length)],
-      teamMemberId: null,
-      priority: priorities[Math.floor(Math.random() * priorities.length)],
-      status: 'pending',
-      billingCodeId: billingCodeIds[Math.floor(Math.random() * billingCodeIds.length)],
-      quantityEstimate: Math.floor(Math.random() * 100) + 10
-    });
-  }
-  
-  return mockTasks;
-};
+import { AddTaskDialog } from './AddTaskDialog';
+import { mockProjectLocations } from '@/utils/mockMapData';
+import { useToast } from '@/hooks/use-toast';
 
 interface ScheduleMapProps {
   mapboxApiKey?: string;
 }
 
 export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
-  const { tasks: originalTasks } = useSchedule();
+  const { tasks: originalTasks, updateTask } = useSchedule();
   const { billingCodes, projects } = useApp();
+  const { toast } = useToast();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
+  const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [usingMapbox, setUsingMapbox] = useState(false);
   const [showTasks, setShowTasks] = useState(true);
   
   // Combine original tasks with mock tasks
-  const allTasks = [...originalTasks, ...generateMockTaskLocations()];
+  const mockTasks = mockProjectLocations.map(loc => ({
+    ...loc,
+    status: loc.status as any
+  }));
+  
+  const allTasks = [...originalTasks, ...mockTasks];
   
   // Initialize and set up Mapbox when API key is provided
   useEffect(() => {
@@ -101,6 +70,44 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
   
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId === selectedTaskId ? null : taskId);
+  };
+  
+  const handleAddTask = () => {
+    setIsAddTaskDialogOpen(true);
+  };
+  
+  const handleEditTask = () => {
+    if (selectedTaskId) {
+      setIsEditTaskDialogOpen(true);
+    }
+  };
+  
+  const handleCloseTask = (taskId: string) => {
+    const task = allTasks.find(t => t.id === taskId);
+    if (task) {
+      const updatedTask = { ...task, status: 'completed' as const };
+      
+      try {
+        // Update the task in the context
+        updateTask(updatedTask);
+        
+        // Show success message
+        toast({
+          title: "Task closed",
+          description: `Task "${task.title}" has been marked as completed.`,
+        });
+        
+        // Reset selected task id
+        setSelectedTaskId(null);
+      } catch (error) {
+        console.error('Error closing task:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to close task. Please try again.",
+        });
+      }
+    }
   };
   
   // Use custom hook to manage markers
@@ -146,6 +153,9 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
         showTasks={showTasks}
         setShowTasks={setShowTasks}
         taskCount={allTasks.length}
+        onAddTask={handleAddTask}
+        onEditTask={handleEditTask}
+        selectedTaskId={selectedTaskId}
       />
       
       {/* Mapbox container */}
@@ -158,9 +168,18 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
             task={selectedTask} 
             projectName={getProjectName(selectedTask.projectId)}
             billingCode={selectedBillingCode}
+            onClose={() => setSelectedTaskId(null)}
+            onEdit={handleEditTask}
+            onCloseTask={() => handleCloseTask(selectedTask.id)}
           />
         </div>
       )}
+      
+      {/* Task Dialogs */}
+      <AddTaskDialog 
+        open={isAddTaskDialogOpen} 
+        onOpenChange={setIsAddTaskDialogOpen} 
+      />
     </div>
   );
 };

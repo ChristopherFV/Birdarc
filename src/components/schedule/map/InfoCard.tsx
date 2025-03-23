@@ -1,104 +1,117 @@
 
 import React from 'react';
-import { DollarSign } from 'lucide-react';
-import { format } from 'date-fns';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Edit, X, CheckSquare } from 'lucide-react';
 import { Task } from '@/context/ScheduleContext';
 
 interface TaskInfoCardProps {
   task: Task;
   projectName: string;
-  billingCode: {
-    code: string;
-    ratePerFoot: number;
-  } | null;
+  billingCode: any | null;
+  onClose?: () => void;
+  onEdit?: () => void;
+  onCloseTask?: () => void;
 }
 
-export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({ task, projectName, billingCode }) => {
-  return (
-    <Card className="p-3 shadow-lg border-l-4 border-l-fieldvision-orange">
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium">{task.title}</h3>
-        <Badge variant={
-          task.priority === 'high' ? 'destructive' : 
-          task.priority === 'medium' ? 'default' : 'outline'
-        }>
-          {task.priority}
-        </Badge>
-      </div>
-      <p className="text-xs mb-2">{projectName}</p>
-      <p className="text-xs text-muted-foreground mb-2">{task.description}</p>
-      
-      {billingCode && (
-        <div className="text-xs mb-2 flex items-center">
-          <DollarSign className="h-3 w-3 mr-1" />
-          <span>
-            {billingCode.code} - {task.quantityEstimate} units 
-            (${(billingCode.ratePerFoot * task.quantityEstimate).toFixed(2)})
-          </span>
-        </div>
-      )}
-      
-      <div className="text-xs mb-1">
-        <span className="font-medium">Location: </span> 
-        {task.location.address}
-      </div>
-      <div className="text-xs">
-        <span className="font-medium">Schedule: </span> 
-        {format(task.startDate, 'MMM d')}
-        {!format(task.startDate, 'yyyy-MM-dd').includes(format(task.endDate, 'yyyy-MM-dd')) && 
-          ` - ${format(task.endDate, 'MMM d')}`
-        }
-      </div>
-    </Card>
-  );
-};
-
-interface ProjectInfoCardProps {
-  project: {
-    id: string;
-    title: string;
-    type: string;
-    status: string;
-    priority: string;
-    size: number;
-    lat: number;
-    lng: number;
+export const TaskInfoCard: React.FC<TaskInfoCardProps> = ({ 
+  task, 
+  projectName, 
+  billingCode,
+  onClose,
+  onEdit,
+  onCloseTask
+}) => {
+  const priorityColors = {
+    high: 'bg-red-500',
+    medium: 'bg-amber-500',
+    low: 'bg-blue-500'
   };
-}
-
-export const ProjectInfoCard: React.FC<ProjectInfoCardProps> = ({ project }) => {
+  
+  const statusColors = {
+    pending: 'bg-yellow-400',
+    in_progress: 'bg-blue-500',
+    completed: 'bg-green-500',
+    cancelled: 'bg-gray-500'
+  };
+  
+  const formattedStartDate = new Date(task.startDate).toLocaleDateString();
+  const formattedEndDate = new Date(task.endDate).toLocaleDateString();
+  
   return (
-    <Card className="p-3 shadow-lg border-l-4 border-l-blue-500">
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium">{project.title}</h3>
-        <Badge variant={
-          project.priority === 'high' ? 'destructive' : 
-          project.priority === 'medium' ? 'default' : 'outline'
-        }>
-          {project.priority}
-        </Badge>
-      </div>
-      <p className="text-xs mb-2">{project.type}</p>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
-          {project.status}
-        </span>
-        <span className="text-xs text-muted-foreground">
-          {project.size} ft
-        </span>
-      </div>
-      <div className="text-xs mb-1">
-        <span className="font-medium">Location: </span> 
-        {`${project.lat.toFixed(4)}, ${project.lng.toFixed(4)}`}
-      </div>
-      <div className="text-xs mt-2 text-blue-600">
-        <Button variant="link" className="h-auto p-0 text-xs">
-          View Project Details
-        </Button>
-      </div>
+    <Card className="shadow-lg">
+      <CardHeader className="pb-2 relative">
+        {onClose && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute right-2 top-2 h-6 w-6" 
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+        <CardTitle className="text-lg font-semibold">{task.title}</CardTitle>
+        <div className="flex space-x-2 mt-1">
+          <Badge variant="outline" className={`${priorityColors[task.priority as keyof typeof priorityColors]} text-white`}>
+            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+          </Badge>
+          <Badge variant="outline" className={`${statusColors[task.status as keyof typeof statusColors]} text-white`}>
+            {task.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-2 pb-3">
+        <div className="space-y-2 text-sm">
+          <p className="text-gray-700">{task.description}</p>
+          
+          <div className="grid grid-cols-3 gap-1 text-xs">
+            <div className="col-span-1 font-medium text-gray-500">Project:</div>
+            <div className="col-span-2">{projectName}</div>
+            
+            <div className="col-span-1 font-medium text-gray-500">Location:</div>
+            <div className="col-span-2">{task.location.address}</div>
+            
+            <div className="col-span-1 font-medium text-gray-500">Timeline:</div>
+            <div className="col-span-2">{formattedStartDate} to {formattedEndDate}</div>
+            
+            {billingCode && (
+              <>
+                <div className="col-span-1 font-medium text-gray-500">Billing Code:</div>
+                <div className="col-span-2">{billingCode.code}</div>
+                
+                <div className="col-span-1 font-medium text-gray-500">Est. Quantity:</div>
+                <div className="col-span-2">{task.quantityEstimate} units</div>
+              </>
+            )}
+          </div>
+        </div>
+      </CardContent>
+      {(onEdit || onCloseTask) && task.status !== 'completed' && (
+        <CardFooter className="pt-0 flex justify-between">
+          {onEdit && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs h-8" 
+              onClick={onEdit}
+            >
+              <Edit className="h-3 w-3 mr-1" /> Edit Task
+            </Button>
+          )}
+          {onCloseTask && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-xs h-8 text-green-600 border-green-200 hover:bg-green-50" 
+              onClick={onCloseTask}
+            >
+              <CheckSquare className="h-3 w-3 mr-1" /> Complete
+            </Button>
+          )}
+        </CardFooter>
+      )}
     </Card>
   );
 };

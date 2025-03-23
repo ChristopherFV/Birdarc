@@ -1,6 +1,7 @@
 
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
+import { Task } from '@/context/ScheduleContext';
 
 interface MarkerProps {
   lat: number;
@@ -21,6 +22,8 @@ export const createMarkerElement = (color: string, icon: string, size: number = 
   el.style.display = 'flex';
   el.style.alignItems = 'center';
   el.style.justifyContent = 'center';
+  el.style.border = '2px solid white';
+  el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
   
   const iconElement = document.createElement('div');
   iconElement.innerHTML = icon;
@@ -29,7 +32,7 @@ export const createMarkerElement = (color: string, icon: string, size: number = 
   return el;
 };
 
-export const createTaskMarker = (map: mapboxgl.Map, task: any, handleClick: (id: string) => void): mapboxgl.Marker => {
+export const createTaskMarker = (map: mapboxgl.Map, task: Task, handleClick: (id: string) => void): mapboxgl.Marker => {
   const priorityColor = 
     task.priority === 'high' ? '#ef4444' : 
     task.priority === 'medium' ? '#f59e0b' : '#3b82f6';

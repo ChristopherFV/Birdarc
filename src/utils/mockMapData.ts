@@ -1,12 +1,12 @@
 
-// Generate 100 random project locations across the United States
+// Generate 100 random task locations across the United States
 // These coordinates roughly cover the continental United States
 export const generateMockProjectLocations = (count: number = 100) => {
-  // Boundaries for continental US
-  const minLat = 24.396308; // Southern tip of Florida
-  const maxLat = 49.384358; // Northern border with Canada
-  const minLng = -125.000000; // Western coast
-  const maxLng = -66.934570; // Eastern coast
+  // More precise boundaries for continental US to avoid tasks in the ocean
+  const minLat = 25.0; // Southern tip of Florida
+  const maxLat = 48.0; // Northern border with Canada
+  const minLng = -123.0; // Western coast
+  const maxLng = -71.0; // Eastern coast
 
   const projectTypes = [
     'Fiber Installation',
@@ -19,7 +19,7 @@ export const generateMockProjectLocations = (count: number = 100) => {
     'Service Connection'
   ];
 
-  const statusOptions = ['planned', 'in-progress', 'completed', 'delayed'];
+  const statusOptions = ['pending', 'in_progress', 'completed', 'cancelled'];
   const priorityOptions = ['low', 'medium', 'high'];
 
   const generateRandomLocation = () => {
@@ -30,14 +30,22 @@ export const generateMockProjectLocations = (count: number = 100) => {
     const priority = priorityOptions[Math.floor(Math.random() * priorityOptions.length)];
     
     return {
-      id: `proj-${Math.floor(Math.random() * 100000)}`,
-      lat,
-      lng,
-      title: `${projectType} Project`,
-      type: projectType,
-      status,
-      priority,
-      size: Math.floor(Math.random() * 5000) + 500, // Project size in feet
+      id: `task-${Math.floor(Math.random() * 100000)}`,
+      title: `${projectType} Task`,
+      description: `${projectType} task in location with coordinates ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+      location: {
+        address: `Location in the US (${lat.toFixed(4)}, ${lng.toFixed(4)})`,
+        lat,
+        lng
+      },
+      startDate: new Date(),
+      endDate: new Date(Date.now() + Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000),
+      projectId: `proj-${Math.floor(Math.random() * 10)}`,
+      teamMemberId: null,
+      priority: priority,
+      status: status,
+      billingCodeId: `bc-${Math.floor(Math.random() * 5) + 1}`,
+      quantityEstimate: Math.floor(Math.random() * 100) + 10
     };
   };
 
