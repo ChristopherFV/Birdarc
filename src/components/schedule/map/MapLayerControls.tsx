@@ -6,19 +6,13 @@ import { Button } from '@/components/ui/button';
 interface MapLayerControlsProps {
   showTasks: boolean;
   setShowTasks: (show: boolean) => void;
-  showProjects: boolean;
-  setShowProjects: (show: boolean) => void;
   taskCount: number;
-  projectCount: number;
 }
 
 export const MapLayerControls: React.FC<MapLayerControlsProps> = ({
   showTasks,
   setShowTasks,
-  showProjects,
-  setShowProjects,
-  taskCount,
-  projectCount
+  taskCount
 }) => {
   return (
     <div className="absolute left-4 top-4 z-10">
@@ -27,7 +21,7 @@ export const MapLayerControls: React.FC<MapLayerControlsProps> = ({
           <Layers className="h-3 w-3 mr-1" />
           Map Layers
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center">
           <Button 
             variant={showTasks ? "default" : "outline"} 
             size="sm" 
@@ -35,14 +29,6 @@ export const MapLayerControls: React.FC<MapLayerControlsProps> = ({
             onClick={() => setShowTasks(!showTasks)}
           >
             Tasks ({taskCount})
-          </Button>
-          <Button 
-            variant={showProjects ? "default" : "outline"} 
-            size="sm" 
-            className="text-xs h-7 px-2" 
-            onClick={() => setShowProjects(!showProjects)}
-          >
-            Projects ({projectCount})
           </Button>
         </div>
       </div>

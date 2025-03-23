@@ -1,16 +1,13 @@
 
 import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { createTaskMarker, createProjectMarker } from './MapMarker';
+import { createTaskMarker } from './MapMarker';
 
 export const useMapMarkers = (
   map: mapboxgl.Map | null,
   showTasks: boolean,
-  showProjects: boolean,
   tasks: any[],
-  projects: any[],
-  handleTaskClick: (id: string) => void,
-  handleProjectClick: (id: string) => void
+  handleTaskClick: (id: string) => void
 ) => {
   const markers = useRef<mapboxgl.Marker[]>([]);
   
@@ -36,18 +33,10 @@ export const useMapMarkers = (
           markers.current.push(marker);
         });
       }
-      
-      // Add markers for projects if projects are visible
-      if (showProjects) {
-        projects.forEach(project => {
-          const marker = createProjectMarker(map, project, handleProjectClick);
-          markers.current.push(marker);
-        });
-      }
     }
     
     return () => {
       markers.current.forEach(marker => marker.remove());
     };
-  }, [map, tasks, projects, showTasks, showProjects, handleTaskClick, handleProjectClick]);
+  }, [map, tasks, showTasks, handleTaskClick]);
 };

@@ -2,28 +2,70 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSchedule } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
-import { mockProjectLocations } from '@/utils/mockMapData';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapLayerControls } from './map/MapLayerControls';
-import { TaskInfoCard, ProjectInfoCard } from './map/InfoCard';
+import { TaskInfoCard } from './map/InfoCard';
 import { MapFallback } from './map/MapFallback';
 import { useMapMarkers } from './map/useMapMarkers';
+
+// Generate 100 mock task locations spread across the US
+const generateMockTaskLocations = () => {
+  const mockTasks = [];
+  
+  const usaBounds = {
+    west: -125.0,
+    east: -66.0,
+    south: 24.0,
+    north: 49.0
+  };
+  
+  const priorities = ['high', 'medium', 'low'];
+  const projectIds = ['1', '2', '3', '4', '5'];
+  const billingCodeIds = ['1', '2', '3', '4', '5', '6'];
+  
+  for (let i = 0; i < 100; i++) {
+    const lng = usaBounds.west + (Math.random() * (usaBounds.east - usaBounds.west));
+    const lat = usaBounds.south + (Math.random() * (usaBounds.north - usaBounds.south));
+    
+    mockTasks.push({
+      id: `mock-${i}`,
+      title: `Task ${i + 1}`,
+      description: `Mock task description for task ${i + 1}`,
+      location: {
+        address: `Location ${i + 1}, USA`,
+        lat,
+        lng
+      },
+      startDate: new Date(),
+      endDate: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000),
+      projectId: projectIds[Math.floor(Math.random() * projectIds.length)],
+      teamMemberId: null,
+      priority: priorities[Math.floor(Math.random() * priorities.length)],
+      status: 'pending',
+      billingCodeId: billingCodeIds[Math.floor(Math.random() * billingCodeIds.length)],
+      quantityEstimate: Math.floor(Math.random() * 100) + 10
+    });
+  }
+  
+  return mockTasks;
+};
 
 interface ScheduleMapProps {
   mapboxApiKey?: string;
 }
 
 export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
-  const { tasks } = useSchedule();
+  const { tasks: originalTasks } = useSchedule();
   const { billingCodes, projects } = useApp();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [usingMapbox, setUsingMapbox] = useState(false);
-  const [showProjects, setShowProjects] = useState(true);
   const [showTasks, setShowTasks] = useState(true);
+  
+  // Combine original tasks with mock tasks
+  const allTasks = [...originalTasks, ...generateMockTaskLocations()];
   
   // Initialize and set up Mapbox when API key is provided
   useEffect(() => {
@@ -59,27 +101,17 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
   
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId === selectedTaskId ? null : taskId);
-    setSelectedProjectId(null);
-  };
-  
-  const handleProjectClick = (projectId: string) => {
-    setSelectedProjectId(projectId === selectedProjectId ? null : projectId);
-    setSelectedTaskId(null);
   };
   
   // Use custom hook to manage markers
   useMapMarkers(
     map.current,
     showTasks,
-    showProjects,
-    tasks,
-    mockProjectLocations,
-    handleTaskClick,
-    handleProjectClick
+    allTasks,
+    handleTaskClick
   );
   
-  const selectedTask = tasks.find(task => task.id === selectedTaskId);
-  const selectedProject = mockProjectLocations.find(proj => proj.id === selectedProjectId);
+  const selectedTask = allTasks.find(task => task.id === selectedTaskId);
   
   // Helper to get billing code details
   const getBillingCode = (codeId: string | null) => {
@@ -100,7 +132,7 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
   if (!mapboxApiKey) {
     return (
       <MapFallback 
-        tasks={tasks} 
+        tasks={allTasks} 
         onTaskClick={handleTaskClick} 
         selectedTaskId={selectedTaskId} 
       />
@@ -113,10 +145,7 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
       <MapLayerControls 
         showTasks={showTasks}
         setShowTasks={setShowTasks}
-        showProjects={showProjects}
-        setShowProjects={setShowProjects}
-        taskCount={tasks.length}
-        projectCount={mockProjectLocations.length}
+        taskCount={allTasks.length}
       />
       
       {/* Mapbox container */}
@@ -130,13 +159,6 @@ export const ScheduleMap: React.FC<ScheduleMapProps> = ({ mapboxApiKey }) => {
             projectName={getProjectName(selectedTask.projectId)}
             billingCode={selectedBillingCode}
           />
-        </div>
-      )}
-
-      {/* Selected Project Info */}
-      {selectedProject && (
-        <div className="absolute right-4 top-4 w-72 pointer-events-auto z-10">
-          <ProjectInfoCard project={selectedProject} />
         </div>
       )}
     </div>

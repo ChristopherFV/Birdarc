@@ -50,38 +50,3 @@ export const createTaskMarker = (map: mapboxgl.Map, task: any, handleClick: (id:
   
   return marker;
 };
-
-export const createProjectMarker = (map: mapboxgl.Map, project: any, handleClick: (id: string) => void): mapboxgl.Marker => {
-  // Determine color based on project status/priority
-  const projectColor = 
-    project.priority === 'high' ? '#dc2626' : 
-    project.priority === 'medium' ? '#f97316' : '#0ea5e9';
-    
-  const el = document.createElement('div');
-  el.style.backgroundColor = 'white';
-  el.style.border = `2px solid ${projectColor}`;
-  el.style.width = '22px';
-  el.style.height = '22px';
-  el.style.borderRadius = '50%';
-  el.style.cursor = 'pointer';
-  el.style.display = 'flex';
-  el.style.alignItems = 'center';
-  el.style.justifyContent = 'center';
-  
-  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="${projectColor}" stroke="${projectColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`;
-  const icon = document.createElement('div');
-  icon.innerHTML = iconSvg;
-  el.appendChild(icon);
-  
-  // Create and add the marker
-  const marker = new mapboxgl.Marker(el)
-    .setLngLat([project.lng, project.lat])
-    .addTo(map);
-    
-  // Add click event
-  el.addEventListener('click', () => {
-    handleClick(project.id);
-  });
-  
-  return marker;
-};
