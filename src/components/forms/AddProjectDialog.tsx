@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -43,7 +42,6 @@ export const AddProjectDialog = () => {
       return;
     }
 
-    // Check for duplicate project name
     if (projects.some(p => p.name.toLowerCase() === projectName.toLowerCase())) {
       toast({
         title: "Error",
@@ -53,7 +51,6 @@ export const AddProjectDialog = () => {
       return;
     }
 
-    // Validate billing information
     if (billingType === 'hourly' && !hourlyRate) {
       toast({
         title: "Error",
@@ -66,18 +63,16 @@ export const AddProjectDialog = () => {
     if (useContractor && !contractorHourlyRate) {
       toast({
         title: "Error",
-        description: "Contractor hourly rate is required",
+        description: "Margin percentage is required",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      // Process manual billing codes if unit-based and no CSV imported
       let finalBillingCodes = billingCodes;
       
       if (billingType === 'unit' && billingCodes.length === 0 && manualBillingCodes.length > 0) {
-        // Filter out empty rows
         const filteredCodes = manualBillingCodes.filter(
           code => code.code.trim() !== '' || code.description.trim() !== '' || code.ratePerFoot.trim() !== ''
         );
@@ -96,7 +91,6 @@ export const AddProjectDialog = () => {
         }));
       }
 
-      // Add billing type information to project
       addProject({
         name: projectName,
         client: clientName,
@@ -113,7 +107,6 @@ export const AddProjectDialog = () => {
         description: "Project added successfully",
       });
       
-      // Reset form
       setProjectName('');
       setClientName('');
       setBillingType('unit');
@@ -284,15 +277,16 @@ export const AddProjectDialog = () => {
               
               {useContractor && (
                 <div className="pt-2">
-                  <Label htmlFor="contractorRate">Contractor Hourly Rate ($) <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="contractorRate">Margin (%) <span className="text-destructive">*</span></Label>
                   <Input
                     id="contractorRate"
                     type="number"
                     min="0"
-                    step="0.01"
+                    max="100"
+                    step="1"
                     value={contractorHourlyRate}
                     onChange={(e) => setContractorHourlyRate(e.target.value)}
-                    placeholder="0.00"
+                    placeholder="0"
                     className="mt-1"
                   />
                 </div>
