@@ -11,7 +11,7 @@ interface RepositoryFile {
   id: string;
   name: string;
   type: string;
-  count: number; // Changed from size to count
+  count: number;
   uploadedBy: string;
   uploadDate: string;
   status: 'pending' | 'approved' | 'rejected';
@@ -21,6 +21,7 @@ interface RepositoryFile {
 
 interface FileRepositoryProps {
   status: FileStatus;
+  compact?: boolean;
 }
 
 // Mock data for demonstration
@@ -29,7 +30,7 @@ const mockFiles: RepositoryFile[] = [
     id: '1',
     name: 'Fiber Test Results',
     type: 'document',
-    count: 25, // Changed from size to count
+    count: 25,
     uploadedBy: 'John Doe',
     uploadDate: '2023-09-15',
     status: 'pending',
@@ -40,7 +41,7 @@ const mockFiles: RepositoryFile[] = [
     id: '2',
     name: 'Underground Path Redlines',
     type: 'image',
-    count: 12, // Changed from size to count
+    count: 12,
     uploadedBy: 'Sarah Johnson',
     uploadDate: '2023-09-14',
     status: 'approved',
@@ -51,7 +52,7 @@ const mockFiles: RepositoryFile[] = [
     id: '3',
     name: 'Permit Applications',
     type: 'document',
-    count: 5, // Changed from size to count
+    count: 5,
     uploadedBy: 'Mike Wilson',
     uploadDate: '2023-09-13',
     status: 'rejected',
@@ -62,7 +63,7 @@ const mockFiles: RepositoryFile[] = [
     id: '4',
     name: 'Splice Location Documents',
     type: 'spreadsheet',
-    count: 8, // Changed from size to count
+    count: 8,
     uploadedBy: 'Emma Davis',
     uploadDate: '2023-09-12',
     status: 'pending',
@@ -71,25 +72,28 @@ const mockFiles: RepositoryFile[] = [
   }
 ];
 
-export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
+export const FileRepository: React.FC<FileRepositoryProps> = ({ status, compact = false }) => {
   // Filter files based on status
   const filteredFiles = status === 'all' 
     ? mockFiles 
     : mockFiles.filter(file => file.status === status);
 
+  // Display a limited number of files if compact mode is enabled
+  const displayFiles = compact ? filteredFiles.slice(0, 3) : filteredFiles;
+
   // Helper to render the appropriate file icon
   const getFileIcon = (type: string) => {
     switch(type) {
       case 'image':
-        return <Image className="h-8 w-8 text-blue-500" />;
+        return <Image className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-blue-500`} />;
       case 'pdf':
-        return <FileText className="h-8 w-8 text-red-500" />;
+        return <FileText className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-red-500`} />;
       case 'document':
-        return <FileText className="h-8 w-8 text-blue-500" />;
+        return <FileText className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-blue-500`} />;
       case 'spreadsheet':
-        return <FileText className="h-8 w-8 text-green-500" />;
+        return <FileText className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-green-500`} />;
       default:
-        return <File className="h-8 w-8 text-gray-500" />;
+        return <File className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} text-gray-500`} />;
     }
   };
 
@@ -124,7 +128,7 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
 
   return (
     <div className="space-y-4">
-      {filteredFiles.length === 0 ? (
+      {displayFiles.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-6">
             <File className="h-12 w-12 text-muted-foreground mb-2" />
@@ -132,9 +136,9 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
           </CardContent>
         </Card>
       ) : (
-        filteredFiles.map(file => (
+        displayFiles.map(file => (
           <Card key={file.id} className="hover:bg-accent/50 transition-colors">
-            <CardContent className="p-4">
+            <CardContent className={compact ? "p-3" : "p-4"}>
               <div className="flex items-center gap-4">
                 <div className="flex-shrink-0">
                   {getFileIcon(file.type)}
@@ -142,40 +146,53 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status }) => {
                 <div className="flex-grow min-w-0">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium truncate">{file.name}</h3>
+                      <h3 className={`font-medium truncate ${compact ? 'text-sm' : ''}`}>{file.name}</h3>
                       <div className="flex flex-wrap gap-2 mt-1 items-center">
-                        <span className="text-sm text-muted-foreground">
+                        <span className={`${compact ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
                           {file.project}
                         </span>
-                        <Badge variant="secondary" className="flex items-center gap-1">
+                        <Badge variant="secondary" className="flex items-center gap-1 text-xs">
                           <Tag className="h-3 w-3" />
                           {file.billingCode}
                         </Badge>
                         <Badge variant="soft-green" className="text-xs">
                           {file.count} files
                         </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {file.uploadDate}
-                        </span>
+                        {!compact && (
+                          <span className="text-sm text-muted-foreground">
+                            {file.uploadDate}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(file.status)}
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
+                      {!compact && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
-                  <div className="mt-2 text-sm">
-                    Uploaded by <span className="font-medium">{file.uploadedBy}</span>
-                  </div>
+                  {!compact && (
+                    <div className="mt-2 text-sm">
+                      Uploaded by <span className="font-medium">{file.uploadedBy}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
         ))
       )}
+      
+      {compact && filteredFiles.length > displayFiles.length && (
+        <div className="text-center">
+          <Button variant="link" className="text-sm">
+            View {filteredFiles.length - displayFiles.length} more files
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
-

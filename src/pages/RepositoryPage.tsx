@@ -1,16 +1,16 @@
+
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Plus, Check, XCircle, Filter, SortDesc, CircleAlert, Calendar, MapPin, FileType, Users, User } from 'lucide-react';
+import { Upload, Plus, Filter, SortDesc, CircleAlert, MapPin, FileType, Users, User } from 'lucide-react';
 import { FileRepository } from '@/components/repository/FileRepository';
 import { FileUploader } from '@/components/repository/FileUploader';
 import { Badge } from '@/components/ui/badge';
 import { useSchedule } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
-import { MapComponent } from '@/components/schedule/MapComponent';
-import { ScheduleCalendar } from '@/components/schedule/ScheduleCalendar';
+import { ScheduleMap } from '@/components/schedule/ScheduleMap';
 import { TaskForm } from '@/components/schedule/TaskForm';
 import { KmzUploader } from '@/components/repository/KmzUploader';
 import { KmzFeature } from '@/utils/kmzUtils';
@@ -39,6 +39,7 @@ const RepositoryPage = () => {
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [showKmzUploader, setShowKmzUploader] = useState(false);
   const [importedKmzFeatures, setImportedKmzFeatures] = useState<KmzFeatureWithVisibility[]>([]);
+  const [mapboxApiKey, setMapboxApiKey] = useState<string>(localStorage.getItem('mapbox_api_key') || '');
   const { tasks } = useSchedule();
   const { toast } = useToast();
   
@@ -82,6 +83,12 @@ const RepositoryPage = () => {
   
   const toggleKmzUploader = () => {
     setShowKmzUploader(prev => !prev);
+  };
+
+  const handleMapboxApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMapboxApiKey(value);
+    localStorage.setItem('mapbox_api_key', value);
   };
 
   return (
@@ -148,7 +155,8 @@ const RepositoryPage = () => {
         </Card>
       )}
 
-      {totalPendingFiles > 0 && selectedTab !== 'schedule' && (
+      {/* Always show pending files section above the tabs when there are pending files */}
+      {totalPendingFiles > 0 && (
         <Card className="mb-6 border-yellow-200 bg-yellow-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-yellow-700 mb-2">
@@ -235,9 +243,15 @@ const RepositoryPage = () => {
           <div className="grid grid-cols-1 gap-6">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center">
-                  <MapPin className="mr-2 h-5 w-5" />
-                  U.S. Field Operations Map
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <MapPin className="mr-2 h-5 w-5" />
+                    Fieldmap
+                  </div>
+                  <div className="flex items-center text-sm">
+                    <User className="h-4 w-4 mr-1" />
+                    <span className="text-muted-foreground">Viewing as: {currentUser.name}</span>
+                  </div>
                 </CardTitle>
                 <CardDescription className="flex items-center justify-between">
                   <span>
@@ -249,15 +263,20 @@ const RepositoryPage = () => {
                     )}
                   </span>
                   
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <User className="h-4 w-4 mr-1" />
-                    <span>Viewing as: {currentUser.name}</span>
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      placeholder="Enter Mapbox API Key"
+                      value={mapboxApiKey}
+                      onChange={handleMapboxApiKeyChange}
+                      className="text-xs p-1 border rounded mr-2 w-48"
+                    />
                   </div>
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[600px] w-full rounded-md overflow-hidden">
-                  <MapComponent kmzFeatures={visibleFeatures} />
+                  <ScheduleMap mapboxApiKey={mapboxApiKey} />
                 </div>
               </CardContent>
             </Card>
