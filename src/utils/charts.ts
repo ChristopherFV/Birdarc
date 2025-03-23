@@ -1,6 +1,6 @@
 
 import { format, parseISO, startOfWeek, startOfMonth, startOfYear, startOfDay, addDays, addWeeks, addMonths } from 'date-fns';
-import { WorkEntry, BillingCode, Project, GroupByType, calculateRevenue } from '@/context/AppContext';
+import { WorkEntry, BillingCode, Project, GroupByType, calculateRevenue, BillingUnitType } from '@/context/AppContext';
 
 // Type for revenue data
 export type RevenueData = {
@@ -16,8 +16,8 @@ export type RevenueData = {
 // Type for production data
 export type ProductionData = {
   date: string;
-  feet: number;
-  cumulativeFeet: number;
+  units: number;
+  cumulativeUnits: number;
   formattedDate: string;
 };
 
@@ -29,8 +29,8 @@ export type ChartData = {
   profit?: number;
   cumulativeRevenue?: number;
   cumulativeProfit?: number;
-  feet?: number;
-  cumulativeFeet?: number;
+  units?: number;
+  cumulativeUnits?: number;
 };
 
 // Calculate contractor cost based on margin
@@ -48,8 +48,8 @@ const groupEntriesByTimeUnit = (
   billingCodes: BillingCode[],
   projects: Project[],
   groupBy: GroupByType
-): { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } } => {
-  const groupedData: { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } } = {};
+): { [key: string]: { revenue: number; contractorCost: number; profit: number; units: number } } => {
+  const groupedData: { [key: string]: { revenue: number; contractorCost: number; profit: number; units: number } } = {};
   
   entries.forEach(entry => {
     const date = parseISO(entry.date);
@@ -73,7 +73,7 @@ const groupEntriesByTimeUnit = (
     }
     
     if (!groupedData[period]) {
-      groupedData[period] = { revenue: 0, contractorCost: 0, profit: 0, feet: 0 };
+      groupedData[period] = { revenue: 0, contractorCost: 0, profit: 0, units: 0 };
     }
     
     const revenue = calculateRevenue(entry, billingCodes);
@@ -91,7 +91,7 @@ const groupEntriesByTimeUnit = (
     groupedData[period].revenue += revenue;
     groupedData[period].contractorCost += contractorCost;
     groupedData[period].profit += profit;
-    groupedData[period].feet += entry.feetCompleted;
+    groupedData[period].units += entry.feetCompleted;
   });
   
   return groupedData;
@@ -119,12 +119,12 @@ const getFormattedLabel = (date: string, groupBy: GroupByType): string => {
 
 // Fill in missing periods for continuous timeline
 const fillMissingPeriods = (
-  data: { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } },
+  data: { [key: string]: { revenue: number; contractorCost: number; profit: number; units: number } },
   startDate: Date,
   endDate: Date,
   groupBy: GroupByType
 ) => {
-  const filledData: { [key: string]: { revenue: number; contractorCost: number; profit: number; feet: number } } = { ...data };
+  const filledData: { [key: string]: { revenue: number; contractorCost: number; profit: number; units: number } } = { ...data };
   let currentDate = startDate;
   
   while (currentDate <= endDate) {
@@ -154,7 +154,7 @@ const fillMissingPeriods = (
     }
     
     if (!filledData[period]) {
-      filledData[period] = { revenue: 0, contractorCost: 0, profit: 0, feet: 0 };
+      filledData[period] = { revenue: 0, contractorCost: 0, profit: 0, units: 0 };
     }
     
     currentDate = nextDate;
@@ -195,7 +195,7 @@ export const prepareRevenueData = (
   let cumulativeProfit = 0;
   
   return sortedPeriods.map(period => {
-    const { revenue, contractorCost, profit, feet } = filledData[period];
+    const { revenue, contractorCost, profit, units } = filledData[period];
     cumulativeRevenue += revenue;
     cumulativeProfit += profit;
     
@@ -206,7 +206,7 @@ export const prepareRevenueData = (
       profit,
       cumulativeRevenue,
       cumulativeProfit,
-      feet
+      units
     };
   });
 };
@@ -237,16 +237,16 @@ export const prepareProductionData = (
   });
   
   // Calculate cumulative values and format
-  let cumulativeFeet = 0;
+  let cumulativeUnits = 0;
   
   return sortedPeriods.map(period => {
-    const { feet } = filledData[period];
-    cumulativeFeet += feet;
+    const { units } = filledData[period];
+    cumulativeUnits += units;
     
     return {
       formattedDate: getFormattedLabel(period, groupBy),
-      feet,
-      cumulativeFeet
+      units,
+      cumulativeUnits
     };
   });
 };
@@ -261,9 +261,23 @@ export const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
-// Format feet measurements
+// Format units measurements based on selected unit type
+export const formatUnits = (value: number, unitType: BillingUnitType = 'foot'): string => {
+  switch (unitType) {
+    case 'foot':
+      return `${new Intl.NumberFormat('en-US').format(value)} ft`;
+    case 'meter':
+      return `${new Intl.NumberFormat('en-US').format(value)} m`;
+    case 'each':
+      return `${new Intl.NumberFormat('en-US').format(value)}`;
+    default:
+      return `${new Intl.NumberFormat('en-US').format(value)} units`;
+  }
+};
+
+// Legacy format for backward compatibility
 export const formatFeet = (value: number): string => {
-  return `${new Intl.NumberFormat('en-US').format(value)} ft`;
+  return formatUnits(value, 'foot');
 };
 
 // Get a custom color based on project or billing code

@@ -13,7 +13,7 @@ import {
   Legend,
 } from 'recharts';
 import { useApp } from '@/context/AppContext';
-import { prepareProductionData, formatFeet } from '@/utils/charts';
+import { prepareProductionData, formatUnits } from '@/utils/charts';
 import { ChartData } from '@/utils/charts';
 import { 
   Card,
@@ -22,9 +22,10 @@ import {
   CardTitle,
   CardDescription 
 } from "@/components/ui/card";
+import { BillingUnitFilter } from './BillingUnitFilter';
 
 export const ProductionChart: React.FC = () => {
-  const { getFilteredEntries, startDate, endDate, groupBy } = useApp();
+  const { getFilteredEntries, startDate, endDate, groupBy, billingUnit, setBillingUnit } = useApp();
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   
@@ -39,12 +40,12 @@ export const ProductionChart: React.FC = () => {
       const data = prepareProductionData(entries, startDate, endDate, groupBy);
       setChartData(data);
     }
-  }, [getFilteredEntries, startDate, endDate, groupBy, isMounted]);
+  }, [getFilteredEntries, startDate, endDate, groupBy, billingUnit, isMounted]);
   
   // Calculate max values for scaling
-  const maxFeet = Math.max(...chartData.map(item => item.feet || 0));
-  const maxCumulative = Math.max(...chartData.map(item => item.cumulativeFeet || 0));
-  const dataScale = maxCumulative > maxFeet * 5 ? 1.2 : 2;
+  const maxUnits = Math.max(...chartData.map(item => item.units || 0));
+  const maxCumulative = Math.max(...chartData.map(item => item.cumulativeUnits || 0));
+  const dataScale = maxCumulative > maxUnits * 5 ? 1.2 : 2;
   
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -59,7 +60,7 @@ export const ProductionChart: React.FC = () => {
               />
               <span className="mr-2 text-gray-600">{entry.name}:</span>
               <span className="font-medium text-gray-800">
-                {formatFeet(entry.value)}
+                {formatUnits(entry.value, billingUnit)}
               </span>
             </div>
           ))}
@@ -72,10 +73,15 @@ export const ProductionChart: React.FC = () => {
   return (
     <Card className="mb-6 overflow-hidden">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Production Overview</CardTitle>
-        <CardDescription>
-          Feet completed over time
-        </CardDescription>
+        <div className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle className="text-lg font-medium">Production Overview</CardTitle>
+            <CardDescription>
+              Units completed over time
+            </CardDescription>
+          </div>
+          <BillingUnitFilter />
+        </div>
       </CardHeader>
       
       <CardContent className="p-0">
@@ -86,7 +92,7 @@ export const ProductionChart: React.FC = () => {
               margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
             >
               <defs>
-                <linearGradient id="colorFeet" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorUnits" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
                   <stop offset="95%" stopColor="#8884d8" stopOpacity={0.2}/>
                 </linearGradient>
@@ -105,7 +111,7 @@ export const ProductionChart: React.FC = () => {
               />
               <YAxis 
                 yAxisId="left"
-                tickFormatter={value => `${value} ft`}
+                tickFormatter={value => formatUnits(value, billingUnit)}
                 tick={{ fontSize: 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={false}
@@ -114,8 +120,8 @@ export const ProductionChart: React.FC = () => {
               <YAxis 
                 yAxisId="right" 
                 orientation="right" 
-                domain={[0, (maxFeet * dataScale) || 1000]}
-                tickFormatter={value => `${value} ft`}
+                domain={[0, (maxUnits * dataScale) || 1000]}
+                tickFormatter={value => formatUnits(value, billingUnit)}
                 tick={{ fontSize: 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={false}
@@ -132,16 +138,16 @@ export const ProductionChart: React.FC = () => {
               />
               <Bar 
                 yAxisId="left" 
-                dataKey="feet" 
-                name="Feet Completed" 
-                fill="url(#colorFeet)" 
+                dataKey="units" 
+                name="Units Completed" 
+                fill="url(#colorUnits)" 
                 radius={[4, 4, 0, 0]}
                 animationDuration={1000}
               />
               <Line 
                 yAxisId="right" 
-                dataKey="cumulativeFeet" 
-                name="Cumulative Feet" 
+                dataKey="cumulativeUnits" 
+                name="Cumulative Units" 
                 type="monotone" 
                 stroke="url(#colorCumulative)"
                 strokeWidth={2}

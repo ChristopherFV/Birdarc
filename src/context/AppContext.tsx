@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format, subDays, subMonths } from 'date-fns';
 import { mockProjects, mockBillingCodes, mockTeamMembers, mockWorkEntries, mockCompanies } from '@/utils/mockData';
@@ -14,7 +15,8 @@ import {
   WorkEntry,
   Company,
   AppContextType,
-  NewProject
+  NewProject,
+  BillingUnitType
 } from '@/types/app-types';
 
 // Re-export the types for backward compatibility
@@ -26,7 +28,8 @@ export type {
   TeamMember,
   InvoiceStatus,
   WorkEntry,
-  Company
+  Company,
+  BillingUnitType
 };
 
 // Re-export the utility functions for backward compatibility
@@ -52,6 +55,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [groupBy, setGroupBy] = useState<GroupByType>('week');
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState<string | null>(null);
+  const [billingUnit, setBillingUnit] = useState<BillingUnitType>('foot');
   
   // Update date range when the dateRange type changes
   useEffect(() => {
@@ -159,6 +163,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     groupBy,
     selectedProject,
     selectedTeamMember,
+    billingUnit,
     
     addWorkEntry,
     updateWorkEntry,
@@ -171,6 +176,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSelectedProject,
     setSelectedTeamMember,
     setSelectedCompany,
+    setBillingUnit,
     
     getFilteredEntries,
     exportData,

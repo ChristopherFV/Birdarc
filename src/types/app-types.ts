@@ -2,6 +2,7 @@
 // Define types for the application
 export type DateRangeType = 'day' | 'week' | 'month' | 'custom';
 export type GroupByType = 'day' | 'week' | 'month' | 'year';
+export type BillingUnitType = 'foot' | 'meter' | 'each';
 
 export type Project = {
   id: string;
@@ -97,6 +98,7 @@ export type AppContextType = {
   groupBy: GroupByType;
   selectedProject: string | null;
   selectedTeamMember: string | null;
+  billingUnit: BillingUnitType;
   
   // CRUD operations
   addWorkEntry: (entry: Omit<WorkEntry, 'id'>) => void;
@@ -111,6 +113,7 @@ export type AppContextType = {
   setSelectedProject: (projectId: string | null) => void;
   setSelectedTeamMember: (teamMemberId: string | null) => void;
   setSelectedCompany: (company: Company) => void;
+  setBillingUnit: (unit: BillingUnitType) => void;
   
   // Utilities
   getFilteredEntries: () => WorkEntry[];
