@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppProvider } from '@/context/AppContext';
@@ -13,19 +12,18 @@ import { Button } from '@/components/ui/button';
 import { useApp } from '@/context/AppContext';
 import { Badge } from '@/components/ui/badge';
 
-// Create a new Header component
 const Header = () => {
   const { selectedCompany } = useApp();
 
   return (
     <div className="flex justify-between items-center mb-6">
-      <div>
+      <div className="flex items-center gap-4">
         <img 
           src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
           alt="Fieldvision Logo" 
-          className="h-12 mb-2" 
+          className="h-10 w-auto object-contain" 
         />
-        <p className="text-muted-foreground">Powering Payments and Performance for Contractors.</p>
+        <p className="text-muted-foreground text-sm">Powering Payments and Performance for Contractors</p>
       </div>
       <div className="flex items-center gap-4">
         <Link to="/repository">
@@ -68,7 +66,6 @@ const Header = () => {
   );
 };
 
-// Wrap Header in a provider to access context
 const HeaderWithProvider = () => (
   <AppProvider>
     <Header />
@@ -90,13 +87,11 @@ const Index = () => {
             </div>
             
             <div className="lg:col-span-1 flex flex-col space-y-4" style={{ minHeight: 'calc(840px + 1.5rem)' }}>
-              {/* Work Entry Form now comes before Recent Invoices with spacing between them */}
               <WorkEntryForm />
               <RecentInvoices />
             </div>
           </div>
           
-          {/* Recent Work Entries takes full width */}
           <RecentWorkEntries />
         </main>
       </div>
