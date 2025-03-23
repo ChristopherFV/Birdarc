@@ -9,7 +9,6 @@ import { FileRepository } from '@/components/repository/FileRepository';
 import { FileUploader } from '@/components/repository/FileUploader';
 import { Badge } from '@/components/ui/badge';
 import { useSchedule } from '@/context/ScheduleContext';
-import { FilterBar } from '@/components/ui/FilterBar';
 import { ScheduleMap } from '@/components/schedule/ScheduleMap';
 import { TaskForm } from '@/components/schedule/TaskForm';
 import { KmzUploader } from '@/components/repository/KmzUploader';
@@ -139,8 +138,6 @@ const RepositoryPage = () => {
         </div>
       </div>
 
-      {selectedTab === 'schedule' && <FilterBar />}
-
       {showKmzUploader && selectedTab === 'schedule' && (
         <Card className="mb-6">
           <CardHeader className="pb-3">
@@ -152,61 +149,6 @@ const RepositoryPage = () => {
           <CardContent>
             <KmzUploader onKmzDataImported={handleKmzDataImported} />
           </CardContent>
-        </Card>
-      )}
-
-      {/* Always show pending files section above the tabs when there are pending files */}
-      {totalPendingFiles > 0 && (
-        <Card className="mb-6 border-yellow-200 bg-yellow-50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-yellow-700 mb-2">
-              <CircleAlert className="h-5 w-5" />
-              <h3 className="font-medium">Files Pending Approval</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {projectsWithPendingFiles
-                .filter(project => project.pendingCount > 0)
-                .map(project => (
-                  <div 
-                    key={project.id} 
-                    className="flex justify-between items-center bg-white rounded-md p-3 shadow-sm cursor-pointer"
-                    onClick={() => setSelectedTab('pending')}
-                  >
-                    <div className="flex flex-col">
-                      <span className="font-medium truncate">{project.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {project.billingCodes.join(', ')}
-                      </span>
-                    </div>
-                    <Badge variant="secondary" className="ml-2">
-                      {project.pendingCount} files
-                    </Badge>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {showUploader && selectedTab !== 'schedule' && (
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle>Upload Project Files</CardTitle>
-            <CardDescription>
-              Add multiple files to the repository for review and approval
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FileUploader />
-          </CardContent>
-          <CardFooter className="justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowUploader(false)}>
-              Cancel
-            </Button>
-            <Button>
-              Submit Files
-            </Button>
-          </CardFooter>
         </Card>
       )}
 
@@ -238,6 +180,61 @@ const RepositoryPage = () => {
           <TabsTrigger value="approved">Approved</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
         </TabsList>
+        
+        {/* Always show pending files section below the tabs when there are pending files */}
+        {totalPendingFiles > 0 && (
+          <Card className="mb-6 border-yellow-200 bg-yellow-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-yellow-700 mb-2">
+                <CircleAlert className="h-5 w-5" />
+                <h3 className="font-medium">Files Pending Approval</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {projectsWithPendingFiles
+                  .filter(project => project.pendingCount > 0)
+                  .map(project => (
+                    <div 
+                      key={project.id} 
+                      className="flex justify-between items-center bg-white rounded-md p-3 shadow-sm cursor-pointer"
+                      onClick={() => setSelectedTab('pending')}
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-medium truncate">{project.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {project.billingCodes.join(', ')}
+                        </span>
+                      </div>
+                      <Badge variant="secondary" className="ml-2">
+                        {project.pendingCount} files
+                      </Badge>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {showUploader && selectedTab !== 'schedule' && (
+          <Card className="mb-6">
+            <CardHeader className="pb-3">
+              <CardTitle>Upload Project Files</CardTitle>
+              <CardDescription>
+                Add multiple files to the repository for review and approval
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FileUploader />
+            </CardContent>
+            <CardFooter className="justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setShowUploader(false)}>
+                Cancel
+              </Button>
+              <Button>
+                Submit Files
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
         
         <TabsContent value="schedule">
           <div className="grid grid-cols-1 gap-6">
