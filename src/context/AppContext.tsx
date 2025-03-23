@@ -56,7 +56,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState<string | null>(null);
   const [billingUnit, setBillingUnit] = useState<BillingUnitType>('foot');
-  const [selectedBillingCodeId, setSelectedBillingCodeId] = useState<string | null>(null);
   
   // Update date range when the dateRange type changes
   useEffect(() => {
@@ -131,9 +130,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const matchesProject = selectedProject ? entry.projectId === selectedProject : true;
       const matchesTeamMember = selectedTeamMember ? entry.teamMemberId === selectedTeamMember : true;
       const matchesCompany = entry.companyId === selectedCompany.id;
-      const matchesBillingCode = selectedBillingCodeId ? entry.billingCodeId === selectedBillingCodeId : true;
       
-      return inDateRange && matchesProject && matchesTeamMember && matchesCompany && matchesBillingCode;
+      return inDateRange && matchesProject && matchesTeamMember && matchesCompany;
     });
   };
   
@@ -166,7 +164,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     selectedProject,
     selectedTeamMember,
     billingUnit,
-    selectedBillingCodeId,
     
     addWorkEntry,
     updateWorkEntry,
@@ -180,7 +177,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSelectedTeamMember,
     setSelectedCompany,
     setBillingUnit,
-    setSelectedBillingCodeId,
     
     getFilteredEntries,
     exportData,
