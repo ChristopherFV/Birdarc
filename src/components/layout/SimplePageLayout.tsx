@@ -54,7 +54,8 @@ export const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
         </div>
       </div>
       
-      {showFooter && <PageFooter {...footerProps} />}
+      {/* Only show footer on mobile */}
+      {showFooter && isMobile && <PageFooter {...footerProps} />}
     </div>
   );
 };

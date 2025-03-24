@@ -9,19 +9,14 @@ import {
   SidebarMenuItem,
   SidebarMenuButton
 } from "@/components/ui/sidebar";
-import { 
-  LayoutDashboard, 
-  ListTodo, 
-  FileText, 
-  Building2
-} from 'lucide-react';
+import { LayoutDashboard, FileText, ListTodo, Building2 } from 'lucide-react';
 
 export const SidebarMainNav: React.FC = () => {
   const location = useLocation();
   
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="text-fieldvision-orange">Main Navigation</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-fieldvision-orange">Main</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -42,12 +37,12 @@ export const SidebarMainNav: React.FC = () => {
             <SidebarMenuButton 
               asChild 
               isActive={location.pathname === '/work-entries'} 
-              tooltip="Invoices"
+              tooltip="Work Entries"
               className={location.pathname === '/work-entries' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
             >
               <Link to="/work-entries">
                 <ListTodo />
-                <span>Invoices</span>
+                <span>Work Entries</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -56,12 +51,12 @@ export const SidebarMainNav: React.FC = () => {
             <SidebarMenuButton 
               asChild 
               isActive={location.pathname === '/repository'} 
-              tooltip="FieldVision"
+              tooltip="Repository"
               className={location.pathname === '/repository' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
             >
               <Link to="/repository">
                 <FileText />
-                <span>FieldVision</span>
+                <span>Repository</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
