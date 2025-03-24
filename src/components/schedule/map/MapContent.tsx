@@ -24,6 +24,7 @@ export const MapContent: React.FC<MapContentProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [usingMapbox, setUsingMapbox] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
   
   // Initialize and set up Mapbox when API key is provided
   useEffect(() => {
@@ -41,8 +42,19 @@ export const MapContent: React.FC<MapContentProps> = ({
         zoom: 3
       });
       
+      // Add error handling
+      map.current.on('error', (e) => {
+        console.error('Mapbox error:', e);
+        setMapError(e.error?.message || 'Failed to load map');
+        setUsingMapbox(false);
+      });
+      
+      map.current.on('load', () => {
+        setUsingMapbox(true);
+        setMapError(null);
+      });
+      
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      setUsingMapbox(true);
       
       // Cleanup function
       return () => {
@@ -53,6 +65,7 @@ export const MapContent: React.FC<MapContentProps> = ({
       };
     } catch (error) {
       console.error('Error initializing Mapbox:', error);
+      setMapError(error instanceof Error ? error.message : 'Failed to initialize map');
       setUsingMapbox(false);
     }
   }, [mapboxApiKey]);
@@ -66,13 +79,14 @@ export const MapContent: React.FC<MapContentProps> = ({
     selectedTaskId
   );
   
-  // Render a fallback UI if Mapbox isn't initialized
-  if (!mapboxApiKey) {
+  // Render a fallback UI if Mapbox isn't initialized or has an error
+  if (!mapboxApiKey || mapError) {
     return (
       <MapFallback 
         tasks={tasks} 
         onTaskClick={onTaskClick} 
-        selectedTaskId={selectedTaskId} 
+        selectedTaskId={selectedTaskId}
+        errorMessage={mapError} 
       />
     );
   }

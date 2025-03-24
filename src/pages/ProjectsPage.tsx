@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { PlusCircle, FileEdit, Trash2, Search, Filter, MapPin } from "lucide-react";
@@ -24,7 +23,7 @@ const ProjectsPage = () => {
   const { projects } = useApp();
   const { openAddProjectDialog } = useAddProjectDialog();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeView, setActiveView] = useState<'list' | 'map'>('list');
+  const [activeView, setActiveView] = useState<'list' | 'map'>('map');
   const isMobile = useIsMobile();
 
   // Filter projects based on search query
@@ -58,18 +57,16 @@ const ProjectsPage = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="list" className="w-full">
+      <Tabs defaultValue="map" value={activeView} onValueChange={(value) => setActiveView(value as 'list' | 'map')} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger 
             value="list" 
-            onClick={() => setActiveView('list')}
             className={activeView === 'list' ? 'text-primary font-semibold' : ''}
           >
             List View
           </TabsTrigger>
           <TabsTrigger 
             value="map" 
-            onClick={() => setActiveView('map')}
             className={activeView === 'map' ? 'text-primary font-semibold' : ''}
           >
             <MapPin className="mr-2 h-4 w-4" />
@@ -216,7 +213,7 @@ const ProjectsPage = () => {
             <CardContent>
               <div className="h-[400px] sm:h-[600px] w-full rounded-md overflow-hidden">
                 <MapContent 
-                  mapboxApiKey="pk.eyJ1IjoiZmllbGR2aXNpb24iLCJhIjoiY2xnYzBodDB5MDJtMDNxbW1xcm53amcwYiJ9.wgGH3y8FmI7KIXpHXYlCFg"
+                  mapboxApiKey="pk.eyJ1IjoiZmllbGR2aXNpb24iLCJhIjoiY2xncnI0ZXJuMHBxZjNkcWJkZnN3dXNxNCJ9.MiG64RL8E9Wt8SnEzw_jHQ"
                   showTasks={true}
                   tasks={projectLocations}
                   onTaskClick={handleProjectMarkerClick}
