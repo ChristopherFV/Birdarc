@@ -38,7 +38,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
-        <Sidebar>
+        <Sidebar className="bg-white border-r border-border shadow-sm">
           <SidebarHeader className="flex flex-col">
             <div className="flex items-center justify-between px-2 h-16">
               <div className="flex items-center">
