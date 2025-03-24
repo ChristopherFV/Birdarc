@@ -62,7 +62,8 @@ export const MapContent: React.FC<MapContentProps> = ({
     map.current,
     showTasks,
     tasks,
-    onTaskClick
+    onTaskClick,
+    selectedTaskId
   );
   
   // Render a fallback UI if Mapbox isn't initialized

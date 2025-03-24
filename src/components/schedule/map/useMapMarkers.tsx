@@ -8,7 +8,8 @@ export const useMapMarkers = (
   map: mapboxgl.Map | null,
   showTasks: boolean,
   tasks: Task[],
-  handleTaskClick: (id: string) => void
+  handleTaskClick: (id: string) => void,
+  selectedTaskId: string | null = null
 ) => {
   const markers = useRef<mapboxgl.Marker[]>([]);
   
@@ -30,29 +31,53 @@ export const useMapMarkers = (
       // Add markers for each task if tasks are visible
       if (showTasks) {
         tasks.forEach(task => {
-          // Strict validation to ensure coordinates are not in the ocean
+          // Strict validation to ensure coordinates are valid
           if (task.location && 
               isValidCoordinate(task.location.lat, task.location.lng)) {
-            const marker = createTaskMarker(map, task, handleTaskClick);
+            const marker = createTaskMarker(map, task, handleTaskClick, task.id === selectedTaskId);
             markers.current.push(marker);
           } else {
             console.warn('Invalid task coordinates:', task.title, task.location);
           }
         });
       }
+      
+      // If we have valid markers, fit the map to show all of them
+      if (markers.current.length > 0) {
+        fitMapToMarkers(map, tasks);
+      }
     }
     
-    // Helper function to validate coordinates are in continental US
+    // Helper function to validate coordinates
     function isValidCoordinate(lat: number, lng: number): boolean {
-      // These boundaries are intentionally restrictive to ensure tasks stay on land
       return (
-        lat >= 30 && lat <= 47 && // North-South bounds
-        lng >= -119 && lng <= -75 // East-West bounds
+        lat >= -90 && lat <= 90 && // Valid latitude range
+        lng >= -180 && lng <= 180  // Valid longitude range
       );
+    }
+    
+    // Helper function to fit map to show all markers
+    function fitMapToMarkers(map: mapboxgl.Map, tasks: Task[]) {
+      const validTasks = tasks.filter(task => 
+        task.location && isValidCoordinate(task.location.lat, task.location.lng)
+      );
+      
+      if (validTasks.length === 0) return;
+      
+      const bounds = new mapboxgl.LngLatBounds();
+      
+      validTasks.forEach(task => {
+        bounds.extend([task.location.lng, task.location.lat]);
+      });
+      
+      map.fitBounds(bounds, {
+        padding: 50,
+        maxZoom: 15
+      });
     }
     
     return () => {
       markers.current.forEach(marker => marker.remove());
     };
-  }, [map, tasks, showTasks, handleTaskClick]);
+  }, [map, tasks, showTasks, handleTaskClick, selectedTaskId]);
 };
