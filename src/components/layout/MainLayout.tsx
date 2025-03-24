@@ -18,11 +18,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar 
-          companies={companies}
-          selectedCompany={selectedCompany}
-          setSelectedCompany={setSelectedCompany}
-        />
+        <AppSidebar />
         
         <SidebarInset>
           <main className="w-full flex flex-col">

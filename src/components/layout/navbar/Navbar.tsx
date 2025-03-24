@@ -14,10 +14,10 @@ import {
 import { LogOut, Settings, User } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { selectedCompany, currentUser } = useApp();
+  const { selectedCompany } = useApp();
   
-  // Using placeholder user data if none exists in the context
-  const user = currentUser || {
+  // Using placeholder user data since currentUser is not available in context
+  const user = {
     name: "Demo User",
     email: "user@example.com",
     avatarUrl: undefined

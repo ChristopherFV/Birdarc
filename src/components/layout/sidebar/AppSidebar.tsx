@@ -9,31 +9,16 @@ import { SidebarHeader } from './SidebarHeader';
 import { SidebarMainNav } from './SidebarMainNav';
 import { SidebarTechNav } from './SidebarTechNav';
 import { SidebarFooterNav } from './SidebarFooterNav';
-import { Company } from '@/types/app-types';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 
-interface AppSidebarProps {
-  companies: Company[];
-  selectedCompany: Company;
-  setSelectedCompany: (company: Company) => void;
-}
-
-export const AppSidebar: React.FC<AppSidebarProps> = ({
-  companies,
-  selectedCompany,
-  setSelectedCompany
-}) => {
+export const AppSidebar: React.FC = () => {
   const { toggleSidebar } = useSidebar();
   
   return (
     <>
       <Sidebar className="bg-white border-r border-fieldvision-orange/50 shadow-sm">
-        <SidebarHeader 
-          companies={companies}
-          selectedCompany={selectedCompany}
-          setSelectedCompany={setSelectedCompany}
-        />
+        <SidebarHeader />
         
         <SidebarContent>
           <SidebarMainNav />
