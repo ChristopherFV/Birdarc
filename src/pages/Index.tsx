@@ -21,10 +21,9 @@ const Index = () => {
           onValueChange={setActiveTab} 
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-3 mb-4 bg-muted/70 p-1 rounded-lg sticky top-0 z-20 mt-2 shadow-sm">
+          <TabsList className="w-full grid grid-cols-2 mb-4 bg-muted/70 p-1 rounded-lg sticky top-0 z-20 mt-2 shadow-sm">
             <TabsTrigger value="dashboard" className="text-sm py-1.5">Dashboard</TabsTrigger>
             <TabsTrigger value="work-entry" className="text-sm py-1.5">Work Entry</TabsTrigger>
-            <TabsTrigger value="recent" className="text-sm py-1.5">Recent</TabsTrigger>
           </TabsList>
           
           <TabsContent value="dashboard" className="space-y-4 pb-20 animate-fade-in">
@@ -40,11 +39,8 @@ const Index = () => {
             <RecentInvoices />
           </TabsContent>
           
-          <TabsContent value="work-entry" className="pb-20 animate-fade-in">
+          <TabsContent value="work-entry" className="pb-20 animate-fade-in space-y-4">
             <WorkEntryForm />
-          </TabsContent>
-          
-          <TabsContent value="recent" className="pb-20 animate-fade-in">
             <RecentWorkEntries />
           </TabsContent>
         </Tabs>
