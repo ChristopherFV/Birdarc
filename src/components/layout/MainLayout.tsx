@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarRail } from "@/components/ui/sidebar";
 import { useApp } from '@/context/AppContext';
 import { AppSidebar } from './sidebar/AppSidebar';
 
@@ -19,6 +19,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           selectedCompany={selectedCompany}
           setSelectedCompany={setSelectedCompany}
         />
+        
+        <SidebarRail />
         
         <SidebarInset>
           <main className="p-6 md:p-8 max-w-7xl mx-auto w-full">

@@ -1,10 +1,12 @@
 
 import React from 'react';
 import { 
-  SidebarHeader as UISidebarHeader
+  SidebarHeader as UISidebarHeader,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { CompanySelector } from '@/components/ui/CompanySelector';
 import { Company } from '@/types/app-types';
+import { ChevronLeft } from 'lucide-react';
 
 interface SidebarHeaderProps {
   companies: Company[];
@@ -26,6 +28,11 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
             alt="Fieldvision Logo" 
             className="h-8" 
           />
+        </div>
+        <div className="hidden md:block">
+          <SidebarTrigger>
+            <ChevronLeft size={18} />
+          </SidebarTrigger>
         </div>
       </div>
       <div className="px-2 pt-2 pb-2">
