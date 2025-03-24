@@ -34,13 +34,21 @@ export const MapContent: React.FC<MapContentProps> = ({
       // Set Mapbox access token
       mapboxgl.accessToken = mapboxApiKey;
       
-      // Initialize the map
+      // Initialize the map with more immersive settings
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [-98.5795, 39.8283], // Center of USA
-        zoom: 3
+        zoom: 3.5,
+        attributionControl: false,
+        pitchWithRotate: true,
+        dragRotate: true,
+        touchZoomRotate: true,
+        maxPitch: 85
       });
+      
+      // Add attribution in bottom right
+      map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
       
       // Add error handling
       map.current.on('error', (e) => {
@@ -54,6 +62,48 @@ export const MapContent: React.FC<MapContentProps> = ({
         setUsingMapbox(true);
         setMapError(null);
         
+        // Add 3D building layer for more immersive experience
+        if (map.current?.getStyle().layers) {
+          const layers = map.current.getStyle().layers;
+          
+          // Find the first symbol layer in the map style
+          let labelLayerId;
+          for (let i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'symbol' && layers[i].layout && layers[i].layout['text-field']) {
+              labelLayerId = layers[i].id;
+              break;
+            }
+          }
+          
+          // Add 3D building layer if style supports it
+          try {
+            map.current.addLayer({
+              'id': '3d-buildings',
+              'source': 'composite',
+              'source-layer': 'building',
+              'filter': ['==', 'extrude', 'true'],
+              'type': 'fill-extrusion',
+              'minzoom': 15,
+              'paint': {
+                'fill-extrusion-color': '#aaa',
+                'fill-extrusion-height': [
+                  'interpolate', ['linear'], ['zoom'],
+                  15, 0,
+                  15.05, ['get', 'height']
+                ],
+                'fill-extrusion-base': [
+                  'interpolate', ['linear'], ['zoom'],
+                  15, 0,
+                  15.05, ['get', 'min_height']
+                ],
+                'fill-extrusion-opacity': .6
+              }
+            }, labelLayerId);
+          } catch (err) {
+            console.log('Could not add 3D building layer', err);
+          }
+        }
+        
         // Fit bounds to show all markers if tasks exist
         if (tasks.length > 0) {
           const bounds = new mapboxgl.LngLatBounds();
@@ -66,14 +116,21 @@ export const MapContent: React.FC<MapContentProps> = ({
           
           if (!bounds.isEmpty()) {
             map.current?.fitBounds(bounds, {
-              padding: 50,
+              padding: { top: 50, bottom: 150, left: 50, right: 50 },
               maxZoom: 12
             });
           }
         }
       });
       
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      // Add navigation controls but position them in top-right
+      map.current.addControl(new mapboxgl.NavigationControl({
+        visualizePitch: true,
+        showCompass: true
+      }), 'top-right');
+      
+      // Add fullscreen control
+      map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
       
       // Cleanup function
       return () => {
