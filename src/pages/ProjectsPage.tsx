@@ -25,19 +25,18 @@ const ProjectsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeView, setActiveView] = useState<'list' | 'map'>('map');
   const isMobile = useIsMobile();
+  
+  const mapboxToken = "pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg";
 
-  // Filter projects based on search query
   const filteredProjects = projects.filter(project => 
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     project.client.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Map the projects to task-like structure for the map component
   const projectLocations = mockProjectLocations.filter(loc => 
     projects.some(p => p.id === loc.projectId)
   );
 
-  // Simple handler for project marker clicks
   const handleProjectMarkerClick = (id: string) => {
     console.log('Project clicked:', id);
   };
@@ -59,16 +58,10 @@ const ProjectsPage = () => {
 
       <Tabs defaultValue="map" value={activeView} onValueChange={(value) => setActiveView(value as 'list' | 'map')} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger 
-            value="list" 
-            className={activeView === 'list' ? 'text-primary font-semibold' : ''}
-          >
+          <TabsTrigger value="list">
             List View
           </TabsTrigger>
-          <TabsTrigger 
-            value="map" 
-            className={activeView === 'map' ? 'text-primary font-semibold' : ''}
-          >
+          <TabsTrigger value="map">
             <MapPin className="mr-2 h-4 w-4" />
             Map View
           </TabsTrigger>
@@ -213,7 +206,7 @@ const ProjectsPage = () => {
             <CardContent>
               <div className="h-[400px] sm:h-[600px] w-full rounded-md overflow-hidden">
                 <MapContent 
-                  mapboxApiKey="pk.eyJ1IjoiZmllbGR2aXNpb24iLCJhIjoiY2xncnI0ZXJuMHBxZjNkcWJkZnN3dXNxNCJ9.MiG64RL8E9Wt8SnEzw_jHQ"
+                  mapboxApiKey={mapboxToken}
                   showTasks={true}
                   tasks={projectLocations}
                   onTaskClick={handleProjectMarkerClick}

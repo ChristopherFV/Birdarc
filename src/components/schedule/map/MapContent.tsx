@@ -50,6 +50,7 @@ export const MapContent: React.FC<MapContentProps> = ({
       });
       
       map.current.on('load', () => {
+        console.log('Map loaded successfully');
         setUsingMapbox(true);
         setMapError(null);
       });
