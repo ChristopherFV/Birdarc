@@ -122,11 +122,11 @@ export const TechnicianWindow: React.FC = () => {
         )}
       </div>
       
-      {/* Bottom navigation bar with logo */}
-      <div className="bg-fieldvision-navy p-3 flex justify-between items-center shadow-inner">
+      {/* Bottom navigation bar with logo - Updated color from fieldvision-navy to fieldvision-brown */}
+      <div className="bg-fieldvision-brown p-3 flex justify-between items-center shadow-inner">
         <div className="flex items-center gap-3">
           <Link to="/technician/dashboard">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-fieldvision-navy/80">
+            <Button variant="ghost" size="sm" className="text-white hover:bg-fieldvision-brown/80">
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back
             </Button>
@@ -134,7 +134,7 @@ export const TechnicianWindow: React.FC = () => {
           
           <Menubar className="bg-transparent border-none">
             <MenubarMenu>
-              <MenubarTrigger className="text-white hover:bg-fieldvision-navy/80 data-[state=open]:bg-fieldvision-navy/80">
+              <MenubarTrigger className="text-white hover:bg-fieldvision-brown/80 data-[state=open]:bg-fieldvision-brown/80">
                 <LayoutDashboard className="h-4 w-4 mr-1" />
                 Menu
               </MenubarTrigger>
