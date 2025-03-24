@@ -45,7 +45,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
   };
 
   // Use our custom hook to process chart data
-  const { chartData, maxUnits, dataScale } = useProductionChartData(
+  const { chartData, maxUnits, maxCumulative, dataScale } = useProductionChartData(
     completedTasks,
     selectedProject,
     selectedTeamMember,
