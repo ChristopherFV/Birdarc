@@ -1,503 +1,138 @@
 
-import React, { useState } from 'react';
-import { useApp, WorkEntry } from '@/context/AppContext';
-import { format } from 'date-fns';
-import { FileText, Calendar, ArrowUp, ArrowDown, List, Pen, Trash, CheckCircle2, Circle, Mail, FileCheck, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Checkbox } from '@/components/ui/checkbox';
-
-type SortColumn = 'date' | 'project' | 'teamMember' | 'revenue' | 'status' | null;
-type SortDirection = 'asc' | 'desc';
+import React from 'react';
+import { 
+  Calendar, 
+  Briefcase, 
+  User, 
+  FileText, 
+  ChevronRight 
+} from 'lucide-react';
+import { useApp } from '@/context/AppContext';
+import { formatCurrency, formatDate } from '@/utils/charts';
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription 
+} from '@/components/ui/card';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const RecentWorkEntries: React.FC = () => {
-  const { getFilteredEntries, projects, billingCodes, teamMembers, calculateRevenue, deleteWorkEntry, updateWorkEntry } = useApp();
-  const { toast } = useToast();
+  const { workEntries, projects, billingCodes, teamMembers } = useApp();
+  const isMobile = useIsMobile();
   
-  const [editingEntry, setEditingEntry] = useState<null | WorkEntry>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const entriesPerPage = 5;
-  const [selectedEntries, setSelectedEntries] = useState<Record<string, boolean>>({});
-  const [sortColumn, setSortColumn] = useState<SortColumn>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [selectMode, setSelectMode] = useState(false);
+  // Get only the 5 most recent entries
+  const recentEntries = [...workEntries]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5);
   
-  const allEntries = getFilteredEntries();
-  
-  const sortedEntries = React.useMemo(() => {
-    if (!sortColumn) {
-      return [...allEntries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }
-    
-    return [...allEntries].sort((a, b) => {
-      let valueA: any;
-      let valueB: any;
-      
-      switch(sortColumn) {
-        case 'date':
-          valueA = new Date(a.date).getTime();
-          valueB = new Date(b.date).getTime();
-          break;
-        case 'project':
-          const projectA = projects.find(p => p.id === a.projectId)?.name || '';
-          const projectB = projects.find(p => p.id === b.projectId)?.name || '';
-          valueA = projectA.toLowerCase();
-          valueB = projectB.toLowerCase();
-          break;
-        case 'teamMember':
-          const memberA = teamMembers.find(t => t.id === a.teamMemberId)?.name || '';
-          const memberB = teamMembers.find(t => t.id === b.teamMemberId)?.name || '';
-          valueA = memberA.toLowerCase();
-          valueB = memberB.toLowerCase();
-          break;
-        case 'revenue':
-          valueA = calculateRevenue(a, billingCodes);
-          valueB = calculateRevenue(b, billingCodes);
-          break;
-        case 'status':
-          valueA = a.invoiceStatus;
-          valueB = b.invoiceStatus;
-          break;
-        default:
-          valueA = 0;
-          valueB = 0;
-      }
-      
-      if (sortDirection === 'asc') {
-        return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
-      } else {
-        return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
-      }
-    });
-  }, [allEntries, sortColumn, sortDirection, projects, teamMembers, calculateRevenue, billingCodes]);
-    
-  const indexOfLastEntry = currentPage * entriesPerPage;
-  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = sortedEntries.slice(indexOfFirstEntry, indexOfLastEntry);
-  const totalPages = Math.ceil(sortedEntries.length / entriesPerPage);
-  
-  const selectedCount = Object.values(selectedEntries).filter(Boolean).length;
-  const hasSelectedEntries = selectedCount > 0;
-  
-  const handleSelectEntry = (entryId: string, isChecked: boolean) => {
-    setSelectedEntries(prev => ({
-      ...prev,
-      [entryId]: isChecked
-    }));
+  const getProjectName = (id: string) => {
+    const project = projects.find(p => p.id === id);
+    return project ? project.name : 'Unknown Project';
   };
   
-  const handleSelectAll = (isChecked: boolean) => {
-    const newSelectedEntries: Record<string, boolean> = {};
-    currentEntries.forEach(entry => {
-      if (entry.invoiceStatus === 'not_invoiced') {
-        newSelectedEntries[entry.id] = isChecked;
-      }
-    });
-    setSelectedEntries(newSelectedEntries);
+  const getBillingCodeInfo = (id: string) => {
+    const code = billingCodes.find(c => c.id === id);
+    return code ? `${code.code} - ${code.description}` : 'Unknown Code';
   };
   
-  const handleCreateInvoice = () => {
-    if (!selectMode) {
-      setSelectMode(true);
-      return;
-    }
-    
-    if (selectedCount === 0) {
-      toast({
-        title: "No entries selected",
-        description: "Please select at least one work entry to create an invoice.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const selectedEntryIds = Object.entries(selectedEntries)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([id]) => id);
-    
-    selectedEntryIds.forEach(id => {
-      const entry = allEntries.find(e => e.id === id);
-      if (entry) {
-        updateWorkEntry({
-          ...entry,
-          invoiceStatus: 'invoiced'
-        });
-      }
-    });
-    
-    setSelectedEntries({});
-    setSelectMode(false);
-    
-    toast({
-      title: 'Invoice created',
-      description: `Successfully created invoice with ${selectedEntryIds.length} work entries`,
-    });
+  const getTeamMemberName = (id: string) => {
+    const member = teamMembers.find(m => m.id === id);
+    return member ? member.name : 'Unknown Person';
   };
   
-  const handleCancelInvoice = () => {
-    setSelectMode(false);
-    setSelectedEntries({});
+  const calculateRevenue = (entry: any) => {
+    const code = billingCodes.find(c => c.id === entry.billingCodeId);
+    if (!code) return 0;
+    return code.rate * entry.feetCompleted;
   };
-  
-  const handleSort = (column: SortColumn) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('desc');
-    }
-  };
-  
-  const renderSortIcon = (column: SortColumn) => {
-    if (sortColumn !== column) return null;
-    
-    return sortDirection === 'asc' 
-      ? <ArrowUp size={14} className="ml-1" /> 
-      : <ArrowDown size={14} className="ml-1" />;
-  };
-  
-  const getProjectName = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    return project?.name || 'Unknown Project';
-  };
-  
-  const getBillingCodeInfo = (billingCodeId: string) => {
-    return billingCodes.find(b => b.id === billingCodeId);
-  };
-  
-  const getTeamMemberName = (teamMemberId: string) => {
-    const member = teamMembers.find(m => m.id === teamMemberId);
-    return member?.name || 'Unknown';
-  };
-  
-  const getInvoiceStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return (
-          <Badge 
-            variant="soft-green" 
-            className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
-          >
-            <CheckCircle2 size={14} className="text-green-600" />
-            <span>Approved</span>
-          </Badge>
-        );
-      case 'invoiced':
-        return (
-          <Badge 
-            variant="soft-orange" 
-            className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
-          >
-            <Mail size={14} className="text-orange-600" />
-            <span>In Review</span>
-          </Badge>
-        );
-      case 'not_invoiced':
-      default:
-        return (
-          <Badge 
-            variant="soft-gray" 
-            className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center animate-fade-in"
-          >
-            <Circle size={14} className="text-slate-500" />
-            <span>Pending</span>
-          </Badge>
-        );
-    }
-  };
-  
-  const handleDelete = (entryId: string) => {
-    deleteWorkEntry(entryId);
-    toast({
-      title: "Work entry deleted",
-      description: "The work entry has been successfully removed.",
-    });
-  };
-  
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    setSelectedEntries({});
-  };
-  
-  const calculateTotalSelectedRevenue = () => {
-    return allEntries
-      .filter(entry => selectedEntries[entry.id])
-      .reduce((sum, entry) => sum + calculateRevenue(entry, billingCodes), 0);
-  };
-  
-  if (allEntries.length === 0) {
+
+  if (isMobile) {
     return (
-      <Card className="bg-card border-border shadow-sm mb-4 w-full">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Invoices</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
-            <FileText size={24} className="mb-2 opacity-70" />
-            <p>No invoices found</p>
-            <p className="text-sm">Add your first invoice below</p>
-          </div>
-        </CardContent>
-        <CardFooter className="pt-2 pb-4">
-          <Button asChild variant="outline" className="w-full">
-            <Link to="/invoicing">
-              <List className="mr-2" size={16} />
-              View all invoices
-            </Link>
-          </Button>
-        </CardFooter>
-      </Card>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-medium">Recent Work Entries</h2>
+          <button className="text-sm text-blue-500 flex items-center">
+            View All <ChevronRight className="h-4 w-4 ml-1" />
+          </button>
+        </div>
+        
+        {recentEntries.map((entry) => (
+          <Card key={entry.id} className="overflow-hidden">
+            <CardContent className="p-3">
+              <div className="flex justify-between items-start mb-2">
+                <div className="font-medium">
+                  {getBillingCodeInfo(entry.billingCodeId)}
+                </div>
+                <div className="font-semibold text-green-600">
+                  {formatCurrency(calculateRevenue(entry))}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                <div className="flex items-center">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {formatDate(new Date(entry.date))}
+                </div>
+                <div className="flex items-center">
+                  <User className="h-3 w-3 mr-1" />
+                  {getTeamMemberName(entry.teamMemberId)}
+                </div>
+                <div className="flex items-center">
+                  <Briefcase className="h-3 w-3 mr-1" />
+                  {getProjectName(entry.projectId)}
+                </div>
+                <div className="flex items-center">
+                  <FileText className="h-3 w-3 mr-1" />
+                  {entry.feetCompleted} ft
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     );
   }
   
   return (
-    <Card className="bg-card border-border shadow-sm mb-4 w-full">
-      <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-base font-medium">Invoices</CardTitle>
-        <div className="flex items-center gap-2">
-          {selectMode && hasSelectedEntries && (
-            <span className="text-sm text-muted-foreground">
-              {selectedCount} entries selected (${calculateTotalSelectedRevenue().toFixed(2)})
-            </span>
-          )}
-          <Button 
-            size="sm" 
-            onClick={handleCreateInvoice}
-            className="flex items-center gap-1.5"
-            variant={selectMode && !hasSelectedEntries ? "secondary" : "default"}
-          >
-            <FileCheck size={16} />
-            {selectMode ? (
-              selectedCount > 0 ? `Approve Entries (${selectedCount})` : "Approve Entries"
-            ) : "Approve Entries"}
-          </Button>
-          
-          {selectMode && (
-            <Button 
-              size="sm" 
-              onClick={handleCancelInvoice}
-              className="flex items-center gap-1.5"
-              variant="destructive"
-            >
-              <X size={16} />
-              Cancel
-            </Button>
-          )}
-        </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Recent Work Entries</CardTitle>
+        <CardDescription>
+          The latest work entries added to the system
+        </CardDescription>
       </CardHeader>
-      <CardContent className="pt-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {selectMode && (
-                <TableHead className="w-10 pr-0">
-                  <Checkbox 
-                    id="select-all" 
-                    onCheckedChange={(checked) => handleSelectAll(checked === true)}
-                    className="ml-1"
-                  />
-                </TableHead>
-              )}
-              <TableHead 
-                className="w-32 cursor-pointer"
-                onClick={() => handleSort('status')}
-              >
-                <div className="flex items-center">
-                  Approval Status
-                  {renderSortIcon('status')}
-                </div>
-              </TableHead>
-              <TableHead 
-                className="cursor-pointer"
-                onClick={() => handleSort('project')}
-              >
-                <div className="flex items-center">
-                  Project
-                  {renderSortIcon('project')}
-                </div>
-              </TableHead>
-              <TableHead 
-                className="cursor-pointer"
-                onClick={() => handleSort('date')}
-              >
-                <div className="flex items-center">
-                  Date
-                  {renderSortIcon('date')}
-                </div>
-              </TableHead>
-              <TableHead 
-                className="cursor-pointer"
-                onClick={() => handleSort('teamMember')}
-              >
-                <div className="flex items-center">
-                  Team Member
-                  {renderSortIcon('teamMember')}
-                </div>
-              </TableHead>
-              <TableHead 
-                className="text-right cursor-pointer"
-                onClick={() => handleSort('revenue')}
-              >
-                <div className="flex items-center justify-end">
-                  Revenue
-                  {renderSortIcon('revenue')}
-                </div>
-              </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentEntries.map((entry) => {
-              const billingCode = getBillingCodeInfo(entry.billingCodeId);
-              const revenue = calculateRevenue(entry, billingCodes);
-              const isSelectable = entry.invoiceStatus === 'not_invoiced';
-              
-              return (
-                <TableRow key={entry.id} className="hover:bg-muted/40">
-                  {selectMode && (
-                    <TableCell className="pr-0">
-                      {isSelectable ? (
-                        <Checkbox 
-                          id={`select-${entry.id}`}
-                          checked={selectedEntries[entry.id] || false}
-                          onCheckedChange={(checked) => handleSelectEntry(entry.id, checked === true)}
-                          className="ml-1"
-                        />
-                      ) : (
-                        <div className="w-4 h-4 ml-1"></div>
-                      )}
-                    </TableCell>
-                  )}
-                  <TableCell className="p-2">
-                    {getInvoiceStatusBadge(entry.invoiceStatus)}
-                  </TableCell>
-                  <TableCell className="p-2">
-                    <div className="font-medium">{getProjectName(entry.projectId)}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {billingCode?.code} - {entry.feetCompleted} ft
-                    </div>
-                  </TableCell>
-                  <TableCell className="p-2">
-                    {format(new Date(entry.date), 'MMM d, yyyy')}
-                  </TableCell>
-                  <TableCell className="p-2">
-                    {getTeamMemberName(entry.teamMemberId)}
-                  </TableCell>
-                  <TableCell className="p-2 text-right whitespace-nowrap">
-                    <p className="font-medium">${revenue.toFixed(2)}</p>
-                  </TableCell>
-                  <TableCell className="p-2 text-right">
-                    <div className="flex items-center justify-end space-x-1">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8"
-                        onClick={() => setEditingEntry(entry)}
-                      >
-                        <Pen size={15} />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-destructive hover:text-destructive"
-                          >
-                            <Trash size={15} />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will permanently delete the work entry for {getProjectName(entry.projectId)} 
-                              on {format(new Date(entry.date), 'MMMM d, yyyy')}. 
-                              This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction 
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              onClick={() => handleDelete(entry.id)}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-        
-        {totalPages > 1 && (
-          <div className="mt-4">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink 
-                      isActive={currentPage === page}
-                      onClick={() => handlePageChange(page)}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                
-                <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        )}
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Date</th>
+                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Project</th>
+                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Billing Code</th>
+                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Technician</th>
+                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Feet</th>
+                <th className="text-right font-medium text-muted-foreground text-xs uppercase py-3 px-2">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentEntries.map((entry) => (
+                <tr key={entry.id} className="border-b border-border hover:bg-muted/50">
+                  <td className="py-2 px-2 text-sm">{formatDate(new Date(entry.date))}</td>
+                  <td className="py-2 px-2 text-sm">{getProjectName(entry.projectId)}</td>
+                  <td className="py-2 px-2 text-sm">{getBillingCodeInfo(entry.billingCodeId)}</td>
+                  <td className="py-2 px-2 text-sm">{getTeamMemberName(entry.teamMemberId)}</td>
+                  <td className="py-2 px-2 text-sm">{entry.feetCompleted}</td>
+                  <td className="py-2 px-2 text-sm text-right font-medium">
+                    {formatCurrency(calculateRevenue(entry))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </CardContent>
-      <CardFooter className="pt-2 pb-4">
-        <Button asChild variant="outline" className="w-full">
-          <Link to="/invoicing">
-            <List className="mr-2" size={16} />
-            View all invoices
-          </Link>
-        </Button>
-      </CardFooter>
-      
-      {editingEntry && (
-        <EditWorkEntryDialog
-          entry={editingEntry}
-          open={!!editingEntry}
-          onOpenChange={(open) => {
-            if (!open) setEditingEntry(null);
-          }}
-        />
-      )}
     </Card>
   );
 };
-
-export default RecentWorkEntries;

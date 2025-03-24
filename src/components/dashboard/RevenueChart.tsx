@@ -16,6 +16,7 @@ import {
 import { useApp } from '@/context/AppContext';
 import { prepareRevenueData, formatCurrency } from '@/utils/charts';
 import { ChartData } from '@/utils/charts';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Card,
   CardContent, 
@@ -28,6 +29,7 @@ export const RevenueChart: React.FC = () => {
   const { getFilteredEntries, billingCodes, projects, startDate, endDate, groupBy } = useApp();
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     setIsMounted(true);
@@ -81,11 +83,16 @@ export const RevenueChart: React.FC = () => {
       </CardHeader>
       
       <CardContent className="p-0">
-        <div className="h-[420px] w-full px-2 pb-4">
+        <div className={`w-full px-2 pb-4 ${isMobile ? 'h-[300px]' : 'h-[420px]'}`}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={chartData}
-              margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+              margin={{ 
+                top: 20, 
+                right: isMobile ? 10 : 20, 
+                left: isMobile ? 0 : 10, 
+                bottom: 20 
+              }}
             >
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -104,28 +111,32 @@ export const RevenueChart: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
               <XAxis 
                 dataKey="formattedDate" 
-                tick={{ fontSize: 11, fill: "#64748b" }}
+                tick={{ fontSize: isMobile ? 8 : 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={{ stroke: '#eaeaea' }}
                 dy={10}
+                angle={isMobile ? -45 : 0}
+                height={isMobile ? 50 : 30}
+                textAnchor={isMobile ? "end" : "middle"}
               />
               <YAxis 
                 yAxisId="left"
                 tickFormatter={value => formatCurrency(value)}
-                tick={{ fontSize: 11, fill: "#64748b" }}
+                tick={{ fontSize: isMobile ? 8 : 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={false}
-                width={80}
+                width={isMobile ? 60 : 80}
               />
               <YAxis 
                 yAxisId="right" 
                 orientation="right" 
                 domain={[0, (maxRevenue * dataScale) || 10000]}
                 tickFormatter={value => formatCurrency(value)}
-                tick={{ fontSize: 11, fill: "#64748b" }}
+                tick={{ fontSize: isMobile ? 8 : 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={false}
-                width={80}
+                width={isMobile ? 60 : 80}
+                hide={isMobile}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend 
@@ -154,17 +165,19 @@ export const RevenueChart: React.FC = () => {
                 animationDuration={1000}
                 stackId="a"
               />
-              <Line 
-                yAxisId="right" 
-                dataKey="cumulativeProfit" 
-                name="Cumulative Profit" 
-                type="monotone" 
-                stroke="url(#colorCumulativeProfit)"
-                strokeWidth={2}
-                dot={{ r: 3, strokeWidth: 0, fill: "#10b981" }}
-                activeDot={{ r: 6, strokeWidth: 0, fill: "#10b981" }}
-                animationDuration={1500}
-              />
+              {!isMobile && (
+                <Line 
+                  yAxisId="right" 
+                  dataKey="cumulativeProfit" 
+                  name="Cumulative Profit" 
+                  type="monotone" 
+                  stroke="url(#colorCumulativeProfit)"
+                  strokeWidth={2}
+                  dot={{ r: 3, strokeWidth: 0, fill: "#10b981" }}
+                  activeDot={{ r: 6, strokeWidth: 0, fill: "#10b981" }}
+                  animationDuration={1500}
+                />
+              )}
             </ComposedChart>
           </ResponsiveContainer>
         </div>
