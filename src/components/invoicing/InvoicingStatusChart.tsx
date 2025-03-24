@@ -40,31 +40,31 @@ const data: InvoicingStatusData[] = [
   { name: 'Jul', wip: 3490, invoiced: 4300, pending: 700, total: 8490 },
 ];
 
-// Updated colors to match the index page theme
+// Fieldvision colors
 const chartConfig = {
   wip: {
     label: "Work In Progress",
-    color: "#F18E1D"  // Fieldvision orange
+    color: "var(--color-wip)"
   },
   invoiced: {
     label: "Invoiced",
-    color: "#00b6cf"  // Fieldvision navy/blue
+    color: "var(--color-invoiced)"
   },
   pending: {
     label: "Pending Approval",
-    color: "#52461B"  // Fieldvision brown
+    color: "var(--color-pending)"
   },
   total: {
     label: "Total Value",
-    color: "#9b87f5"  // Primary Purple from index
+    color: "var(--color-total)"
   }
 };
 
 export const InvoicingStatusChart: React.FC = () => {
   return (
-    <Card className="col-span-2">
+    <Card className="col-span-2 overflow-hidden">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-lg">
           <div className="flex items-center gap-2">
             <ReceiptText className="h-5 w-5 text-muted-foreground" />
             <span>Invoicing & WIP Status</span>
@@ -75,31 +75,34 @@ export const InvoicingStatusChart: React.FC = () => {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        {/* Fixed height container to ensure chart stays within card */}
-        <div className="h-[300px] w-full">
+      <CardContent className="p-4">
+        <div className="h-[280px] w-full"> {/* Adjusted height to ensure it fits */}
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 data={data}
                 margin={{
-                  top: 10,
-                  right: 10,
-                  left: 10,
-                  bottom: 15,
+                  top: 5,
+                  right: 5,
+                  left: 5,
+                  bottom: 20,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2} vertical={false} />
                 <XAxis 
                   dataKey="name"
-                  tick={{ fontSize: 12 }}
-                  tickLine={{ display: 'none' }}
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={{ stroke: '#E0E0E0', strokeWidth: 1 }}
+                  dy={10}
                 />
                 <YAxis 
                   tickFormatter={(value) => formatCurrency(value)}
-                  tick={{ fontSize: 12 }}
-                  width={70}
-                  tickLine={{ display: 'none' }}
+                  tick={{ fontSize: 11 }}
+                  width={60}
+                  tickLine={false}
+                  axisLine={false}
+                  dx={-5}
                 />
                 <Tooltip
                   content={
@@ -109,16 +112,32 @@ export const InvoicingStatusChart: React.FC = () => {
                   }
                 />
                 <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="wip" stackId="a" fill="var(--color-wip)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="invoiced" stackId="a" fill="var(--color-invoiced)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" radius={[4, 4, 0, 0]} />
+                <Bar 
+                  dataKey="wip" 
+                  stackId="a" 
+                  fill="var(--color-wip)" 
+                  radius={[4, 4, 0, 0]} 
+                  barSize={32}
+                />
+                <Bar 
+                  dataKey="invoiced" 
+                  stackId="a" 
+                  fill="var(--color-invoiced)" 
+                  radius={[0, 0, 0, 0]}
+                />
+                <Bar 
+                  dataKey="pending" 
+                  stackId="a" 
+                  fill="var(--color-pending)" 
+                  radius={[0, 0, 4, 4]}
+                />
                 <Line 
                   type="monotone" 
                   dataKey="total" 
                   stroke="var(--color-total)" 
                   strokeWidth={2}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
+                  dot={{ r: 4, strokeWidth: 2 }}
+                  activeDot={{ r: 6, strokeWidth: 2 }}
                 />
               </ComposedChart>
             </ResponsiveContainer>

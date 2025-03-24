@@ -59,38 +59,40 @@ const WorkEntriesPage: React.FC = () => {
         actionButton: actionButton
       }}
     >
-      <div className="space-y-4 sm:space-y-6">
-        {/* Add the Invoicing Status Chart at the top */}
+      <div className="grid grid-cols-1 gap-6">
+        {/* Invoicing Status Chart spans full width */}
         <InvoicingStatusChart />
         
-        <WorkEntriesHeader 
-          search={search}
-          setSearch={setSearch}
-          isFiltersOpen={isFiltersOpen}
-          setIsFiltersOpen={setIsFiltersOpen}
-          selectMode={selectMode}
-          selectedCount={selectedCount}
-          handleCreateInvoice={handleCreateInvoice}
-          handleCancelInvoice={handleCancelInvoice}
-        />
-        
-        <Card className="bg-card border-border shadow-sm">
-          <CardContent className="p-0 overflow-x-auto">
-            <WorkEntriesTable 
-              entries={sortedEntries}
-              sortColumn={sortColumn}
-              sortDirection={sortDirection}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              handleSort={handleSort}
-              onEditEntry={handleEditEntry}
-              selectMode={selectMode}
-              selectedEntries={selectedEntries}
-              handleSelectEntry={handleSelectEntry}
-              handleSelectAll={handleSelectAll}
-            />
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <WorkEntriesHeader 
+            search={search}
+            setSearch={setSearch}
+            isFiltersOpen={isFiltersOpen}
+            setIsFiltersOpen={setIsFiltersOpen}
+            selectMode={selectMode}
+            selectedCount={selectedCount}
+            handleCreateInvoice={handleCreateInvoice}
+            handleCancelInvoice={handleCancelInvoice}
+          />
+          
+          <Card className="bg-card border-border shadow-sm">
+            <CardContent className="p-0 overflow-x-auto">
+              <WorkEntriesTable 
+                entries={sortedEntries}
+                sortColumn={sortColumn}
+                sortDirection={sortDirection}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                handleSort={handleSort}
+                onEditEntry={handleEditEntry}
+                selectMode={selectMode}
+                selectedEntries={selectedEntries}
+                handleSelectEntry={handleSelectEntry}
+                handleSelectAll={handleSelectAll}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {editingEntry && (
