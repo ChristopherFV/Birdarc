@@ -24,7 +24,7 @@ export const FileSection: React.FC<FileSectionProps> = ({
 
   return (
     <>
-      {showUploader && selectedTab !== 'schedule' && (
+      {showUploader && (
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <CardTitle>Upload Project Files</CardTitle>
@@ -46,9 +46,7 @@ export const FileSection: React.FC<FileSectionProps> = ({
         </Card>
       )}
       
-      {selectedTab !== 'schedule' && (
-        <FileRepository status={selectedTab} />
-      )}
+      <FileRepository status={selectedTab} />
     </>
   );
 };

@@ -16,7 +16,7 @@ interface MapSectionProps {
   showKmzUploader: boolean;
   setShowKmzUploader: (show: boolean) => void;
   importedKmzFeatures: any[];
-  setImportedKmzFeatures: (features: any[]) => void;
+  setImportedKmzFeatures: (features: any[] | ((prevFeatures: any[]) => any[])) => void;
   isTaskFormOpen: boolean;
   setIsTaskFormOpen: (isOpen: boolean) => void;
   currentUser: { id: string, name: string, teamId: string };
@@ -59,7 +59,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
       visibleTo: visibility
     }));
     
-    setImportedKmzFeatures(prevFeatures => [...prevFeatures, ...featuresWithVisibility]);
+    setImportedKmzFeatures((prevFeatures: any[]) => [...prevFeatures, ...featuresWithVisibility]);
     setShowKmzUploader(false);
     
     toast({
