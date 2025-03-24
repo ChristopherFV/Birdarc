@@ -10,6 +10,7 @@ import { useWorkEntries } from '@/hooks/useWorkEntries';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { InvoicingStatusChart } from '@/components/invoicing/InvoicingStatusChart';
 
 const WorkEntriesPage: React.FC = () => {
   const {
@@ -49,8 +50,8 @@ const WorkEntriesPage: React.FC = () => {
   
   return (
     <SimplePageLayout 
-      title="Work Entries" 
-      subtitle="View and manage all work entries"
+      title="Invoicing" 
+      subtitle="Manage work entries and create invoices for completed work"
       showFooter={true}
       footerProps={{
         backLink: "/",
@@ -59,6 +60,9 @@ const WorkEntriesPage: React.FC = () => {
       }}
     >
       <div className="space-y-4 sm:space-y-6">
+        {/* Add the Invoicing Status Chart at the top */}
+        <InvoicingStatusChart />
+        
         <WorkEntriesHeader 
           search={search}
           setSearch={setSearch}

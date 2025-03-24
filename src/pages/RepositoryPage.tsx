@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
@@ -86,7 +85,6 @@ const RepositoryPage = () => {
     setShowKmzUploader(prev => !prev);
   };
   
-  // Create action button for the footer
   const actionButton = (
     <Button 
       onClick={() => setShowUploader(true)} 
@@ -284,14 +282,6 @@ const RepositoryPage = () => {
               </div>
             </CardContent>
           </Card>
-          
-          <div className="flex flex-col items-center justify-center mt-2 sm:mt-4 mb-4 sm:mb-6">
-            <img 
-              src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-              alt="Fieldvision Logo" 
-              className="h-6 sm:h-8 w-auto object-contain" 
-            />
-          </div>
         </div>
       </TabsContent>
       
