@@ -43,7 +43,7 @@ export const useMapMarkers = (
       }
       
       // If we have valid markers, fit the map to show all of them
-      if (markers.current.length > 0) {
+      if (markers.current.length > 0 && !selectedTaskId) {
         fitMapToMarkers(map, tasks);
       }
     }
@@ -51,6 +51,8 @@ export const useMapMarkers = (
     // Helper function to validate coordinates
     function isValidCoordinate(lat: number, lng: number): boolean {
       return (
+        lat !== undefined && lng !== undefined &&
+        !isNaN(lat) && !isNaN(lng) &&
         lat >= -90 && lat <= 90 && // Valid latitude range
         lng >= -180 && lng <= 180  // Valid longitude range
       );
@@ -67,7 +69,9 @@ export const useMapMarkers = (
       const bounds = new mapboxgl.LngLatBounds();
       
       validTasks.forEach(task => {
-        bounds.extend([task.location.lng, task.location.lat]);
+        if (task.location) {
+          bounds.extend([task.location.lng, task.location.lat]);
+        }
       });
       
       map.fitBounds(bounds, {
