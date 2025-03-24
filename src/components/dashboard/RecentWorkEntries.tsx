@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
 
 export const RecentWorkEntries: React.FC = () => {
   const { workEntries, projects, billingCodes, teamMembers } = useApp();
@@ -59,9 +60,9 @@ export const RecentWorkEntries: React.FC = () => {
       <div className="space-y-3">
         <div className="flex justify-between items-center mb-1">
           <h2 className="text-base font-medium">Recent Work Entries</h2>
-          <button className="text-xs text-fieldvision-blue flex items-center">
+          <Button variant="ghost" size="sm" className="text-xs text-fieldvision-blue flex items-center h-7 px-2">
             View All <ChevronRight className="h-3 w-3 ml-1" />
-          </button>
+          </Button>
         </div>
         
         {recentEntries.length === 0 ? (
