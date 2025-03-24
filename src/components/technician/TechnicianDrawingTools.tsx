@@ -7,12 +7,26 @@ import { Pencil, Type, Circle, Square } from 'lucide-react';
 interface TechnicianDrawingToolsProps {
   currentTool: 'pen' | 'text' | 'circle' | 'square';
   setCurrentTool: (tool: 'pen' | 'text' | 'circle' | 'square') => void;
+  currentColor?: string;
+  setCurrentColor?: (color: string) => void;
+  currentWidth?: number;
+  setCurrentWidth?: (width: number) => void;
 }
 
 export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
   currentTool,
-  setCurrentTool
+  setCurrentTool,
+  currentColor = 'red',
+  setCurrentColor = () => {},
+  currentWidth = 2,
+  setCurrentWidth = () => {}
 }) => {
+  // Available colors for drawing
+  const colors = ['red', 'blue', 'green', 'yellow', 'black'];
+  
+  // Available line widths
+  const lineWidths = [1, 2, 4, 6];
+  
   return (
     <>
       <Card>
@@ -70,12 +84,15 @@ export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
             <div>
               <label className="text-sm font-medium">Color</label>
               <div className="flex gap-2 mt-1">
-                {['red', 'blue', 'green', 'yellow', 'black'].map(color => (
+                {colors.map(color => (
                   <button
                     key={color}
-                    className={`w-6 h-6 rounded-full hover:ring-2 hover:ring-offset-1 hover:ring-ring`}
+                    className={`w-6 h-6 rounded-full hover:ring-2 hover:ring-offset-1 ${
+                      color === currentColor ? 'ring-2 ring-ring ring-offset-1' : ''
+                    }`}
                     style={{ backgroundColor: color }}
                     aria-label={`Select ${color} color`}
+                    onClick={() => setCurrentColor(color)}
                   />
                 ))}
               </div>
@@ -84,10 +101,13 @@ export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
             <div>
               <label className="text-sm font-medium">Line Width</label>
               <div className="flex gap-2 mt-1">
-                {[1, 2, 4, 6].map(width => (
+                {lineWidths.map(width => (
                   <button
                     key={width}
-                    className="w-8 h-8 border border-border rounded flex items-center justify-center hover:bg-muted"
+                    className={`w-8 h-8 border border-border rounded flex items-center justify-center hover:bg-muted ${
+                      width === currentWidth ? 'bg-muted' : ''
+                    }`}
+                    onClick={() => setCurrentWidth(width)}
                   >
                     <div 
                       className="bg-foreground rounded"

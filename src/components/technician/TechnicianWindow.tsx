@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,23 +12,8 @@ import { TaskConfirmationDialog } from '../schedule/map/TaskConfirmationDialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { TechnicianDrawingTools } from './TechnicianDrawingTools';
 import { TechnicianTaskDetails } from './TechnicianTaskDetails';
-
-const taskData = {
-  id: 'task-123',
-  title: 'Field Dashboard',
-  description: 'Review the construction drawings for the new commercial building project. Check for structural issues and compliance with local building codes.',
-  location: {
-    address: '123 Construction Ave, Building 3, San Francisco, CA 94103',
-    lat: 37.7749,
-    lng: -122.4194
-  },
-  startDate: new Date('2023-10-15T09:00:00'),
-  endDate: new Date('2023-10-15T17:00:00'),
-  projectId: 'project-1',
-  teamMemberId: 'team-1',
-  priority: 'high',
-  status: 'in_progress'
-};
+import { TechnicianTaskSelector } from './TechnicianTaskSelector';
+import { useSchedule, Task } from '@/context/ScheduleContext';
 
 export const TechnicianWindow: React.FC = () => {
   const { toast } = useToast();
@@ -43,10 +27,36 @@ export const TechnicianWindow: React.FC = () => {
   const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   const [showMapTokenInput, setShowMapTokenInput] = useState(false);
   const [showMobileTools, setShowMobileTools] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("task-123");
   
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const isMobile = useIsMobile();
+  const { tasks } = useSchedule();
+  
+  const defaultTaskData = {
+    id: 'task-123',
+    title: 'Field Dashboard',
+    description: 'Review the construction drawings for the new commercial building project. Check for structural issues and compliance with local building codes.',
+    location: {
+      address: '123 Construction Ave, Building 3, San Francisco, CA 94103',
+      lat: 37.7749,
+      lng: -122.4194
+    },
+    startDate: new Date('2023-10-15T09:00:00'),
+    endDate: new Date('2023-10-15T17:00:00'),
+    projectId: 'project-1',
+    teamMemberId: 'team-1',
+    priority: 'high',
+    status: 'in_progress'
+  };
+  
+  const getSelectedTask = (): Task => {
+    const foundTask = tasks.find(task => task.id === selectedTaskId);
+    return foundTask || defaultTaskData;
+  };
+  
+  const taskData = getSelectedTask();
   
   useEffect(() => {
     if (!mapboxToken || !mapContainer.current || map.current) return;
@@ -84,7 +94,7 @@ export const TechnicianWindow: React.FC = () => {
     return () => {
       map.current?.remove();
     };
-  }, [mapboxToken, toast]);
+  }, [mapboxToken, taskData.location.lat, taskData.location.lng, toast]);
   
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 10, 200));
@@ -152,7 +162,7 @@ export const TechnicianWindow: React.FC = () => {
       <TechnicianWorkEntryDialog 
         open={workEntryDialogOpen} 
         onOpenChange={setWorkEntryDialogOpen} 
-        projectId="project-1"
+        projectId={taskData.projectId || "project-1"}
       />
       
       <TaskConfirmationDialog
@@ -191,7 +201,13 @@ export const TechnicianWindow: React.FC = () => {
         </div>
       </header>
       
-      {/* Task Summary for Mobile (above map) */}
+      <div className="p-2 bg-background border-b border-border">
+        <TechnicianTaskSelector 
+          currentTaskId={selectedTaskId}
+          onTaskSelect={handleTaskSelect}
+        />
+      </div>
+      
       {isMobile && (
         <div className="p-2 bg-background border-b border-border">
           <div className="flex justify-between items-center mb-1">
@@ -298,7 +314,6 @@ export const TechnicianWindow: React.FC = () => {
               </div>
             </div>
             
-            {/* Mobile Drawing Tools (Directly on PDF) */}
             {isMobile && showMobileTools && (
               <div className="absolute top-2 right-2 bg-background/95 p-2 rounded-md shadow-md border border-border">
                 <div className="grid grid-cols-2 gap-2">
@@ -395,7 +410,6 @@ export const TechnicianWindow: React.FC = () => {
           </div>
         </div>
         
-        {/* Sidebar - hidden on mobile */}
         {!isMobile && (
           <div className="w-72 border-l border-border overflow-y-auto">
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'drawing' | 'notes')} className="w-full">
@@ -451,4 +465,3 @@ export const TechnicianWindow: React.FC = () => {
     </div>
   );
 };
-
