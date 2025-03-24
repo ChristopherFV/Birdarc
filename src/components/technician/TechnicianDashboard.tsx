@@ -83,40 +83,52 @@ export const TechnicianDashboard: React.FC = () => {
         
         <FilterBar technicianView={true} />
         
-        {/* Main layout grid with production and tasks side by side, map below */}
+        {/* Main layout with two column grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          {/* Production Chart (leftmost column) */}
-          <div className="lg:col-span-2">
-            <Card className="h-full">
+          {/* Left column with chart and map */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Production Chart */}
+            <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">
                   <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ProductionOverviewChart completedTasks={completedTasks} />
+              <CardContent className="p-4">
+                <div className="h-[280px]">
+                  <ProductionOverviewChart completedTasks={completedTasks} />
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Map below chart */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Task Map" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="h-[280px]">
+                  <TechDashboardMap 
+                    tasks={[...assignedTasks, ...completedTasks]}
+                    mapboxToken={mapboxToken}
+                    showMapTokenInput={showMapTokenInput}
+                    setMapboxToken={setMapboxToken}
+                    setShowMapTokenInput={setShowMapTokenInput}
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
           
-          {/* Tasks Column (right side) */}
+          {/* Right column with task cards */}
           <div className="space-y-6">
             <TaskColumns 
               assignedTasks={assignedTasks}
               completedTasks={completedTasks}
               handleOpenWorkEntry={handleOpenWorkEntry}
               getProjectName={getProjectName}
-            />
-          </div>
-          
-          {/* Map (spans all 3 columns) */}
-          <div className="lg:col-span-3 mb-6">
-            <TechDashboardMap 
-              tasks={[...assignedTasks, ...completedTasks]}
-              mapboxToken={mapboxToken}
-              showMapTokenInput={showMapTokenInput}
-              setMapboxToken={setMapboxToken}
-              setShowMapTokenInput={setShowMapTokenInput}
             />
           </div>
         </div>
