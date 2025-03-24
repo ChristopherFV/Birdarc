@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSchedule, Task, TaskStatus } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -20,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DashboardFooter } from './dashboard/DashboardFooter';
 
 export const TechnicianDashboard: React.FC = () => {
   const { tasks, updateTask } = useSchedule();
@@ -166,7 +166,6 @@ export const TechnicianDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Map added to overview tab */}
                 <Card className="shadow-sm overflow-hidden mb-4">
                   <CardHeader className="py-2 px-3">
                     <CardTitle className="text-base flex items-center">
@@ -187,7 +186,6 @@ export const TechnicianDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Production chart with filters */}
                 <Card className="shadow-sm overflow-hidden">
                   <CardHeader className="py-2 px-3">
                     <div className="flex items-center justify-between">
@@ -215,7 +213,6 @@ export const TechnicianDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Recent tasks */}
                 <Card className="shadow-sm">
                   <CardHeader className="py-2 px-3">
                     <CardTitle className="text-base flex items-center">
@@ -302,28 +299,7 @@ export const TechnicianDashboard: React.FC = () => {
           </div>
         </ScrollArea>
         
-        <PageFooter
-          backLink="/technician"
-          backLabel="My Tasks"
-          actionButton={
-            <div className="flex gap-2">
-              <Link to="/technician">
-                <Button variant="outline" size="sm" className="text-xs">
-                  View Tasks
-                </Button>
-              </Link>
-              <Button 
-                variant="blue" 
-                size="sm" 
-                className="text-white text-xs"
-                onClick={() => handleOpenWorkEntry()}
-              >
-                <Plus className="h-3.5 w-3.5 mr-1" />
-                Log Work
-              </Button>
-            </div>
-          }
-        />
+        <DashboardFooter />
       </div>
     );
   }
@@ -343,11 +319,8 @@ export const TechnicianDashboard: React.FC = () => {
           
           <FilterBar technicianView={true} />
           
-          {/* Main layout with two column grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            {/* Left column with chart and map in a vertical layout */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Production Chart - Now with filter */}
               <Card>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
@@ -372,7 +345,6 @@ export const TechnicianDashboard: React.FC = () => {
                 </CardContent>
               </Card>
               
-              {/* Map - Now below the chart and without title */}
               <Card>
                 <CardContent className="p-0">
                   <div className="h-[280px]">
@@ -388,7 +360,6 @@ export const TechnicianDashboard: React.FC = () => {
               </Card>
             </div>
             
-            {/* Right column with task cards */}
             <div className="space-y-6">
               <TaskColumns 
                 assignedTasks={assignedTasks}

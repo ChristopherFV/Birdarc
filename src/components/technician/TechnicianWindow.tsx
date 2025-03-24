@@ -13,6 +13,7 @@ import { useDrawingTools } from './hooks/useDrawingTools';
 import { TechnicianMobileTabs } from './mobile/TechnicianMobileTabs';
 import { TechnicianDesktopContent } from './desktop/TechnicianDesktopContent';
 import { TechnicianDialogs } from './dialogs/TechnicianDialogs';
+import { DashboardFooter } from './dashboard/DashboardFooter';
 
 export const TechnicianWindow: React.FC = () => {
   const isMobile = useIsMobile();
@@ -108,34 +109,39 @@ export const TechnicianWindow: React.FC = () => {
             formatDate={formatDate}
             formatTime={formatTime}
           />
+          
+          {/* Use the custom DashboardFooter for mobile */}
+          <DashboardFooter />
         </>
       ) : (
-        <TechnicianDesktopContent 
-          taskData={taskData}
-          mapboxToken={mapboxToken}
-          showMapTokenInput={showMapTokenInput}
-          setShowMapTokenInput={setShowMapTokenInput}
-          setMapboxToken={setMapboxToken}
-          mapNotes={mapNotes}
-          addMapNote={addMapNote}
-          deleteMapNote={deleteMapNote}
-          currentTool={currentTool}
-          setCurrentTool={setCurrentTool}
-          mapVisible={mapVisible}
-          onMapVisibilityChange={handleMapVisibilityChange}
-          formatDate={formatDate}
-          formatTime={formatTime}
-          generalNotes={generalNotes}
-          saveGeneralNotes={saveGeneralNotes}
-        />
+        <>
+          <TechnicianDesktopContent 
+            taskData={taskData}
+            mapboxToken={mapboxToken}
+            showMapTokenInput={showMapTokenInput}
+            setShowMapTokenInput={setShowMapTokenInput}
+            setMapboxToken={setMapboxToken}
+            mapNotes={mapNotes}
+            addMapNote={addMapNote}
+            deleteMapNote={deleteMapNote}
+            currentTool={currentTool}
+            setCurrentTool={setCurrentTool}
+            mapVisible={mapVisible}
+            onMapVisibilityChange={handleMapVisibilityChange}
+            formatDate={formatDate}
+            formatTime={formatTime}
+            generalNotes={generalNotes}
+            saveGeneralNotes={saveGeneralNotes}
+          />
+          
+          {/* Using the PageFooter component for desktop */}
+          <PageFooter
+            backLink="/technician/dashboard"
+            backLabel="Back"
+            actionButton={actionButton}
+          />
+        </>
       )}
-      
-      {/* Using the PageFooter component */}
-      <PageFooter
-        backLink="/technician/dashboard"
-        backLabel="Back"
-        actionButton={actionButton}
-      />
     </div>
   );
 };
