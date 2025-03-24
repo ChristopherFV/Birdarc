@@ -30,14 +30,26 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
   const { 
     selectedProject,
     selectedTeamMember,
-    billingUnit
+    billingUnit,
+    selectedBillingCodeId,
+    billingCodes
   } = useApp();
+
+  // Get the unit type from selected billing code
+  const getUnitLabel = () => {
+    if (selectedBillingCodeId) {
+      const selectedCode = billingCodes.find(code => code.id === selectedBillingCodeId);
+      return selectedCode?.unitType || billingUnit;
+    }
+    return billingUnit;
+  };
 
   // Use our custom hook to process chart data
   const { chartData, maxUnits, dataScale } = useProductionChartData(
     completedTasks,
     selectedProject,
-    selectedTeamMember
+    selectedTeamMember,
+    selectedBillingCodeId
   );
 
   return (
@@ -46,6 +58,11 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
         <div className="flex items-center">
           <CalendarDays className="h-4 w-4 text-muted-foreground mr-1" />
           <span className="text-xs text-muted-foreground">12-Month Overview</span>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {selectedBillingCodeId ? 
+            `Filtered by: ${billingCodes.find(b => b.id === selectedBillingCodeId)?.description || "Selected Billing Code"}` : 
+            "All billing codes"}
         </div>
       </div>
       {chartData.length === 0 ? (
@@ -67,7 +84,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
             />
             <YAxis 
               yAxisId="left"
-              tickFormatter={(value) => formatUnits(value, billingUnit)}
+              tickFormatter={(value) => formatUnits(value, getUnitLabel())}
               tick={{ fontSize: 10, fill: "#64748b" }}
               tickLine={false}
               axisLine={false}
@@ -78,14 +95,14 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
               yAxisId="right" 
               orientation="right" 
               domain={[0, (maxUnits * dataScale) || 1000]}
-              tickFormatter={(value) => formatUnits(value, billingUnit)}
+              tickFormatter={(value) => formatUnits(value, getUnitLabel())}
               tick={{ fontSize: 10, fill: "#64748b" }}
               tickLine={false}
               axisLine={false}
               width={45}
               tickCount={5}
             />
-            <Tooltip content={<CustomTooltip billingUnit={billingUnit} />} />
+            <Tooltip content={<CustomTooltip billingUnit={getUnitLabel()} />} />
             <Legend 
               verticalAlign="top" 
               height={25}

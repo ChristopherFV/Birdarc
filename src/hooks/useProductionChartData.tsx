@@ -1,4 +1,3 @@
-
 import { useMemo } from 'react';
 import { Task } from '@/context/ScheduleContext';
 import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval, addDays } from 'date-fns';
@@ -14,7 +13,8 @@ interface ProcessedChartData {
 export const useProductionChartData = (
   completedTasks: Task[] = [],
   selectedProject: string | null,
-  selectedTeamMember: string | null
+  selectedTeamMember: string | null,
+  selectedBillingCodeId: string | null = null
 ) => {
   // Process data for the chart based on filters
   const chartData = useMemo(() => {
@@ -32,6 +32,18 @@ export const useProductionChartData = (
     // Filter by team member if selected
     if (selectedTeamMember) {
       filteredTasks = filteredTasks.filter(task => task.teamMemberId === selectedTeamMember);
+    }
+    
+    // Filter by billing code if selected
+    if (selectedBillingCodeId) {
+      filteredTasks = filteredTasks.filter(task => {
+        // If task has a billingCodeId property, filter by it
+        if (task.billingCodeId) {
+          return task.billingCodeId === selectedBillingCodeId;
+        }
+        // Otherwise, just include tasks without billing code info
+        return true;
+      });
     }
 
     // Get the current date and the date 12 months ago
@@ -91,7 +103,7 @@ export const useProductionChartData = (
         cumulativeUnits
       };
     });
-  }, [completedTasks, selectedProject, selectedTeamMember]);
+  }, [completedTasks, selectedProject, selectedTeamMember, selectedBillingCodeId]);
 
   // Calculate max values for scaling
   const maxUnits = Math.max(...chartData.map(item => item.units || 0), 1);

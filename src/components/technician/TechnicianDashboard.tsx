@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const TechnicianDashboard: React.FC = () => {
   const { tasks, updateTask } = useSchedule();
-  const { projects } = useApp();
+  const { projects, billingUnit, setSelectedBillingCodeId, selectedBillingCodeId } = useApp();
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   const [showMapTokenInput, setShowMapTokenInput] = useState(false);
@@ -85,6 +85,14 @@ export const TechnicianDashboard: React.FC = () => {
       localStorage.setItem('technician_completed_tasks', JSON.stringify(updatedCompletedTasks));
     } catch (error) {
       console.error('Error completing task:', error);
+    }
+  };
+
+  const handleBillingUnitChange = (value: string | null) => {
+    if (value) {
+      setSelectedBillingCodeId(value);
+    } else {
+      setSelectedBillingCodeId(null);
     }
   };
 
@@ -158,17 +166,51 @@ export const TechnicianDashboard: React.FC = () => {
                   </CardContent>
                 </Card>
                 
-                {/* Mini charts */}
-                <Card className="shadow-sm overflow-hidden">
+                {/* Map added to overview tab */}
+                <Card className="shadow-sm overflow-hidden mb-4">
                   <CardHeader className="py-2 px-3">
                     <CardTitle className="text-base flex items-center">
-                      <BarChart className="h-4 w-4 mr-1.5" />
-                      Production
+                      <MapIcon className="h-4 w-4 mr-1.5" />
+                      Location Map
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
+                    <div className="h-[200px]">
+                      <TechDashboardMap 
+                        tasks={[...assignedTasks, ...completedTasks]}
+                        mapboxToken={mapboxToken}
+                        showMapTokenInput={showMapTokenInput}
+                        setMapboxToken={setMapboxToken}
+                        setShowMapTokenInput={setShowMapTokenInput}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Production chart with filters */}
+                <Card className="shadow-sm overflow-hidden">
+                  <CardHeader className="py-2 px-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base flex items-center">
+                        <BarChart className="h-4 w-4 mr-1.5" />
+                        Production
+                      </CardTitle>
+                      <select 
+                        className="text-xs bg-muted/50 border border-muted rounded px-2 py-1"
+                        onChange={(e) => handleBillingUnitChange(e.target.value || null)}
+                        value={selectedBillingCodeId || ""}
+                      >
+                        <option value="">All Units</option>
+                        <option value="billing-1">Feet</option>
+                        <option value="billing-2">Hours</option>
+                      </select>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0">
                     <div className="h-[180px]">
-                      <ProductionOverviewChart completedTasks={completedTasks} />
+                      <ProductionOverviewChart 
+                        completedTasks={completedTasks} 
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -234,9 +276,20 @@ export const TechnicianDashboard: React.FC = () => {
               <TabsContent value="stats" className="space-y-4 pb-20 animate-fade-in">
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">
-                      <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">
+                        <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
+                      </CardTitle>
+                      <select 
+                        className="text-xs bg-muted/50 border border-muted rounded px-2 py-1"
+                        onChange={(e) => handleBillingUnitChange(e.target.value || null)}
+                        value={selectedBillingCodeId || ""}
+                      >
+                        <option value="">All Units</option>
+                        <option value="billing-1">Feet</option>
+                        <option value="billing-2">Hours</option>
+                      </select>
+                    </div>
                   </CardHeader>
                   <CardContent className="p-4">
                     <div className="h-[280px]">
@@ -275,6 +328,7 @@ export const TechnicianDashboard: React.FC = () => {
     );
   }
 
+  // Desktop view
   return (
     <div className="flex flex-col h-screen">
       <ScrollArea className="h-[calc(100vh-4rem)]">
@@ -293,12 +347,23 @@ export const TechnicianDashboard: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             {/* Left column with chart and map in a vertical layout */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Production Chart - Now placed above the map */}
+              {/* Production Chart - Now with filter */}
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">
-                    <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">
+                      <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
+                    </CardTitle>
+                    <select 
+                      className="text-sm bg-muted/50 border border-muted rounded px-3 py-1"
+                      onChange={(e) => handleBillingUnitChange(e.target.value || null)}
+                      value={selectedBillingCodeId || ""}
+                    >
+                      <option value="">All Units</option>
+                      <option value="billing-1">Feet</option>
+                      <option value="billing-2">Hours</option>
+                    </select>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-4">
                   <div className="h-[280px]">
