@@ -22,9 +22,8 @@ export const SidebarMainNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              isActive={location.pathname === '/'} 
               tooltip="Dashboard"
-              className={location.pathname === '/' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+              className={location.pathname === '/' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/">
                 <LayoutDashboard />
@@ -36,9 +35,8 @@ export const SidebarMainNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              isActive={location.pathname === '/work-entries'} 
               tooltip="Work Entries"
-              className={location.pathname === '/work-entries' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+              className={location.pathname === '/work-entries' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/work-entries">
                 <ListTodo />
@@ -50,9 +48,8 @@ export const SidebarMainNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              isActive={location.pathname === '/repository'} 
               tooltip="Repository"
-              className={location.pathname === '/repository' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+              className={location.pathname === '/repository' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/repository">
                 <FileText />
@@ -64,9 +61,8 @@ export const SidebarMainNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              isActive={location.pathname === '/projects'} 
               tooltip="Projects"
-              className={location.pathname === '/projects' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+              className={location.pathname === '/projects' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/projects">
                 <Building2 />

@@ -22,9 +22,8 @@ export const SidebarTechNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              isActive={location.pathname === '/technician'} 
               tooltip="Technician"
-              className={location.pathname === '/technician' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+              className={location.pathname === '/technician' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/technician">
                 <HardHat />
@@ -36,9 +35,8 @@ export const SidebarTechNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              isActive={location.pathname === '/technician/dashboard'} 
               tooltip="Tech Dashboard"
-              className={location.pathname === '/technician/dashboard' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+              className={location.pathname === '/technician/dashboard' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/technician/dashboard">
                 <LayoutDashboard />

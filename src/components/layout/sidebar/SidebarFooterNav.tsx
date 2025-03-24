@@ -19,7 +19,7 @@ export const SidebarFooterNav: React.FC = () => {
           <SidebarMenuButton 
             asChild 
             tooltip="Settings"
-            className={location.pathname === '/settings' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+            className={location.pathname === '/settings' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
           >
             <Link to="#">
               <Settings />
@@ -32,7 +32,7 @@ export const SidebarFooterNav: React.FC = () => {
           <SidebarMenuButton 
             asChild 
             tooltip="Logout"
-            className={location.pathname === '/logout' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+            className={location.pathname === '/logout' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
           >
             <Link to="#">
               <LogOut />
