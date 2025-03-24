@@ -3,7 +3,8 @@ import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Bell, LogOut, Settings, User } from 'lucide-react';
+import { Bell, LogOut, Settings, User, ChevronDown } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import {
 
 export const Navbar: React.FC = () => {
   const { selectedCompany } = useApp();
+  const isMobile = useIsMobile();
   
   // Using American user data
   const user = {
@@ -25,38 +27,43 @@ export const Navbar: React.FC = () => {
   };
   
   return (
-    <div className="h-16 border-b border-border bg-background px-6 md:px-8 flex items-center justify-between w-full sticky top-0 z-50">
+    <div className="h-14 md:h-16 border-b border-border bg-background px-3 md:px-8 flex items-center justify-between w-full sticky top-0 z-50">
       {/* Left side with company logo/name */}
       <div className="flex items-center gap-3">
         <div className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-fieldvision-blue flex items-center justify-center text-white mr-3">
+          <div className="w-8 h-8 rounded-full bg-fieldvision-blue flex items-center justify-center text-white mr-2 md:mr-3">
             <span className="text-sm font-semibold">
               {selectedCompany?.name?.charAt(0) || 'F'}
             </span>
           </div>
-          <h1 className="text-lg font-medium">{selectedCompany.name}</h1>
+          <h1 className="text-base md:text-lg font-medium truncate max-w-[140px] md:max-w-full">
+            {selectedCompany.name}
+          </h1>
         </div>
       </div>
       
       {/* Right side with notifications and user profile */}
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Bell className="h-5 w-5" />
+      <div className="flex items-center gap-1 md:gap-2">
+        <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+          <Bell className="h-4 w-4" />
         </Button>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-3 h-10 pl-2 pr-2">
-              <div className="flex flex-col items-end mr-2">
-                <span className="text-sm font-medium">{user.name}</span>
-                <span className="text-xs text-muted-foreground">{user.location}</span>
-              </div>
-              <Avatar className="h-9 w-9">
+            <Button variant="ghost" className="flex items-center gap-1 md:gap-3 h-8 md:h-10 pl-1 md:pl-2 pr-1 md:pr-2">
+              {!isMobile && (
+                <div className="flex flex-col items-end mr-2">
+                  <span className="text-sm font-medium">{user.name}</span>
+                  <span className="text-xs text-muted-foreground">{user.location}</span>
+                </div>
+              )}
+              <Avatar className="h-7 w-7 md:h-9 md:w-9">
                 {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={user.name} />}
-                <AvatarFallback className="bg-orange-500 text-white">
+                <AvatarFallback className="bg-orange-500 text-white text-xs md:text-sm">
                   {user.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
+              {isMobile && <ChevronDown className="h-3 w-3 text-muted-foreground" />}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

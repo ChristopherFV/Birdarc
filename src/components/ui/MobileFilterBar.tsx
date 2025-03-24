@@ -39,15 +39,15 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
   const closeFilter = () => setActiveFilter(null);
 
   return (
-    <div className="bg-card border border-border rounded-lg shadow-subtle mb-4 p-3">
+    <div className="bg-card border border-border rounded-lg shadow-sm mb-4 p-3">
       <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center text-xs font-medium text-muted-foreground">
-          <Filter size={12} className="mr-1" />
-          <span>Filters</span>
+        <div className="flex items-center gap-2">
+          <Filter size={14} className="text-muted-foreground" />
+          <span className="text-sm font-medium">Filters</span>
         </div>
         
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="h-7 text-xs px-2">
+          <Button variant="ghost" size="sm" className="h-8 text-xs px-2">
             <ArrowUpDown size={12} className="mr-1" />
             Sort
           </Button>
@@ -61,11 +61,11 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
+              className="w-full flex items-center justify-between px-3 py-1 text-sm h-9"
               onClick={() => setActiveFilter('date')}
             >
               <span>Date Range</span>
-              <ChevronDown size={12} />
+              <ChevronDown size={14} />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
@@ -86,11 +86,11 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
+              className="w-full flex items-center justify-between px-3 py-1 text-sm h-9"
               onClick={() => setActiveFilter('group')}
             >
               <span>Group By</span>
-              <ChevronDown size={12} />
+              <ChevronDown size={14} />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
@@ -113,11 +113,11 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
+              className="w-full flex items-center justify-between px-3 py-1 text-sm h-9"
               onClick={() => setActiveFilter('project')}
             >
               <span>Project</span>
-              <ChevronDown size={12} />
+              <ChevronDown size={14} />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
@@ -138,11 +138,11 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
+              className="w-full flex items-center justify-between px-3 py-1 text-sm h-9"
               onClick={() => setActiveFilter('team')}
             >
               <span>Team</span>
-              <ChevronDown size={12} />
+              <ChevronDown size={14} />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
@@ -163,11 +163,11 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
+              className="w-full flex items-center justify-between px-3 py-1 text-sm h-9"
               onClick={() => setActiveFilter('billing')}
             >
               <span>Billing</span>
-              <ChevronDown size={12} />
+              <ChevronDown size={14} />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
