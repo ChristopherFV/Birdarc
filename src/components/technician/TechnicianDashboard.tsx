@@ -85,7 +85,7 @@ export const TechnicianDashboard: React.FC = () => {
             projectId={selectedProjectId || "project-1"}
           />
           
-          <DashboardHeader handleOpenWorkEntry={handleOpenWorkEntry} />
+          <DashboardHeader />
           
           <FilterBar technicianView={true} />
           
