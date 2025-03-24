@@ -13,9 +13,12 @@ import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CircleX, Send } from "lucide-react";
+import { CircleX, Send, Clock } from "lucide-react";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useApp } from '@/context/AppContext';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface TechnicianWorkEntryDialogProps {
   open: boolean;
@@ -50,6 +53,8 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   const [isRedlineRevision, setIsRedlineRevision] = useState(false);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [notifyTaskIssuer, setNotifyTaskIssuer] = useState(true);
+  const [workType, setWorkType] = useState<'unit' | 'hourly'>('unit');
+  const [hoursWorked, setHoursWorked] = useState('');
 
   // Set project ID if provided
   useEffect(() => {
@@ -61,13 +66,34 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     }
   }, [projectId, open, handleChange]);
 
+  const handleWorkTypeChange = (value: 'unit' | 'hourly') => {
+    setWorkType(value);
+  };
+
+  const handleHoursWorkedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHoursWorked(e.target.value);
+  };
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Include the redline revision status in the form data
+    
+    // Validate hours worked if hourly work is selected
+    if (workType === 'hourly' && (!hoursWorked || Number(hoursWorked) <= 0)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid number of hours worked.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Include the redline revision status and work type in the form data
     const updatedFormData = {
       ...formData,
       isRedlineRevision,
-      isTechnicianSubmission: true // Flag to identify technician submissions
+      isTechnicianSubmission: true, // Flag to identify technician submissions
+      workType,
+      hoursWorked: workType === 'hourly' ? parseFloat(hoursWorked) : undefined
     };
     
     handleSubmit(e);
@@ -136,24 +162,72 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             error={formErrors.projectId}
           />
           
-          {/* Billing Code Dropdown */}
-          <BillingCodeSelector
-            billingCodeId={formData.billingCodeId}
-            billingCodes={billingCodes}
-            onChange={handleChange}
-            error={formErrors.billingCodeId}
-          />
+          {/* Work Type Selection */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium mb-1">
+              Work Type
+            </label>
+            <RadioGroup 
+              value={workType} 
+              onValueChange={(value) => handleWorkTypeChange(value as 'unit' | 'hourly')}
+              className="flex flex-col space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="unit" id="unit" />
+                <Label htmlFor="unit">Unit-Based Work</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="hourly" id="hourly" />
+                <Label htmlFor="hourly">Hourly Work</Label>
+              </div>
+            </RadioGroup>
+          </div>
           
-          {/* Feet Completed Input */}
-          <FeetCompletedInput
-            value={formData.feetCompleted}
-            onChange={handleChange}
-            error={formErrors.feetCompleted}
-          />
-          
-          {/* Revenue Preview */}
-          {previewRevenue !== null && (
-            <RevenuePreview previewAmount={previewRevenue} />
+          {workType === 'unit' ? (
+            <>
+              {/* Billing Code Dropdown - Only show for unit-based work */}
+              <BillingCodeSelector
+                billingCodeId={formData.billingCodeId}
+                billingCodes={billingCodes}
+                onChange={handleChange}
+                error={formErrors.billingCodeId}
+              />
+              
+              {/* Feet Completed Input - Only show for unit-based work */}
+              <FeetCompletedInput
+                value={formData.feetCompleted}
+                onChange={handleChange}
+                error={formErrors.feetCompleted}
+              />
+              
+              {/* Revenue Preview - Only show for unit-based work */}
+              {previewRevenue !== null && (
+                <RevenuePreview previewAmount={previewRevenue} />
+              )}
+            </>
+          ) : (
+            /* Hours Worked Input - Only show for hourly work */
+            <div>
+              <label htmlFor="hoursWorked" className="block text-sm font-medium mb-1">
+                Hours Worked
+              </label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  id="hoursWorked"
+                  value={hoursWorked}
+                  onChange={handleHoursWorkedChange}
+                  placeholder="Enter hours worked"
+                  min="0"
+                  step="0.5"
+                  className="w-full"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
+                  <Clock className="h-4 w-4 mr-1" />
+                  hrs
+                </div>
+              </div>
+            </div>
           )}
           
           {/* Team Member Dropdown */}
