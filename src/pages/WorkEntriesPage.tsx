@@ -47,7 +47,7 @@ const WorkEntriesPage: React.FC = () => {
   return (
     <SimplePageLayout 
       title="Invoicing" 
-      subtitle="Manage work entries and create invoices for completed work"
+      subtitle="Manage invoices and create them for completed work"
       showFooter={true}
       footerProps={{
         backLink: "/",

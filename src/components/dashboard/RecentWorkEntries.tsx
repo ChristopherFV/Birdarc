@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useApp, WorkEntry } from '@/context/AppContext';
 import { format } from 'date-fns';
@@ -236,20 +237,20 @@ export const RecentWorkEntries: React.FC = () => {
     return (
       <Card className="bg-card border-border shadow-sm mb-4 w-full">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-medium">Work Entries</CardTitle>
+          <CardTitle className="text-base font-medium">Invoices</CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
             <FileText size={24} className="mb-2 opacity-70" />
-            <p>No work entries found</p>
-            <p className="text-sm">Add your first work entry below</p>
+            <p>No invoices found</p>
+            <p className="text-sm">Add your first invoice below</p>
           </div>
         </CardContent>
         <CardFooter className="pt-2 pb-4">
           <Button asChild variant="outline" className="w-full">
             <Link to="/invoicing">
               <List className="mr-2" size={16} />
-              View all work entries
+              View all invoices
             </Link>
           </Button>
         </CardFooter>
@@ -260,7 +261,7 @@ export const RecentWorkEntries: React.FC = () => {
   return (
     <Card className="bg-card border-border shadow-sm mb-4 w-full">
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-base font-medium">Work Entries</CardTitle>
+        <CardTitle className="text-base font-medium">Invoices</CardTitle>
         <div className="flex items-center gap-2">
           {selectMode && hasSelectedEntries && (
             <span className="text-sm text-muted-foreground">
@@ -481,7 +482,7 @@ export const RecentWorkEntries: React.FC = () => {
         <Button asChild variant="outline" className="w-full">
           <Link to="/invoicing">
             <List className="mr-2" size={16} />
-            View all work entries
+            View all invoices
           </Link>
         </Button>
       </CardFooter>

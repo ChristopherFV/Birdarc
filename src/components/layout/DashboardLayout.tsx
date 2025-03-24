@@ -78,14 +78,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             />
             <NavItem 
               icon={<ListTodo size={20} />} 
-              label="Work Entries" 
+              label="Invoices" 
               href="/work-entries" 
               collapsed={collapsed} 
               active={location.pathname === '/work-entries'}
             />
             <NavItem 
               icon={<FileText size={20} />} 
-              label="Repository" 
+              label="Fieldvision" 
               href="/repository" 
               collapsed={collapsed}
               active={location.pathname === '/repository'} 

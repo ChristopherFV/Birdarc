@@ -35,12 +35,12 @@ export const SidebarMainNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              tooltip="Work Entries"
+              tooltip="Invoices"
               className={location.pathname === '/work-entries' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/work-entries">
                 <ListTodo />
-                <span>Work Entries</span>
+                <span>Invoices</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -48,12 +48,12 @@ export const SidebarMainNav: React.FC = () => {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              tooltip="Repository"
+              tooltip="Fieldvision"
               className={location.pathname === '/repository' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
             >
               <Link to="/repository">
                 <FileText />
-                <span>Repository</span>
+                <span>Fieldvision</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
