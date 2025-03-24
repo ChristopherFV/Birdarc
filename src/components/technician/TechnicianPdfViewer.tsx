@@ -8,7 +8,7 @@ import { PdfContent } from './pdf-viewer/PdfContent';
 import { MobileDrawingTools } from './pdf-viewer/MobileDrawingTools';
 import { useFullscreenControl } from './pdf-viewer/useFullscreenControl';
 import { PdfViewerProps } from './pdf-viewer/types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
   currentTool,
@@ -21,6 +21,7 @@ export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { isFullscreen, toggleFullscreen } = useFullscreenControl(pdfContainerRef);
+  const navigate = useNavigate();
 
   const handleZoomIn = () => {
     setZoomLevel(prev => Math.min(prev + 10, 200));
@@ -38,6 +39,10 @@ export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
     setCurrentPage(prev => Math.max(prev - 1, 1));
   };
 
+  const handleOpenDrawingEditor = () => {
+    navigate(`/technician/drawing?pageId=${currentPage}`);
+  };
+
   return (
     <div 
       ref={pdfContainerRef}
@@ -47,6 +52,7 @@ export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
         height: isFullscreen ? '100%' : (isMobile ? 'calc(100vh - 370px)' : 'calc(100vh - 440px)'), 
         position: isFullscreen ? 'fixed' : 'relative'
       }}
+      onClick={isMobile ? handleOpenDrawingEditor : undefined}
     >
       <div className="h-full w-full flex flex-col items-center justify-center text-center p-6">
         <PdfContent currentPage={currentPage} />
@@ -79,7 +85,10 @@ export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
             variant="outline" 
             size="sm" 
             className={`absolute top-2 right-2 h-8 w-8 p-0 flex items-center justify-center ${isFullscreen ? 'z-10' : ''}`}
-            onClick={() => setShowMobileTools(!showMobileTools)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMobileTools(!showMobileTools);
+            }}
           >
             <Menu className="h-4 w-4" />
           </Button>
@@ -87,6 +96,7 @@ export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
           <Link 
             to={`/technician/drawing?pageId=${currentPage}`} 
             className="absolute bottom-12 right-2 z-10"
+            onClick={(e) => e.stopPropagation()}
           >
             <Button 
               variant="outline" 
