@@ -83,11 +83,11 @@ export const TechnicianDashboard: React.FC = () => {
         
         <FilterBar technicianView={true} />
         
-        {/* Main layout grid with production on top, map in middle, tasks on right */}
+        {/* Main layout grid with production and tasks side by side, map below */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          {/* Production Chart (spans 2 columns on large screens) */}
+          {/* Production Chart (leftmost column) */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">
                   <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
@@ -100,15 +100,17 @@ export const TechnicianDashboard: React.FC = () => {
           </div>
           
           {/* Tasks Column (right side) */}
-          <TaskColumns 
-            assignedTasks={assignedTasks}
-            completedTasks={completedTasks}
-            handleOpenWorkEntry={handleOpenWorkEntry}
-            getProjectName={getProjectName}
-          />
+          <div className="space-y-6">
+            <TaskColumns 
+              assignedTasks={assignedTasks}
+              completedTasks={completedTasks}
+              handleOpenWorkEntry={handleOpenWorkEntry}
+              getProjectName={getProjectName}
+            />
+          </div>
           
-          {/* Map (spans 2 columns on large screens) */}
-          <div className="lg:col-span-2 mb-6">
+          {/* Map (spans all 3 columns) */}
+          <div className="lg:col-span-3 mb-6">
             <TechDashboardMap 
               tasks={[...assignedTasks, ...completedTasks]}
               mapboxToken={mapboxToken}

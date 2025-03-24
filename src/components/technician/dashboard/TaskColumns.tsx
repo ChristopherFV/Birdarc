@@ -20,7 +20,7 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
   getProjectName
 }) => {
   return (
-    <div className="space-y-6">
+    <>
       {/* My Assigned Tasks */}
       <Card>
         <CardHeader className="pb-2">
@@ -99,7 +99,7 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
       </Card>
       
       {/* Recently Completed */}
-      <Card className="mb-6">
+      <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">
             <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Recently Completed" />
@@ -129,6 +129,6 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 };
