@@ -34,7 +34,7 @@ export const TechnicianWindow: React.FC = () => {
     setConfirmDialogOpen, exportDialogOpen, setExportDialogOpen,
     handleCompleteReview, completeTask, exportAsGeoJSON, exportAsKMZ,
     shouldExportMap, setShouldExportMap
-  } = useTaskCompletion({ mapNotes });
+  } = useTaskCompletion({ mapNotes, taskData });
   
   const { currentTool, setCurrentTool } = useDrawingTools();
   

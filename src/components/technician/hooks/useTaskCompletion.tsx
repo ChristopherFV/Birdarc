@@ -8,15 +8,18 @@ import {
   downloadFile 
 } from '@/utils/mapExportUtils';
 import { useApp } from '@/context/AppContext';
+import { useSchedule, Task } from '@/context/ScheduleContext';
 
 interface UseTaskCompletionOptions {
   mapNotes?: MapNote[];
+  taskData?: Task;
 }
 
 export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
-  const { mapNotes = [] } = options;
+  const { mapNotes = [], taskData } = options;
   const { toast } = useToast();
   const { addWorkEntry } = useApp();
+  const { updateTask } = useSchedule();
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -31,6 +34,19 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
   };
   
   const completeTask = () => {
+    // Update task status if we have task data
+    if (taskData) {
+      const updatedTask = { ...taskData, status: 'completed' };
+      try {
+        updateTask(updatedTask);
+        
+        // Save to technician's dashboard (using localStorage for persistence in this demo)
+        saveToTechnicianDashboard(updatedTask);
+      } catch (error) {
+        console.error('Error updating task status:', error);
+      }
+    }
+    
     toast({
       title: "Task closed",
       description: "Please log your work entry for this task.",
@@ -77,13 +93,23 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
   };
 
   // Save task data to technician's dashboard/history
-  const saveToTechnicianDashboard = (taskData) => {
-    // This is where we would typically save task data to a database
-    // For now, we'll just log it to console
-    console.log('Saving task data to technician dashboard:', taskData);
-    
-    // In a real implementation, this would likely involve API calls
-    // or Context updates to store the data for the technician's dashboard
+  const saveToTechnicianDashboard = (taskData: Task) => {
+    try {
+      // For this demo, we'll use localStorage to persist completed tasks
+      const existingTasksJSON = localStorage.getItem('technician_completed_tasks');
+      const existingTasks = existingTasksJSON ? JSON.parse(existingTasksJSON) : [];
+      
+      // Check if this task is already in the completed tasks
+      const taskExists = existingTasks.some((task: Task) => task.id === taskData.id);
+      
+      if (!taskExists) {
+        const updatedTasks = [...existingTasks, taskData];
+        localStorage.setItem('technician_completed_tasks', JSON.stringify(updatedTasks));
+        console.log('Task saved to technician dashboard:', taskData);
+      }
+    } catch (error) {
+      console.error('Error saving task to technician dashboard:', error);
+    }
   };
   
   return {
