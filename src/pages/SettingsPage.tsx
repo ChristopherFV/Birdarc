@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,13 +17,21 @@ import {
   Settings, 
   SmartphoneCharging,
   MapPin,
-  Building 
+  Building,
+  Users,
+  UserPlus,
+  X,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { TeamMember } from '@/types/app-types';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const SettingsPage: React.FC = () => {
   const { toast } = useToast();
-  const { selectedCompany } = useApp();
+  const { selectedCompany, teamMembers, addTeamMember, updateTeamMember, deleteTeamMember } = useApp();
   
   // User profile settings
   const [profile, setProfile] = useState({
@@ -63,6 +70,16 @@ const SettingsPage: React.FC = () => {
     defaultPaymentTerms: "Net 30"
   });
 
+  // Team member state
+  const [isAddingTeamMember, setIsAddingTeamMember] = useState(false);
+  const [isEditingTeamMember, setIsEditingTeamMember] = useState<string | null>(null);
+  const [newTeamMember, setNewTeamMember] = useState({
+    name: '',
+    role: '',
+    email: '',
+    phone: ''
+  });
+
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
@@ -94,6 +111,63 @@ const SettingsPage: React.FC = () => {
     });
   };
 
+  const handleAddTeamMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newTeamMember.name && newTeamMember.role) {
+      addTeamMember({
+        name: newTeamMember.name,
+        role: newTeamMember.role
+      });
+      
+      // Reset form
+      setNewTeamMember({
+        name: '',
+        role: '',
+        email: '',
+        phone: ''
+      });
+      setIsAddingTeamMember(false);
+      
+      toast({
+        title: "Team Member Added",
+        description: `${newTeamMember.name} has been added to your team.`,
+      });
+    }
+  };
+
+  const handleUpdateTeamMember = (e: React.FormEvent, member: TeamMember) => {
+    e.preventDefault();
+    updateTeamMember(member);
+    setIsEditingTeamMember(null);
+    
+    toast({
+      title: "Team Member Updated",
+      description: `${member.name}'s information has been updated.`,
+    });
+  };
+
+  const handleDeleteTeamMember = (memberId: string) => {
+    const member = teamMembers.find(m => m.id === memberId);
+    if (member) {
+      deleteTeamMember(memberId);
+      
+      toast({
+        title: "Team Member Removed",
+        description: `${member.name} has been removed from your team.`,
+      });
+    }
+  };
+
+  const cancelAddTeamMember = () => {
+    setIsAddingTeamMember(false);
+    setNewTeamMember({
+      name: '',
+      role: '',
+      email: '',
+      phone: ''
+    });
+  };
+
   return (
     <SimplePageLayout
       title="Settings"
@@ -105,7 +179,7 @@ const SettingsPage: React.FC = () => {
       }}
     >
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid grid-cols-4 gap-4 w-full max-w-2xl mb-8">
+        <TabsList className="grid grid-cols-5 gap-4 w-full max-w-3xl mb-8">
           <TabsTrigger value="profile" className="flex gap-2 items-center">
             <User size={16} />
             <span>Profile</span>
@@ -113,6 +187,10 @@ const SettingsPage: React.FC = () => {
           <TabsTrigger value="company" className="flex gap-2 items-center">
             <Building size={16} />
             <span>Company</span>
+          </TabsTrigger>
+          <TabsTrigger value="team" className="flex gap-2 items-center">
+            <Users size={16} />
+            <span>Team</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex gap-2 items-center">
             <Bell size={16} />
@@ -247,6 +325,174 @@ const SettingsPage: React.FC = () => {
                   <Button type="submit">Save Changes</Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Team Members Management */}
+        <TabsContent value="team">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Team Members</CardTitle>
+                  <CardDescription>
+                    Manage your team members and their roles
+                  </CardDescription>
+                </div>
+                <Button 
+                  onClick={() => setIsAddingTeamMember(true)} 
+                  className="flex items-center gap-1"
+                  disabled={isAddingTeamMember}
+                >
+                  <UserPlus size={16} />
+                  <span>Add Member</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px] pr-4">
+                {isAddingTeamMember && (
+                  <div className="mb-6 p-4 border rounded-md bg-muted/30">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-medium">Add New Team Member</h3>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={cancelAddTeamMember}
+                      >
+                        <X size={16} />
+                      </Button>
+                    </div>
+                    <form onSubmit={handleAddTeamMember} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="newMemberName">Name *</Label>
+                          <Input 
+                            id="newMemberName" 
+                            value={newTeamMember.name} 
+                            onChange={(e) => setNewTeamMember({...newTeamMember, name: e.target.value})}
+                            placeholder="John Smith"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="newMemberRole">Role *</Label>
+                          <Input 
+                            id="newMemberRole" 
+                            value={newTeamMember.role} 
+                            onChange={(e) => setNewTeamMember({...newTeamMember, role: e.target.value})}
+                            placeholder="Technician"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="newMemberEmail">Email</Label>
+                          <Input 
+                            id="newMemberEmail" 
+                            type="email"
+                            value={newTeamMember.email} 
+                            onChange={(e) => setNewTeamMember({...newTeamMember, email: e.target.value})}
+                            placeholder="john@example.com"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="newMemberPhone">Phone</Label>
+                          <Input 
+                            id="newMemberPhone" 
+                            value={newTeamMember.phone} 
+                            onChange={(e) => setNewTeamMember({...newTeamMember, phone: e.target.value})}
+                            placeholder="(555) 555-5555"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={cancelAddTeamMember}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit">Add Team Member</Button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {teamMembers.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Users className="mx-auto h-12 w-12 mb-4 opacity-20" />
+                    <p>No team members yet</p>
+                    <p className="text-sm mt-1">Add your first team member to get started</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {teamMembers.map((member) => (
+                      <div key={member.id} className="p-4 border rounded-md">
+                        {isEditingTeamMember === member.id ? (
+                          <form onSubmit={(e) => handleUpdateTeamMember(e, member)} className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor={`member-${member.id}-name`}>Name</Label>
+                                <Input 
+                                  id={`member-${member.id}-name`} 
+                                  value={member.name} 
+                                  onChange={(e) => updateTeamMember({...member, name: e.target.value})}
+                                  required
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor={`member-${member.id}-role`}>Role</Label>
+                                <Input 
+                                  id={`member-${member.id}-role`} 
+                                  value={member.role} 
+                                  onChange={(e) => updateTeamMember({...member, role: e.target.value})}
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={() => setIsEditingTeamMember(null)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button type="submit">Save Changes</Button>
+                            </div>
+                          </form>
+                        ) : (
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-medium text-base">{member.name}</h4>
+                              <p className="text-sm text-muted-foreground">{member.role}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setIsEditingTeamMember(member.id)}
+                              >
+                                <Edit size={16} />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleDeleteTeamMember(member.id)}
+                                className="text-destructive hover:text-destructive/90"
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>

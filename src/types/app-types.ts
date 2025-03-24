@@ -1,3 +1,4 @@
+
 // Define types for the application
 export type DateRangeType = 'day' | 'week' | 'month' | 'custom';
 export type GroupByType = 'day' | 'week' | 'month' | 'year';
@@ -38,6 +39,8 @@ export type TeamMember = {
   id: string;
   name: string;
   role: string;
+  email?: string;
+  phone?: string;
 };
 
 export type InvoiceStatus = 'not_invoiced' | 'invoiced' | 'paid';
@@ -121,6 +124,9 @@ export type AppContextType = {
   updateWorkEntry: (entry: WorkEntry) => void;
   deleteWorkEntry: (id: string) => void;
   addProject: (project: NewProject) => void;
+  addTeamMember: (member: Omit<TeamMember, 'id'>) => void;
+  updateTeamMember: (member: TeamMember) => void;
+  deleteTeamMember: (id: string) => void;
   
   // Filter setters
   setDateRange: (range: DateRangeType) => void;

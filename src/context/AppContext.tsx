@@ -44,7 +44,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [workEntries, setWorkEntries] = useState<WorkEntry[]>(mockWorkEntries);
   const [projects, setProjects] = useState<Project[]>(mockProjects);
   const [billingCodes, setBillingCodes] = useState<BillingCode[]>(mockBillingCodes);
-  const [teamMembers] = useState<TeamMember[]>(mockTeamMembers);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(mockTeamMembers);
   const [companies] = useState<Company[]>(mockCompanies);
   const [selectedCompany, setSelectedCompany] = useState<Company>(mockCompanies[0]);
   
@@ -78,7 +78,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [dateRange]);
   
-  // CRUD operations
+  // CRUD operations for work entries
   const addWorkEntry = (entry: Omit<WorkEntry, 'id'>) => {
     const newEntry: WorkEntry = {
       ...entry,
@@ -96,6 +96,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   
   const deleteWorkEntry = (id: string) => {
     setWorkEntries(workEntries.filter(entry => entry.id !== id));
+  };
+  
+  // CRUD operations for team members
+  const addTeamMember = (member: Omit<TeamMember, 'id'>) => {
+    const newMember: TeamMember = {
+      ...member,
+      id: crypto.randomUUID()
+    };
+    setTeamMembers([...teamMembers, newMember]);
+  };
+  
+  const updateTeamMember = (updatedMember: TeamMember) => {
+    setTeamMembers(teamMembers.map(member => 
+      member.id === updatedMember.id ? updatedMember : member
+    ));
+  };
+  
+  const deleteTeamMember = (id: string) => {
+    setTeamMembers(teamMembers.filter(member => member.id !== id));
   };
   
   // Add a new project with billing codes
@@ -172,6 +191,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     updateWorkEntry,
     deleteWorkEntry,
     addProject,
+    addTeamMember,
+    updateTeamMember,
+    deleteTeamMember,
     
     setDateRange,
     setCustomDateRange,
