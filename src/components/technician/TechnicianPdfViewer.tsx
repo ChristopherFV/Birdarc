@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ZoomIn, ZoomOut, RotateCw, Maximize2, Pencil, Type, Circle, Square, Menu } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCw, Maximize2, Minimize2, Pencil, Type, Circle, Square, Menu } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TechnicianPdfViewerProps {
@@ -17,6 +17,8 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
   const [totalPages] = useState(3);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [showMobileTools, setShowMobileTools] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const pdfContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
   const handleZoomIn = () => {
@@ -35,13 +37,51 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
     setCurrentPage(prev => Math.max(prev - 1, 1));
   };
 
+  const toggleFullscreen = () => {
+    if (!pdfContainerRef.current) return;
+    
+    if (!isFullscreen) {
+      if (pdfContainerRef.current.requestFullscreen) {
+        pdfContainerRef.current.requestFullscreen();
+      }
+      // Force landscape orientation if possible
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(err => {
+          console.error('Failed to lock screen orientation:', err);
+        });
+      }
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      setIsFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   return (
     <div 
-      className="mx-auto bg-white shadow-lg border border-border rounded-md"
+      ref={pdfContainerRef}
+      className={`mx-auto bg-white shadow-lg border border-border rounded-md ${isFullscreen ? 'fixed inset-0 z-50 m-0 rounded-none border-none' : ''}`}
       style={{ 
-        width: `${zoomLevel}%`, 
-        height: isMobile ? 'calc(100vh - 370px)' : 'calc(100vh - 440px)', 
-        position: 'relative'
+        width: isFullscreen ? '100%' : `${zoomLevel}%`, 
+        height: isFullscreen ? '100%' : (isMobile ? 'calc(100vh - 370px)' : 'calc(100vh - 440px)'), 
+        position: isFullscreen ? 'fixed' : 'relative'
       }}
     >
       <div className="h-full w-full flex flex-col items-center justify-center text-center p-6">
@@ -55,7 +95,7 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
       </div>
       
       {isMobile && showMobileTools && (
-        <div className="absolute top-2 right-2 bg-background/95 p-2 rounded-md shadow-md border border-border">
+        <div className={`${isFullscreen ? 'absolute top-4 right-4' : 'absolute top-2 right-2'} bg-background/95 p-2 rounded-md shadow-md border border-border`}>
           <div className="grid grid-cols-2 gap-2">
             <Button 
               variant={currentTool === 'pen' ? 'orange' : 'outline'} 
@@ -110,7 +150,7 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
         </div>
       )}
       
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-1 sm:gap-2 bg-background/90 p-1 sm:p-2 rounded-md shadow-sm border border-border">
+      <div className={`${isFullscreen ? 'absolute bottom-8' : 'absolute bottom-4'} left-1/2 transform -translate-x-1/2 flex items-center gap-1 sm:gap-2 bg-background/90 p-1 sm:p-2 rounded-md shadow-sm border border-border`}>
         <Button 
           variant="ghost" 
           size="sm" 
@@ -143,12 +183,28 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
         <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex">
           <RotateCw className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 hidden sm:flex">
-          <Maximize2 className="h-4 w-4" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-7 w-7 sm:h-8 sm:w-8" 
+          onClick={toggleFullscreen}
+        >
+          {isFullscreen ? <Minimize2 className="h-3 sm:h-4 w-3 sm:w-4" /> : <Maximize2 className="h-3 sm:h-4 w-3 sm:w-4" />}
         </Button>
       </div>
 
-      {isMobile && (
+      {isMobile && !isFullscreen && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="absolute top-2 right-2 h-8 w-8 p-0 flex items-center justify-center"
+          onClick={() => setShowMobileTools(!showMobileTools)}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      )}
+
+      {isMobile && isFullscreen && (
         <Button 
           variant="outline" 
           size="sm" 
