@@ -8,6 +8,7 @@ import { SectionHeader } from './SectionHeader';
 import { GanttChart } from './GanttChart';
 import { useToast } from '@/hooks/use-toast';
 import { TaskCompletionDialog } from './TaskCompletionDialog';
+import { useNavigate } from 'react-router-dom';
 
 interface TaskColumnsProps {
   assignedTasks: Task[];
@@ -25,11 +26,14 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
   onCompleteTask
 }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
+    // Navigate to the technician window with the selected task ID
+    navigate(`/technician?taskId=${task.id}`);
   };
 
   const handleCompleteClick = (task: Task, e: React.MouseEvent) => {
@@ -73,7 +77,7 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
               assignedTasks.map(task => (
                 <div 
                   key={task.id} 
-                  className={`block p-3 border rounded-md hover:bg-secondary transition-colors ${selectedTask?.id === task.id ? 'bg-secondary' : ''}`}
+                  className="block p-3 border rounded-md hover:bg-secondary transition-colors cursor-pointer"
                   onClick={() => handleTaskClick(task)}
                 >
                   <div className="flex justify-between items-start">
