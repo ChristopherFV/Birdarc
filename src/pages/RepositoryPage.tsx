@@ -85,10 +85,29 @@ const RepositoryPage = () => {
   const toggleKmzUploader = () => {
     setShowKmzUploader(prev => !prev);
   };
+  
+  // Create action button for the footer
+  const actionButton = (
+    <Button 
+      onClick={() => setShowUploader(true)} 
+      className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+      size="sm"
+      disabled={showUploader}
+    >
+      <Upload className="h-4 w-4 mr-1" />
+      Upload
+    </Button>
+  );
 
   return (
     <SimplePageLayout 
       subtitle="Upload and manage project files, schedule tasks and monitor field operations"
+      showFooter={true}
+      footerProps={{
+        backLink: "/",
+        backLabel: "Dashboard",
+        actionButton: actionButton
+      }}
     >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-6">
         <div className="flex items-center gap-2 mb-2 sm:mb-0">
