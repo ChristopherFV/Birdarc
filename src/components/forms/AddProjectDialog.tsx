@@ -14,6 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Info, Plus, Trash2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const AddProjectDialog = () => {
   const { isOpen, closeAddProjectDialog } = useAddProjectDialog();
@@ -182,220 +183,228 @@ export const AddProjectDialog = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={closeAddProjectDialog}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] flex flex-col h-[90vh] sm:h-auto max-h-[90vh]">
+        <DialogHeader className="sticky top-0 z-10 bg-background pb-4">
           <DialogTitle>Add New Project</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="projectName">Project Name <span className="text-destructive">*</span></Label>
-              <Input
-                id="projectName"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                placeholder="Enter project name"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="clientName">Client Name</Label>
-              <Input
-                id="clientName"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="Enter client name"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Billing Type</Label>
-              <div className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id="billingTypeUnit"
-                    checked={billingType === 'unit'}
-                    onChange={() => setBillingType('unit')}
-                    className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
-                  />
-                  <Label htmlFor="billingTypeUnit" className="font-normal">Unit-based</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id="billingTypeHourly"
-                    checked={billingType === 'hourly'}
-                    onChange={() => setBillingType('hourly')}
-                    className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
-                  />
-                  <Label htmlFor="billingTypeHourly" className="font-normal">Hourly</Label>
-                </div>
-              </div>
-            </div>
-            
-            {billingType === 'hourly' && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="hourlyRate">Hourly Rate ($) <span className="text-destructive">*</span></Label>
-                    <Input
-                      id="hourlyRate"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={hourlyRate}
-                      onChange={(e) => setHourlyRate(e.target.value)}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="serviceName">Service Name</Label>
-                    <Input
-                      id="serviceName"
-                      value={serviceName}
-                      onChange={(e) => setServiceName(e.target.value)}
-                      placeholder="e.g., Consulting, Installation"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-            
-            <div className="space-y-2 pt-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="useContractor" 
-                    checked={useContractor}
-                    onCheckedChange={setUseContractor}
-                  />
-                  <Label htmlFor="useContractor" className="font-normal">Project uses contractor</Label>
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6">
-                      <Info className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="text-sm">
-                      <p>Enable this option if the project uses external contractors with different rates.</p>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              
-              {useContractor && (
-                <div className="pt-2">
-                  <Label htmlFor="contractorRate">Contractor Margin (%) <span className="text-destructive">*</span></Label>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+          <ScrollArea className="flex-1 pr-4 -mr-4">
+            <div className="space-y-4 py-2 pb-6">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="projectName">Project Name <span className="text-destructive">*</span></Label>
                   <Input
-                    id="contractorRate"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={contractorHourlyRate}
-                    onChange={(e) => setContractorHourlyRate(e.target.value)}
-                    placeholder="0"
-                    className="mt-1"
+                    id="projectName"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    placeholder="Enter project name"
+                    required
                   />
                 </div>
-              )}
-            </div>
-            
-            {billingType === 'unit' && (
-              <div className="space-y-2 pt-2">
-                <Label className="block mb-2">Billing Codes</Label>
                 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Option 1: Import from CSV</Label>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Upload a CSV file with columns: code, description, rate, unitType
-                    </p>
-                    <CSVImporter onDataImported={handleCSVData} />
-                    
-                    {billingCodes.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-sm font-medium">{billingCodes.length} billing codes imported</p>
-                      </div>
-                    )}
+                <div className="space-y-2">
+                  <Label htmlFor="clientName">Client Name</Label>
+                  <Input
+                    id="clientName"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="Enter client name"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Billing Type</Label>
+                  <div className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="billingTypeUnit"
+                        checked={billingType === 'unit'}
+                        onChange={() => setBillingType('unit')}
+                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                      />
+                      <Label htmlFor="billingTypeUnit" className="font-normal">Unit-based</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="billingTypeHourly"
+                        checked={billingType === 'hourly'}
+                        onChange={() => setBillingType('hourly')}
+                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                      />
+                      <Label htmlFor="billingTypeHourly" className="font-normal">Hourly</Label>
+                    </div>
+                  </div>
+                </div>
+                
+                {billingType === 'hourly' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="hourlyRate">Hourly Rate ($) <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="hourlyRate"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={hourlyRate}
+                        onChange={(e) => setHourlyRate(e.target.value)}
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="serviceName">Service Name</Label>
+                      <Input
+                        id="serviceName"
+                        value={serviceName}
+                        onChange={(e) => setServiceName(e.target.value)}
+                        placeholder="e.g., Consulting, Installation"
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                <div className="space-y-2 pt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="useContractor" 
+                        checked={useContractor}
+                        onCheckedChange={setUseContractor}
+                      />
+                      <Label htmlFor="useContractor" className="font-normal">Project uses contractor</Label>
+                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <div className="text-sm">
+                          <p>Enable this option if the project uses external contractors with different rates.</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">Option 2: Add codes manually</Label>
-                    
-                    <div className="space-y-2">
-                      {manualBillingCodes.map((code, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Input
-                            placeholder="Code"
-                            value={code.code}
-                            onChange={(e) => updateBillingCodeField(index, 'code', e.target.value)}
-                            className="flex-1"
-                          />
-                          <Input
-                            placeholder="Description"
-                            value={code.description}
-                            onChange={(e) => updateBillingCodeField(index, 'description', e.target.value)}
-                            className="flex-1"
-                          />
-                          <Input
-                            placeholder="Rate/Unit"
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={code.ratePerFoot}
-                            onChange={(e) => updateBillingCodeField(index, 'ratePerFoot', e.target.value)}
-                            className="flex-1"
-                          />
-                          <Select
-                            value={code.unitType}
-                            onValueChange={(value) => updateBillingCodeField(index, 'unitType', value)}
-                          >
-                            <SelectTrigger className="w-[110px]">
-                              <SelectValue placeholder="Unit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="foot">Foot</SelectItem>
-                              <SelectItem value="meter">Meter</SelectItem>
-                              <SelectItem value="each">Each</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeBillingCodeRow(index)}
-                            disabled={manualBillingCodes.length === 1}
-                            className="flex-none"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                  {useContractor && (
+                    <div className="pt-2">
+                      <Label htmlFor="contractorRate">Contractor Margin (%) <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="contractorRate"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={contractorHourlyRate}
+                        onChange={(e) => setContractorHourlyRate(e.target.value)}
+                        placeholder="0"
+                        className="mt-1"
+                      />
                     </div>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={addBillingCodeRow}
-                      className="mt-2"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Billing Code
-                    </Button>
-                  </div>
+                  )}
                 </div>
+                
+                {billingType === 'unit' && (
+                  <div className="space-y-2 pt-2">
+                    <Label className="block mb-2">Billing Codes</Label>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Option 1: Import from CSV</Label>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Upload a CSV file with columns: code, description, rate, unitType
+                        </p>
+                        <CSVImporter onDataImported={handleCSVData} />
+                        
+                        {billingCodes.length > 0 && (
+                          <div className="mt-2">
+                            <p className="text-sm font-medium">{billingCodes.length} billing codes imported</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Option 2: Add codes manually</Label>
+                        
+                        <div className="space-y-2">
+                          {manualBillingCodes.map((code, index) => (
+                            <div key={index} className="grid grid-cols-12 gap-2 items-center">
+                              <div className="col-span-6 sm:col-span-3">
+                                <Input
+                                  placeholder="Code"
+                                  value={code.code}
+                                  onChange={(e) => updateBillingCodeField(index, 'code', e.target.value)}
+                                />
+                              </div>
+                              <div className="col-span-6 sm:col-span-3">
+                                <Input
+                                  placeholder="Description"
+                                  value={code.description}
+                                  onChange={(e) => updateBillingCodeField(index, 'description', e.target.value)}
+                                />
+                              </div>
+                              <div className="col-span-6 sm:col-span-2">
+                                <Input
+                                  placeholder="Rate/Unit"
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={code.ratePerFoot}
+                                  onChange={(e) => updateBillingCodeField(index, 'ratePerFoot', e.target.value)}
+                                />
+                              </div>
+                              <div className="col-span-5 sm:col-span-3">
+                                <Select
+                                  value={code.unitType}
+                                  onValueChange={(value) => updateBillingCodeField(index, 'unitType', value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Unit" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="foot">Foot</SelectItem>
+                                    <SelectItem value="meter">Meter</SelectItem>
+                                    <SelectItem value="each">Each</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="col-span-1">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => removeBillingCodeRow(index)}
+                                  disabled={manualBillingCodes.length === 1}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addBillingCodeRow}
+                          className="mt-2"
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add Billing Code
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          </ScrollArea>
           
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 pt-4 bg-background mt-auto">
             <Button type="button" variant="outline" onClick={closeAddProjectDialog}>
               Cancel
             </Button>
