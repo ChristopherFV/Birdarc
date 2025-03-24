@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import WorkEntriesPage from "./pages/WorkEntriesPage";
 import RepositoryPage from "./pages/RepositoryPage";
 import ProjectsPage from "./pages/ProjectsPage";
+import SettingsPage from "./pages/SettingsPage";
 import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
               <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />
               <Route path="/projects" element={<MainLayout><ProjectsPage /></MainLayout>} />
+              <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>} />
               <Route path="/technician" element={<TechnicianWindow />} />
               <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
               <Route path="*" element={<NotFound />} />

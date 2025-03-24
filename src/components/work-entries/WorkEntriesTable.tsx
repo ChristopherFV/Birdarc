@@ -1,45 +1,26 @@
-
 import React from 'react';
-import { format } from 'date-fns';
-import { useApp } from '@/context/AppContext';
-import { Pencil, ArrowUp, ArrowDown } from 'lucide-react';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatDistance } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
-} from '@/components/ui/pagination';
-import { WorkEntry } from '@/types/app-types';
-import { CheckCircle2, Mail, Circle } from 'lucide-react';
+import { Pencil } from 'lucide-react';
+import { Pagination } from '@/components/ui/pagination';
+import { Badge } from '@/components/ui/badge';
+import { WorkEntry, SortColumn, SortDirection } from '@/types/app-types';
 
-type SortColumn = 'date' | 'project' | 'teamMember' | 'billingCode' | 'status' | 'feetCompleted' | 'revenue' | null;
-type SortDirection = 'asc' | 'desc';
-
-interface WorkEntriesTableProps {
+export interface WorkEntriesTableProps {
   entries: WorkEntry[];
   sortColumn: SortColumn;
   sortDirection: SortDirection;
   currentPage: number;
-  setCurrentPage: (page: number) => void;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   handleSort: (column: SortColumn) => void;
   onEditEntry: (entry: WorkEntry) => void;
-  selectMode: boolean;
-  selectedEntries: Record<string, boolean>;
-  handleSelectEntry: (entryId: string, isChecked: boolean) => void;
-  handleSelectAll: (isChecked: boolean) => void;
+  selectMode?: boolean;
+  selectedEntries?: Set<string>;
+  handleSelectEntry?: (id: string) => void;
+  handleSelectAll?: () => void;
+  renderActions?: (entry: WorkEntry) => React.ReactNode;
 }
 
 export const WorkEntriesTable: React.FC<WorkEntriesTableProps> = ({
@@ -50,239 +31,143 @@ export const WorkEntriesTable: React.FC<WorkEntriesTableProps> = ({
   setCurrentPage,
   handleSort,
   onEditEntry,
-  selectMode,
-  selectedEntries,
-  handleSelectEntry,
-  handleSelectAll
+  selectMode = false,
+  selectedEntries = new Set(),
+  handleSelectEntry = () => {},
+  handleSelectAll = () => {},
+  renderActions
 }) => {
-  const { projects, teamMembers, billingCodes, calculateRevenue } = useApp();
-  const entriesPerPage = 10;
-  const totalPages = Math.ceil(entries.length / entriesPerPage);
-  const paginatedEntries = entries.slice(
-    (currentPage - 1) * entriesPerPage, 
-    currentPage * entriesPerPage
-  );
-  
-  const renderSortIcon = (column: SortColumn) => {
-    if (sortColumn !== column) return null;
-    
-    return sortDirection === 'asc' 
-      ? <ArrowUp size={14} className="ml-1" /> 
-      : <ArrowDown size={14} className="ml-1" />;
+  // Helper function to show sort direction indicator
+  const getSortIndicator = (direction: SortDirection) => {
+    return direction === 'asc' ? '↑' : '↓';
   };
   
-  const getProjectName = (projectId: string) => {
-    const project = projects.find(p => p.id === projectId);
-    return project?.name || 'Unknown Project';
-  };
-  
-  const getBillingCodeInfo = (billingCodeId: string) => {
-    return billingCodes.find(b => b.id === billingCodeId);
-  };
-  
-  const getTeamMemberName = (teamMemberId: string) => {
-    const member = teamMembers.find(m => m.id === teamMemberId);
-    return member?.name || 'Unknown';
-  };
-  
-  const getInvoiceStatusBadge = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return (
-          <Badge variant="soft-green" className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center">
-            <CheckCircle2 size={14} className="text-green-600" />
-            <span>Paid</span>
-          </Badge>
-        );
-      case 'invoiced':
-        return (
-          <Badge variant="soft-orange" className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center">
-            <Mail size={14} className="text-orange-600" />
-            <span>Invoiced</span>
-          </Badge>
-        );
-      case 'not_invoiced':
-      default:
-        return (
-          <Badge variant="soft-gray" className="shadow-sm px-2.5 py-1 flex items-center gap-1.5 min-w-[90px] justify-center">
-            <Circle size={14} className="text-slate-500" />
-            <span>Not Invoiced</span>
-          </Badge>
-        );
-    }
-  };
-
-  if (paginatedEntries.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-        <FileText size={32} className="mb-3 opacity-70" />
-        <p className="text-lg">No work entries found</p>
-        <p className="text-sm max-w-md mt-1">
-          Try adjusting your search or filter criteria to find what you're looking for.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <>
+    <div className="space-y-4">
       <Table>
         <TableHeader>
           <TableRow>
             {selectMode && (
-              <TableHead className="w-10 pr-0">
-                <Checkbox 
-                  id="select-all" 
-                  onCheckedChange={(checked) => handleSelectAll(checked === true)}
-                  className="ml-1"
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={entries.length > 0 && entries.every(entry => selectedEntries.has(entry.id))}
+                  onCheckedChange={handleSelectAll}
                 />
               </TableHead>
             )}
             <TableHead 
-              className="cursor-pointer"
+              className="w-[180px] cursor-pointer"
               onClick={() => handleSort('date')}
             >
-              <div className="flex items-center">
-                Date
-                {renderSortIcon('date')}
-              </div>
+              Date {sortColumn === 'date' && getSortIndicator(sortDirection)}
             </TableHead>
             <TableHead 
-              className="cursor-pointer" 
+              className="cursor-pointer"
               onClick={() => handleSort('project')}
             >
-              <div className="flex items-center">
-                Project
-                {renderSortIcon('project')}
-              </div>
+              Project {sortColumn === 'project' && getSortIndicator(sortDirection)}
             </TableHead>
             <TableHead 
-              className="cursor-pointer" 
+              className="cursor-pointer"
               onClick={() => handleSort('teamMember')}
             >
-              <div className="flex items-center">
-                Team Member
-                {renderSortIcon('teamMember')}
-              </div>
+              Team Member {sortColumn === 'teamMember' && getSortIndicator(sortDirection)}
             </TableHead>
             <TableHead 
-              className="cursor-pointer" 
+              className="cursor-pointer"
               onClick={() => handleSort('billingCode')}
             >
-              <div className="flex items-center">
-                Billing Code
-                {renderSortIcon('billingCode')}
-              </div>
+              Billing Code {sortColumn === 'billingCode' && getSortIndicator(sortDirection)}
             </TableHead>
             <TableHead 
-              className="cursor-pointer" 
-              onClick={() => handleSort('status')}
+              className="cursor-pointer text-right"
+              onClick={() => handleSort('footage')}
             >
-              <div className="flex items-center">
-                Status
-                {renderSortIcon('status')}
-              </div>
+              Footage {sortColumn === 'footage' && getSortIndicator(sortDirection)}
             </TableHead>
             <TableHead 
-              className="text-right cursor-pointer" 
-              onClick={() => handleSort('feetCompleted')}
-            >
-              <div className="flex items-center justify-end">
-                Feet Completed
-                {renderSortIcon('feetCompleted')}
-              </div>
-            </TableHead>
-            <TableHead 
-              className="text-right cursor-pointer" 
+              className="cursor-pointer text-right"
               onClick={() => handleSort('revenue')}
             >
-              <div className="flex items-center justify-end">
-                Revenue
-                {renderSortIcon('revenue')}
-              </div>
+              Revenue {sortColumn === 'revenue' && getSortIndicator(sortDirection)}
             </TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="w-[100px] text-center">Status</TableHead>
+            <TableHead className="w-[100px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginatedEntries.map((entry) => {
-            const billingCode = getBillingCodeInfo(entry.billingCodeId);
-            const revenue = calculateRevenue(entry, billingCodes);
-            const isSelectable = entry.invoiceStatus === 'not_invoiced';
-            
-            return (
-              <TableRow key={entry.id} className="hover:bg-muted/40">
+          {entries.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={selectMode ? 9 : 8} className="text-center h-32 text-muted-foreground">
+                No work entries found
+              </TableCell>
+            </TableRow>
+          ) : (
+            entries.map(entry => (
+              <TableRow key={entry.id}>
                 {selectMode && (
-                  <TableCell className="pr-0">
-                    {isSelectable ? (
-                      <Checkbox 
-                        id={`select-${entry.id}`}
-                        checked={selectedEntries[entry.id] || false}
-                        onCheckedChange={(checked) => handleSelectEntry(entry.id, checked === true)}
-                        className="ml-1"
-                      />
-                    ) : (
-                      <div className="w-4 h-4 ml-1"></div>
-                    )}
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedEntries.has(entry.id)}
+                      onCheckedChange={() => handleSelectEntry(entry.id)}
+                    />
                   </TableCell>
                 )}
-                <TableCell>{format(new Date(entry.date), 'MMM d, yyyy')}</TableCell>
-                <TableCell>{getProjectName(entry.projectId)}</TableCell>
-                <TableCell>{getTeamMemberName(entry.teamMemberId)}</TableCell>
-                <TableCell>{billingCode?.code}</TableCell>
-                <TableCell>{getInvoiceStatusBadge(entry.invoiceStatus)}</TableCell>
-                <TableCell className="text-right">{entry.feetCompleted} ft</TableCell>
-                <TableCell className="text-right font-medium">${revenue.toFixed(2)}</TableCell>
-                <TableCell className="text-right">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => onEditEntry(entry)}
-                    title="Edit work entry"
+                <TableCell className="font-medium">
+                  {new Date(entry.date).toLocaleDateString()}
+                  <div className="text-xs text-muted-foreground">
+                    {formatDistance(new Date(entry.date), new Date(), { addSuffix: true })}
+                  </div>
+                </TableCell>
+                <TableCell>{entry.projectId}</TableCell>
+                <TableCell>{entry.teamMemberId}</TableCell>
+                <TableCell>{entry.billingCodeId}</TableCell>
+                <TableCell className="text-right">{entry.footage} ft</TableCell>
+                <TableCell className="text-right">${entry.revenue.toFixed(2)}</TableCell>
+                <TableCell className="text-center">
+                  <Badge
+                    variant={
+                      entry.invoiceStatus === 'uninvoiced' ? 'outline' :
+                      entry.invoiceStatus === 'invoiced' ? 'default' :
+                      entry.invoiceStatus === 'paid' ? 'success' : 'secondary'
+                    }
                   >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
+                    {entry.invoiceStatus.charAt(0).toUpperCase() + entry.invoiceStatus.slice(1)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  {renderActions ? (
+                    renderActions(entry)
+                  ) : (
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      onClick={() => onEditEntry(entry)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
-            );
-          })}
+            ))
+          )}
         </TableBody>
       </Table>
       
-      {totalPages > 1 && (
-        <div className="py-4 border-t">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-              
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink 
-                    isActive={currentPage === i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              
-              <PaginationItem>
-                <PaginationNext 
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
-    </>
+      {/* Pagination */}
+      <div className="flex items-center justify-end space-x-2">
+        <Pagination
+          totalItems={entries.length}
+          itemsPerPage={10}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+    </div>
   );
 };
 
-import { FileText } from 'lucide-react';
+// Helper function to show sort direction indicator
+const getSortIndicator = (direction: SortDirection) => {
+  return direction === 'asc' ? '↑' : '↓';
+};
