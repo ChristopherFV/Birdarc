@@ -3,8 +3,7 @@ import React from 'react';
 import { 
   Sidebar, 
   SidebarContent,
-  useSidebar,
-  SidebarRail
+  useSidebar
 } from "@/components/ui/sidebar";
 import { SidebarHeader } from './SidebarHeader';
 import { SidebarMainNav } from './SidebarMainNav';
@@ -19,7 +18,6 @@ export const AppSidebar: React.FC = () => {
   return (
     <>
       <Sidebar className="bg-white border-r border-fieldvision-orange/50 shadow-sm">
-        <SidebarRail />
         <SidebarHeader />
         
         <SidebarContent>
