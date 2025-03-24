@@ -4,6 +4,7 @@ import { useApp } from '@/context/AppContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Bell, LogOut, Settings, User } from 'lucide-react';
+import { useSidebar } from "@/components/ui/sidebar";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,8 @@ import {
 
 export const Navbar: React.FC = () => {
   const { selectedCompany } = useApp();
+  const { toggleSidebar, state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   
   // Using placeholder user data since currentUser is not available in context
   const user = {
@@ -26,8 +29,27 @@ export const Navbar: React.FC = () => {
   
   return (
     <div className="h-16 border-b border-border bg-background px-6 md:px-8 flex items-center justify-between w-full sticky top-0 z-50">
-      {/* Left side with company logo/name */}
+      {/* Left side with sidebar toggle and company logo/name */}
       <div className="flex items-center gap-3">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={toggleSidebar}
+          className="flex items-center gap-1 border border-border self-start mr-3"
+        >
+          {isCollapsed ? (
+            <>
+              <ArrowRight className="h-3 w-3" />
+              <span className="text-xs">Menu</span>
+            </>
+          ) : (
+            <>
+              <ArrowLeft className="h-3 w-3" />
+              <span className="text-xs">Hide</span>
+            </>
+          )}
+        </Button>
+        
         <div className="flex items-center">
           <div className="w-8 h-8 rounded-full bg-fieldvision-blue flex items-center justify-center text-white mr-3">
             <span className="text-sm font-semibold">A</span>
