@@ -18,9 +18,10 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [shouldExportMap, setShouldExportMap] = useState(true);
   
   const handleCompleteReview = () => {
-    if (mapNotes.length > 0) {
+    if (mapNotes.length > 0 && shouldExportMap) {
       setExportDialogOpen(true);
     } else {
       setConfirmDialogOpen(true);
@@ -83,6 +84,8 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
     handleCompleteReview,
     completeTask,
     exportAsGeoJSON,
-    exportAsKMZ
+    exportAsKMZ,
+    shouldExportMap,
+    setShouldExportMap
   };
 };

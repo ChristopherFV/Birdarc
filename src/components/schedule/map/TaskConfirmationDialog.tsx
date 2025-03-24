@@ -11,15 +11,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Check, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TaskConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
-  onWorkEntry?: () => void; // New prop for work entry form
+  onWorkEntry?: () => void; // Prop for work entry form
   actionType: 'complete' | 'cancel';
   taskTitle: string;
-  projectId?: string; // Added projectId prop
+  projectId?: string; // ProjectId prop
+  shouldExportMap?: boolean;
+  setShouldExportMap?: (value: boolean) => void;
 }
 
 export const TaskConfirmationDialog: React.FC<TaskConfirmationDialogProps> = ({
@@ -30,6 +33,8 @@ export const TaskConfirmationDialog: React.FC<TaskConfirmationDialogProps> = ({
   actionType,
   taskTitle,
   projectId,
+  shouldExportMap = true,
+  setShouldExportMap
 }) => {
   const handleConfirm = () => {
     onConfirm();
@@ -65,6 +70,23 @@ export const TaskConfirmationDialog: React.FC<TaskConfirmationDialogProps> = ({
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
+        
+        {actionType === 'complete' && setShouldExportMap && (
+          <div className="flex items-center space-x-2 py-4">
+            <Checkbox 
+              id="export-map" 
+              checked={shouldExportMap}
+              onCheckedChange={(checked) => setShouldExportMap(checked === true)}
+            />
+            <label 
+              htmlFor="export-map" 
+              className="text-sm font-medium cursor-pointer"
+            >
+              Export map notes before closing
+            </label>
+          </div>
+        )}
+        
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction 
