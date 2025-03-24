@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { SidebarProvider, SidebarInset, useSidebar } from "@/components/ui/sidebar";
 import { useApp } from '@/context/AppContext';
@@ -5,6 +6,7 @@ import { AppSidebar } from './sidebar/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Company } from '@/types/app-types';
+import { Navbar } from './navbar/Navbar';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -23,9 +25,10 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         />
         
         <SidebarInset>
-          <main className="w-full">
-            <div className="sticky top-0 z-40 bg-background pb-4">
-              <HeaderSection selectedCompany={selectedCompany} />
+          <main className="w-full flex flex-col">
+            <Navbar />
+            <div className="sticky top-16 z-40 bg-background pb-4">
+              <HeaderSection />
             </div>
             <div className="p-6 md:p-8 max-w-7xl mx-auto w-full">
               {children}
@@ -37,27 +40,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   );
 };
 
-// Create a header section component that includes toggle button and company name
-const HeaderSection = ({ selectedCompany }: { selectedCompany: Company }) => {
-  const { toggleSidebar, state } = useSidebar();
-  const isCollapsed = state === "collapsed";
-  
+// Create a header section component that includes toggle button
+const HeaderSection = () => {
   return (
     <div className="px-6 md:px-8 pt-4">
       <ToggleButton />
-      
-      {isCollapsed && (
-        <div className="mt-2 mb-1">
-          <div className="flex items-center">
-            <div className="w-7 h-7 rounded-full bg-fieldvision-blue/20 flex items-center justify-center text-fieldvision-blue text-xs font-medium">
-              {selectedCompany.name.charAt(0)}{selectedCompany.name.split(' ')[1]?.charAt(0) || ''}
-            </div>
-            <span className="ml-2.5 text-sm font-medium truncate">
-              {selectedCompany.name}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
