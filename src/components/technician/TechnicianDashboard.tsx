@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSchedule, Task } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -50,8 +49,8 @@ export const TechnicianDashboard: React.FC = () => {
       setMapboxToken(storedToken);
       setShowMapTokenInput(false);
     } else {
-      // Default test token if none is stored
-      const defaultToken = "pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg";
+      // Default test token if none stored
+      const defaultToken = "pk.eyJ1IjoiY2h1Y2swZGIsImEiOiJjbTFwdHYzN0oZGIzMm1wdHYzIn0.KUTPcuD8hk7VOzTYJ5WODg";
       setMapboxToken(defaultToken);
       localStorage.setItem('mapbox_token', defaultToken);
     }
@@ -193,7 +192,7 @@ export const TechnicianDashboard: React.FC = () => {
                               className="text-xs"
                               onClick={(e) => {
                                 e.preventDefault();
-                                onOpenWorkEntry(task.projectId);
+                                handleOpenWorkEntry(task.projectId);
                               }}
                             >
                               Log Hours
