@@ -8,7 +8,7 @@ import {
   ChevronRight 
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
-import { formatCurrency, formatDate } from '@/utils/charts';
+import { formatCurrency } from '@/utils/charts';
 import { 
   Card, 
   CardContent, 
@@ -17,6 +17,7 @@ import {
   CardDescription 
 } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { format } from 'date-fns';
 
 export const RecentWorkEntries: React.FC = () => {
   const { workEntries, projects, billingCodes, teamMembers } = useApp();
@@ -45,7 +46,12 @@ export const RecentWorkEntries: React.FC = () => {
   const calculateRevenue = (entry: any) => {
     const code = billingCodes.find(c => c.id === entry.billingCodeId);
     if (!code) return 0;
-    return code.rate * entry.feetCompleted;
+    return code.ratePerFoot * entry.feetCompleted;
+  };
+
+  // Helper function to format dates since formatDate isn't available from utils/charts
+  const formatDate = (date: Date): string => {
+    return format(date, 'MMM d, yyyy');
   };
 
   if (isMobile) {
