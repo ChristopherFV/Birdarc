@@ -138,9 +138,6 @@ export const TechnicianDashboard: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Add the production chart outside the tabs for visibility across all views */}
-      <ProductionOverviewChart completedTasks={completedTasks} />
-      
       <div className="flex flex-col items-center justify-center mt-4 mb-4 sm:mb-6">
         <img 
           src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 

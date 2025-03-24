@@ -119,10 +119,13 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
 
   // Process data for the chart based on filters
   const chartData = useMemo(() => {
-    if (completedTasks.length === 0) return [];
+    // Use sample data if no tasks provided
+    const tasksToProcess = completedTasks.length > 0 ? completedTasks : sampleCompletedTasks;
+    
+    if (tasksToProcess.length === 0) return [];
 
     // Filter tasks based on project if selected
-    let filteredTasks = completedTasks;
+    let filteredTasks = tasksToProcess;
     if (selectedProject) {
       filteredTasks = filteredTasks.filter(task => task.projectId === selectedProject);
     }
@@ -198,8 +201,8 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
   }, [completedTasks, groupBy, selectedProject, dateRange, selectedTeamMember]);
 
   // Calculate max values for scaling
-  const maxUnits = Math.max(...chartData.map(item => item.units || 0));
-  const maxCumulative = Math.max(...chartData.map(item => item.cumulativeUnits || 0));
+  const maxUnits = Math.max(...chartData.map(item => item.units || 0), 1);
+  const maxCumulative = Math.max(...chartData.map(item => item.cumulativeUnits || 0), 1);
   const dataScale = maxCumulative > maxUnits * 5 ? 1.2 : 2;
 
   // Custom tooltip component
@@ -300,6 +303,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
                   fill="url(#colorUnits)" 
                   radius={[4, 4, 0, 0]}
                   animationDuration={1000}
+                  minPointSize={3}
                 />
                 <Line 
                   yAxisId="right" 
