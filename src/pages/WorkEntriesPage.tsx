@@ -10,6 +10,9 @@ import { useWorkEntries } from '@/hooks/useWorkEntries';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { InvoicingStatusChart } from '@/components/invoicing/InvoicingStatusChart';
 import { FilterBar } from '@/components/ui/FilterBar';
+import { AIInsightsPanel } from '@/components/ai/AIInsightsPanel';
+import { useApp } from '@/context/AppContext';
+import { useSchedule } from '@/context/ScheduleContext';
 
 const WorkEntriesPage: React.FC = () => {
   const {
@@ -35,6 +38,10 @@ const WorkEntriesPage: React.FC = () => {
     handleCancelInvoice
   } = useWorkEntries();
   
+  // Get context data for AI insights
+  const { billingCodes, projects, teamMembers } = useApp();
+  const { tasks } = useSchedule();
+  
   const isMobile = useIsMobile();
   
   return (
@@ -50,6 +57,15 @@ const WorkEntriesPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-6">
         {/* Filter Bar - Always visible at the top */}
         <FilterBar />
+        
+        {/* AI Insights Panel */}
+        <AIInsightsPanel 
+          workEntries={sortedEntries}
+          billingCodes={billingCodes}
+          projects={projects}
+          teamMembers={teamMembers}
+          tasks={tasks}
+        />
         
         {/* Invoicing Status Chart */}
         <InvoicingStatusChart />
