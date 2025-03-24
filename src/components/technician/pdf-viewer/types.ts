@@ -18,13 +18,6 @@ export interface ScreenOrientationAPI {
   dispatchEvent?: (event: Event) => boolean;
 }
 
-// Extend the existing Screen interface instead of redefining window.screen
-declare global {
-  interface Screen {
-    orientation?: ScreenOrientationAPI;
-  }
-}
-
 export type DrawingTool = 'pen' | 'text' | 'circle' | 'square';
 
 export interface PdfViewerProps {
