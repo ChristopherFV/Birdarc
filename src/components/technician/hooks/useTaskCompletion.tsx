@@ -1,14 +1,30 @@
 
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { MapNote } from '../TechnicianLocationMap';
+import { 
+  notesToGeoJSON, 
+  notesToKMZ, 
+  downloadFile 
+} from '@/utils/mapExportUtils';
 
-export const useTaskCompletion = () => {
+interface UseTaskCompletionOptions {
+  mapNotes?: MapNote[];
+}
+
+export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
+  const { mapNotes = [] } = options;
   const { toast } = useToast();
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   
   const handleCompleteReview = () => {
-    setConfirmDialogOpen(true);
+    if (mapNotes.length > 0) {
+      setExportDialogOpen(true);
+    } else {
+      setConfirmDialogOpen(true);
+    }
   };
   
   const completeTask = () => {
@@ -18,13 +34,55 @@ export const useTaskCompletion = () => {
     });
     setWorkEntryDialogOpen(true);
   };
+
+  const exportAsGeoJSON = () => {
+    try {
+      const geoJSON = notesToGeoJSON(mapNotes);
+      downloadFile(geoJSON, 'fieldvision-notes.geojson');
+      
+      toast({
+        title: "Export successful",
+        description: "Map notes exported as GeoJSON",
+      });
+    } catch (error) {
+      console.error('Error exporting GeoJSON:', error);
+      toast({
+        title: "Export failed",
+        description: "There was an error exporting your notes",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const exportAsKMZ = async () => {
+    try {
+      const kmzBlob = await notesToKMZ(mapNotes);
+      downloadFile(kmzBlob, 'fieldvision-notes.kmz');
+      
+      toast({
+        title: "Export successful",
+        description: "Map notes exported as KMZ file",
+      });
+    } catch (error) {
+      console.error('Error exporting KMZ:', error);
+      toast({
+        title: "Export failed",
+        description: "There was an error exporting your notes",
+        variant: "destructive"
+      });
+    }
+  };
   
   return {
     workEntryDialogOpen,
     setWorkEntryDialogOpen,
     confirmDialogOpen,
     setConfirmDialogOpen,
+    exportDialogOpen,
+    setExportDialogOpen,
     handleCompleteReview,
-    completeTask
+    completeTask,
+    exportAsGeoJSON,
+    exportAsKMZ
   };
 };

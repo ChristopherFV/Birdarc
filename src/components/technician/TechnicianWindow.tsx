@@ -8,6 +8,7 @@ import { TechnicianMobileSummary } from './TechnicianMobileSummary';
 import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 import { TechnicianMainContent } from './TechnicianMainContent';
 import { TechnicianSidebar } from './TechnicianSidebar';
+import { TechnicianExportDialog } from './TechnicianExportDialog';
 import { useTechnicianMap } from './hooks/useTechnicianMap';
 import { useTechnicianNotes } from './hooks/useTechnicianNotes';
 import { useTechnicianTask } from './hooks/useTechnicianTask';
@@ -30,8 +31,9 @@ export const TechnicianWindow: React.FC = () => {
   
   const { 
     workEntryDialogOpen, setWorkEntryDialogOpen, confirmDialogOpen, 
-    setConfirmDialogOpen, handleCompleteReview, completeTask 
-  } = useTaskCompletion();
+    setConfirmDialogOpen, exportDialogOpen, setExportDialogOpen,
+    handleCompleteReview, completeTask, exportAsGeoJSON, exportAsKMZ
+  } = useTaskCompletion({ mapNotes });
   
   const { currentTool, setCurrentTool } = useDrawingTools();
   
@@ -54,6 +56,15 @@ export const TechnicianWindow: React.FC = () => {
         onConfirm={completeTask}
         actionType="complete"
         taskTitle={taskData.title}
+      />
+      
+      <TechnicianExportDialog 
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        onExportGeoJSON={exportAsGeoJSON}
+        onExportKMZ={exportAsKMZ}
+        onSkip={() => setConfirmDialogOpen(true)}
+        hasNotes={mapNotes.length > 0}
       />
       
       <TechnicianHeader
