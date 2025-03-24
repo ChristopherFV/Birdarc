@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSchedule, Task, TaskStatus } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -162,7 +161,6 @@ export const TechnicianDashboard: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-                <DashboardFooter />
               </TabsContent>
             </Tabs>
           </div>
@@ -243,12 +241,9 @@ export const TechnicianDashboard: React.FC = () => {
               />
             </div>
           </div>
-          
-          <DashboardFooter />
         </div>
       </ScrollArea>
       
-      {/* Replace the existing PageFooter with updated version */}
       <PageFooter
         backLink="/technician"
         backLabel="My Tasks"
