@@ -20,7 +20,7 @@ export const TechnicianDashboard: React.FC = () => {
   const { tasks } = useSchedule();
   const { projects } = useApp();
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
-  const [mapboxToken, setMapboxToken] = useState<string>("");
+  const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   const [showMapTokenInput, setShowMapTokenInput] = useState(false);
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -44,15 +44,8 @@ export const TechnicianDashboard: React.FC = () => {
       setCompletedTasks(tasksWithDates);
     }
     
-    // Get the mapbox token from localStorage if available
-    const storedToken = localStorage.getItem('mapbox_token');
-    if (storedToken) {
-      setMapboxToken(storedToken);
-      setShowMapTokenInput(false);
-    } else {
-      // Without a valid token, we'll show the input
-      setShowMapTokenInput(true);
-    }
+    // We're now using the hardcoded token, so we don't need to check localStorage
+    setShowMapTokenInput(false);
   }, []);
 
   // Open work entry dialog
@@ -83,43 +76,41 @@ export const TechnicianDashboard: React.FC = () => {
         
         {/* Main layout with two column grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          {/* Left column with chart and map */}
+          {/* Left column with chart and map in a vertical layout */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Production Chart */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">
-                    <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="h-[280px]">
-                    <ProductionOverviewChart completedTasks={completedTasks} />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Map */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">
-                    <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Task Map" />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="h-[280px]">
-                    <TechDashboardMap 
-                      tasks={[...assignedTasks, ...completedTasks]}
-                      mapboxToken={mapboxToken}
-                      showMapTokenInput={showMapTokenInput}
-                      setMapboxToken={setMapboxToken}
-                      setShowMapTokenInput={setShowMapTokenInput}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Production Chart - Now placed above the map */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="h-[280px]">
+                  <ProductionOverviewChart completedTasks={completedTasks} />
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Map - Now below the chart */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Task Map" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="h-[280px]">
+                  <TechDashboardMap 
+                    tasks={[...assignedTasks, ...completedTasks]}
+                    mapboxToken={mapboxToken}
+                    showMapTokenInput={showMapTokenInput}
+                    setMapboxToken={setMapboxToken}
+                    setShowMapTokenInput={setShowMapTokenInput}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
           {/* Right column with task cards */}
