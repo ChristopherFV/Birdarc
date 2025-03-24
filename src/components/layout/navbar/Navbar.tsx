@@ -3,6 +3,8 @@ import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useSidebar } from "@/components/ui/sidebar";
+import { ArrowLeft, ArrowRight, LogOut, Settings, User } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -11,10 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const { selectedCompany } = useApp();
+  const { toggleSidebar, state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   
   // Using placeholder user data since currentUser is not available in context
   const user = {
@@ -24,9 +27,27 @@ export const Navbar: React.FC = () => {
   };
   
   return (
-    <div className="h-16 border-b border-border bg-background px-6 md:px-8 flex items-center justify-between">
-      {/* Company name on the left */}
-      <div className="flex items-center">
+    <div className="h-16 border-b border-border bg-background px-6 md:px-8 flex items-center justify-between z-50">
+      {/* Left side with toggle button and company name */}
+      <div className="flex items-center gap-3">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={toggleSidebar}
+          className="flex items-center gap-1 border border-border"
+        >
+          {isCollapsed ? (
+            <>
+              <ArrowRight className="h-3 w-3" />
+              <span className="text-xs">Menu</span>
+            </>
+          ) : (
+            <>
+              <ArrowLeft className="h-3 w-3" />
+              <span className="text-xs">Hide</span>
+            </>
+          )}
+        </Button>
         <h1 className="text-lg font-medium">{selectedCompany.name}</h1>
       </div>
       
