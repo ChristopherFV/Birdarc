@@ -64,7 +64,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname === '/'} tooltip="Dashboard">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={location.pathname === '/'} 
+                      tooltip="Dashboard"
+                      className={location.pathname === '/' ? 'bg-primary/10 text-primary font-medium' : ''}
+                    >
                       <Link to="/">
                         <LayoutDashboard />
                         <span>Dashboard</span>
@@ -73,25 +78,39 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                   </SidebarMenuItem>
                   
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname === '/work-entries'} tooltip="Work Entries">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={location.pathname === '/work-entries'} 
+                      tooltip="Invoices"
+                      className={location.pathname === '/work-entries' ? 'bg-primary/10 text-primary font-medium' : ''}
+                    >
                       <Link to="/work-entries">
                         <ListTodo />
-                        <span>Work Entries</span>
+                        <span>Invoices</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname === '/repository'} tooltip="Repository">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={location.pathname === '/repository'} 
+                      tooltip="FieldVision"
+                      className={location.pathname === '/repository' ? 'bg-primary/10 text-primary font-medium' : ''}
+                    >
                       <Link to="/repository">
                         <FileText />
-                        <span>Repository</span>
+                        <span>FieldVision</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip="Projects">
+                    <SidebarMenuButton 
+                      asChild 
+                      tooltip="Projects"
+                      className={location.pathname === '#' ? 'bg-primary/10 text-primary font-medium' : ''}
+                    >
                       <Link to="#">
                         <Building2 />
                         <span>Projects</span>
@@ -107,7 +126,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname === '/technician'} tooltip="Technician">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={location.pathname === '/technician'} 
+                      tooltip="Technician"
+                      className={location.pathname === '/technician' ? 'bg-primary/10 text-primary font-medium' : ''}
+                    >
                       <Link to="/technician">
                         <HardHat />
                         <span>My Tasks</span>
@@ -116,7 +140,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                   </SidebarMenuItem>
                   
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname === '/technician/dashboard'} tooltip="Tech Dashboard">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={location.pathname === '/technician/dashboard'} 
+                      tooltip="Tech Dashboard"
+                      className={location.pathname === '/technician/dashboard' ? 'bg-primary/10 text-primary font-medium' : ''}
+                    >
                       <Link to="/technician/dashboard">
                         <LayoutDashboard />
                         <span>Tech Dashboard</span>
@@ -131,7 +160,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Settings">
+                <SidebarMenuButton 
+                  asChild 
+                  tooltip="Settings"
+                  className={location.pathname === '#settings' ? 'bg-primary/10 text-primary font-medium' : ''}
+                >
                   <Link to="#">
                     <Settings />
                     <span>Settings</span>
@@ -140,7 +173,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
               </SidebarMenuItem>
               
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Logout">
+                <SidebarMenuButton 
+                  asChild 
+                  tooltip="Logout"
+                  className={location.pathname === '#logout' ? 'bg-primary/10 text-primary font-medium' : ''}
+                >
                   <Link to="#">
                     <LogOut />
                     <span>Logout</span>
