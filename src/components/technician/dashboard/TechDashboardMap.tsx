@@ -1,6 +1,5 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapIcon } from 'lucide-react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -136,36 +135,32 @@ export const TechDashboardMap: React.FC<TechDashboardMapProps> = ({
   }, [tasks]);
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <MapIcon className="h-5 w-5" />
-          Task Map
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {showMapTokenInput ? (
-          <div className="p-4 border rounded-md">
-            <p className="text-sm mb-2">Please enter your Mapbox token to view the map:</p>
-            <form onSubmit={handleSetMapboxToken} className="flex gap-2">
-              <input
-                type="text"
-                name="mapboxToken"
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="Enter your Mapbox token"
-              />
-              <button type="submit" className="bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm">
-                Set Token
-              </button>
-            </form>
-            <p className="text-xs text-muted-foreground mt-2">
-              You can get a token at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">mapbox.com</a>
-            </p>
-          </div>
-        ) : (
-          <div ref={mapContainer} className="h-[500px] w-full rounded-md"></div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="mb-0">
+      <div className="flex items-center gap-2 font-semibold text-lg mb-2">
+        <MapIcon className="h-5 w-5" />
+        Task Map
+      </div>
+      {showMapTokenInput ? (
+        <div className="p-4 border rounded-md">
+          <p className="text-sm mb-2">Please enter your Mapbox token to view the map:</p>
+          <form onSubmit={handleSetMapboxToken} className="flex gap-2">
+            <input
+              type="text"
+              name="mapboxToken"
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="Enter your Mapbox token"
+            />
+            <button type="submit" className="bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm">
+              Set Token
+            </button>
+          </form>
+          <p className="text-xs text-muted-foreground mt-2">
+            You can get a token at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">mapbox.com</a>
+          </p>
+        </div>
+      ) : (
+        <div ref={mapContainer} className="h-[300px] w-full rounded-md"></div>
+      )}
+    </div>
   );
 };

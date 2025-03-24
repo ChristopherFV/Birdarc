@@ -14,7 +14,13 @@ import {
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import { DateRangeType, GroupByType } from '@/context/AppContext';
 
-export const FilterBar: React.FC = () => {
+interface FilterBarProps {
+  technicianView?: boolean;
+}
+
+export const FilterBar: React.FC<FilterBarProps> = ({ 
+  technicianView = false 
+}) => {
   const { 
     projects,
     teamMembers,
@@ -90,9 +96,9 @@ export const FilterBar: React.FC = () => {
   };
   
   const getSelectedTeamMemberName = () => {
-    if (!selectedTeamMember) return 'All Team Members';
+    if (!selectedTeamMember) return technicianView ? 'My Team' : 'All Team Members';
     const member = teamMembers.find(m => m.id === selectedTeamMember);
-    return member ? member.name : 'All Team Members';
+    return member ? member.name : technicianView ? 'My Team' : 'All Team Members';
   };
   
   const getSelectedBillingCodeName = () => {
@@ -291,6 +297,7 @@ export const FilterBar: React.FC = () => {
           )}
         </div>
         
+        {/* Modified team member filter for technician view */}
         <div className="relative">
           <button
             onClick={() => {
@@ -313,32 +320,59 @@ export const FilterBar: React.FC = () => {
                 className="fixed inset-0 z-50" 
                 onClick={() => setShowTeamMenu(false)}
               />
-              <div className="absolute mt-1 z-50 w-64 bg-card shadow-card rounded-md border border-border animate-in slide-in-from-top-5 max-h-64 overflow-y-auto">
+              <div className="absolute mt-1 z-50 w-48 bg-card shadow-card rounded-md border border-border animate-in slide-in-from-top-5">
                 <div className="p-1">
-                  <button
-                    onClick={() => handleTeamMemberChange(null)}
-                    className={`
-                      w-full flex items-center px-3 py-2 text-sm rounded-md
-                      ${!selectedTeamMember ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                    `}
-                  >
-                    <span>All Team Members</span>
-                    {!selectedTeamMember && <Check size={14} className="ml-auto" />}
-                  </button>
-                  
-                  {teamMembers.map((member) => (
-                    <button
-                      key={member.id}
-                      onClick={() => handleTeamMemberChange(member.id)}
-                      className={`
-                        w-full flex items-center px-3 py-2 text-sm rounded-md
-                        ${selectedTeamMember === member.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
-                      `}
-                    >
-                      <span className="truncate">{member.name}</span>
-                      {selectedTeamMember === member.id && <Check size={14} className="ml-auto flex-shrink-0" />}
-                    </button>
-                  ))}
+                  {technicianView ? (
+                    <>
+                      <button
+                        onClick={() => handleTeamMemberChange(null)}
+                        className={`
+                          w-full flex items-center px-3 py-2 text-sm rounded-md
+                          ${!selectedTeamMember ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                        `}
+                      >
+                        <span>My Team</span>
+                        {!selectedTeamMember && <Check size={14} className="ml-auto" />}
+                      </button>
+                      <button
+                        onClick={() => handleTeamMemberChange('current-user')}
+                        className={`
+                          w-full flex items-center px-3 py-2 text-sm rounded-md
+                          ${selectedTeamMember === 'current-user' ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                        `}
+                      >
+                        <span>Just Me</span>
+                        {selectedTeamMember === 'current-user' && <Check size={14} className="ml-auto" />}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleTeamMemberChange(null)}
+                        className={`
+                          w-full flex items-center px-3 py-2 text-sm rounded-md
+                          ${!selectedTeamMember ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                        `}
+                      >
+                        <span>All Team Members</span>
+                        {!selectedTeamMember && <Check size={14} className="ml-auto" />}
+                      </button>
+                      
+                      {teamMembers.map((member) => (
+                        <button
+                          key={member.id}
+                          onClick={() => handleTeamMemberChange(member.id)}
+                          className={`
+                            w-full flex items-center px-3 py-2 text-sm rounded-md
+                            ${selectedTeamMember === member.id ? 'bg-secondary/80 font-medium' : 'hover:bg-secondary'}
+                          `}
+                        >
+                          <span className="truncate">{member.name}</span>
+                          {selectedTeamMember === member.id && <Check size={14} className="ml-auto flex-shrink-0" />}
+                        </button>
+                      ))}
+                    </>
+                  )}
                 </div>
               </div>
             </>

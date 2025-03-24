@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSchedule, Task } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { useApp } from '@/context/AppContext';
-import { Calendar, CheckCheck, Clock, MapIcon, PlusCircle } from 'lucide-react';
+import { Calendar, CheckCheck, Clock, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -91,14 +92,6 @@ export const TechnicianDashboard: React.FC = () => {
           <div className="flex space-x-2">
             <Button 
               onClick={() => handleOpenWorkEntry()} 
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-            >
-              <Clock className="h-4 w-4" /> Log Time
-            </Button>
-            <Button 
-              onClick={() => handleOpenWorkEntry()} 
               variant="default" 
               size="sm"
               className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
@@ -108,7 +101,7 @@ export const TechnicianDashboard: React.FC = () => {
           </div>
         </div>
         
-        <FilterBar />
+        <FilterBar technicianView={true} />
         
         {/* Main layout grid with production on top, map in middle, tasks on right */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
@@ -240,22 +233,13 @@ export const TechnicianDashboard: React.FC = () => {
           
           {/* Map (spans 2 columns on large screens) */}
           <div className="lg:col-span-2">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">
-                  <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Task Map" />
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 pt-2">
-                <TechDashboardMap 
-                  tasks={[...assignedTasks, ...completedTasks]}
-                  mapboxToken={mapboxToken}
-                  showMapTokenInput={showMapTokenInput}
-                  setMapboxToken={setMapboxToken}
-                  setShowMapTokenInput={setShowMapTokenInput}
-                />
-              </CardContent>
-            </Card>
+            <TechDashboardMap 
+              tasks={[...assignedTasks, ...completedTasks]}
+              mapboxToken={mapboxToken}
+              showMapTokenInput={showMapTokenInput}
+              setMapboxToken={setMapboxToken}
+              setShowMapTokenInput={setShowMapTokenInput}
+            />
           </div>
         </div>
         
