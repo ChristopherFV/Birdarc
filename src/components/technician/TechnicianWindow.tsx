@@ -11,7 +11,7 @@ import { TechnicianTaskSelector } from './TechnicianTaskSelector';
 import { useSchedule, Task } from '@/context/ScheduleContext';
 import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 import { TechnicianHeader } from './TechnicianHeader';
-import { TechnicianLocationMap } from './TechnicianLocationMap';
+import { TechnicianLocationMap, MapNote } from './TechnicianLocationMap';
 import { TechnicianMobileSummary } from './TechnicianMobileSummary';
 import { TechnicianPdfViewer } from './TechnicianPdfViewer';
 import { TechnicianNotesTab } from './TechnicianNotesTab';
@@ -26,6 +26,9 @@ export const TechnicianWindow: React.FC = () => {
   const [showMapTokenInput, setShowMapTokenInput] = useState(false);
   const [showMobileTools, setShowMobileTools] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string>("task-123");
+  const [mapNotes, setMapNotes] = useState<MapNote[]>([]);
+  const [generalNotes, setGeneralNotes] = useState<string>('');
+  const [mapVisible, setMapVisible] = useState(true);
   
   const isMobile = useIsMobile();
   const { tasks } = useSchedule();
@@ -92,6 +95,22 @@ export const TechnicianWindow: React.FC = () => {
     });
   };
   
+  const addMapNote = (note: MapNote) => {
+    setMapNotes(prev => [...prev, note]);
+  };
+  
+  const deleteMapNote = (id: string) => {
+    setMapNotes(prev => prev.filter(note => note.id !== id));
+  };
+  
+  const saveGeneralNotes = (notes: string) => {
+    setGeneralNotes(notes);
+  };
+  
+  const handleMapVisibilityChange = (visible: boolean) => {
+    setMapVisible(visible);
+  };
+  
   return (
     <div className="flex flex-col h-screen bg-background">
       <TechnicianWorkEntryDialog 
@@ -132,15 +151,20 @@ export const TechnicianWindow: React.FC = () => {
       
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-auto p-2 sm:p-4">
-          <div className="mb-2 sm:mb-4">
-            <TechnicianLocationMap
-              location={taskData.location}
-              mapboxToken={mapboxToken}
-              showMapTokenInput={showMapTokenInput}
-              setShowMapTokenInput={setShowMapTokenInput}
-              setMapboxToken={setMapboxToken}
-            />
-          </div>
+          {mapVisible && (
+            <div className="mb-2 sm:mb-4">
+              <TechnicianLocationMap
+                location={taskData.location}
+                mapboxToken={mapboxToken}
+                showMapTokenInput={showMapTokenInput}
+                setShowMapTokenInput={setShowMapTokenInput}
+                setMapboxToken={setMapboxToken}
+                notes={mapNotes}
+                addNote={addMapNote}
+                onMapVisibilityChange={handleMapVisibilityChange}
+              />
+            </div>
+          )}
           
           <TechnicianPdfViewer
             currentTool={currentTool}
@@ -170,7 +194,12 @@ export const TechnicianWindow: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="notes" className="p-4">
-                <TechnicianNotesTab />
+                <TechnicianNotesTab 
+                  notes={mapNotes}
+                  deleteNote={deleteMapNote}
+                  saveGeneralNotes={saveGeneralNotes}
+                  generalNotes={generalNotes}
+                />
               </TabsContent>
             </Tabs>
           </div>
