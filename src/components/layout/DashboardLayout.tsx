@@ -1,60 +1,168 @@
 
 import React from 'react';
 import { useApp } from '@/context/AppContext';
-import { Sidebar } from './Sidebar';
-import { Search, Bell, User } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  LayoutDashboard, 
+  ListTodo, 
+  FileText, 
+  Settings, 
+  Building2, 
+  LogOut,
+  HardHat
+} from 'lucide-react';
+import { CompanySelector } from '@/components/ui/CompanySelector';
+import { Link } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const { selectedCompany } = useApp();
+  const { companies, selectedCompany, setSelectedCompany } = useApp();
+  const [collapsed, setCollapsed] = React.useState(false);
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        {/* Top navigation */}
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center px-6 sticky top-0 z-10">
-          <div className="flex-1 flex items-center">
-            <div className="max-w-md w-full relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search for anything..."
-                className="w-full h-10 pl-10 pr-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-fieldvision-blue/30 focus:border-fieldvision-blue"
+      <div 
+        className={`${
+          collapsed ? 'w-16' : 'w-64'
+        } flex flex-col bg-card border-r border-border fixed h-full transition-all duration-300 ease-in-out z-10`}
+      >
+        {/* Logo */}
+        <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 h-16 border-b border-border`}>
+          {!collapsed && (
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+                alt="Fieldvision Logo" 
+                className="h-8" 
               />
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <button className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100">
-              <Bell size={20} />
-            </button>
-            
-            <div className="flex items-center">
-              <div className="text-right mr-3">
-                <div className="font-medium">Anima Agrawal</div>
-                <div className="text-sm text-gray-500">U.P, India</div>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                <User className="h-6 w-6 text-gray-600" />
-              </div>
+          )}
+          {collapsed && (
+            <div className="w-8 h-8 bg-fieldvision-blue rounded-md flex items-center justify-center">
+              <span className="text-white font-bold">FV</span>
             </div>
-          </div>
-        </header>
+          )}
+          <button 
+            onClick={() => setCollapsed(!collapsed)}
+            className="rounded-full p-1 hover:bg-muted text-muted-foreground"
+          >
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
+        </div>
 
-        {/* Page content */}
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            {children}
+        {/* Company selector */}
+        {!collapsed && (
+          <div className="px-4 pt-4 pb-2">
+            <CompanySelector 
+              companies={companies}
+              selectedCompany={selectedCompany}
+              onChange={setSelectedCompany}
+            />
           </div>
-        </main>
+        )}
+
+        {/* Nav links */}
+        <nav className="flex-1 pt-4">
+          <ul className="space-y-1 px-2">
+            <NavItem 
+              icon={<LayoutDashboard size={20} />} 
+              label="Dashboard" 
+              href="/" 
+              collapsed={collapsed} 
+              active={location.pathname === '/'}
+            />
+            <NavItem 
+              icon={<ListTodo size={20} />} 
+              label="Work Entries" 
+              href="/work-entries" 
+              collapsed={collapsed} 
+              active={location.pathname === '/work-entries'}
+            />
+            <NavItem 
+              icon={<FileText size={20} />} 
+              label="Repository" 
+              href="/repository" 
+              collapsed={collapsed}
+              active={location.pathname === '/repository'} 
+            />
+            <NavItem 
+              icon={<Building2 size={20} />} 
+              label="Projects" 
+              href="#" 
+              collapsed={collapsed} 
+            />
+            <NavItem 
+              icon={<HardHat size={20} />} 
+              label="Technician" 
+              href="/technician" 
+              collapsed={collapsed}
+              active={location.pathname.startsWith('/technician')} 
+            />
+            <NavItem 
+              icon={<LayoutDashboard size={20} />} 
+              label="Tech Dashboard" 
+              href="/technician/dashboard" 
+              collapsed={collapsed}
+              active={location.pathname === '/technician/dashboard'} 
+            />
+            <NavItem 
+              icon={<Settings size={20} />} 
+              label="Settings" 
+              href="#" 
+              collapsed={collapsed} 
+            />
+          </ul>
+        </nav>
+
+        {/* Footer */}
+        <div className="mt-auto border-t border-border py-4 px-2">
+          <NavItem 
+            icon={<LogOut size={20} />} 
+            label="Logout" 
+            href="#" 
+            collapsed={collapsed} 
+          />
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className={`flex-1 ${collapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}>
+        <main className="p-6 md:p-8 max-w-7xl mx-auto">{children}</main>
       </div>
     </div>
+  );
+};
+
+interface NavItemProps {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+  collapsed: boolean;
+  active?: boolean;
+}
+
+const NavItem: React.FC<NavItemProps> = ({ icon, label, href, collapsed, active }) => {
+  return (
+    <li>
+      <Link 
+        to={href}
+        className={`
+          flex items-center ${collapsed ? 'justify-center' : 'justify-start'} px-3 py-2.5 
+          rounded-md transition-colors duration-200
+          ${active 
+            ? 'bg-fieldvision-blue/10 text-fieldvision-blue font-medium' 
+            : 'text-foreground/70 hover:bg-secondary hover:text-foreground'
+          }
+        `}
+      >
+        <span className="flex-shrink-0">{icon}</span>
+        {!collapsed && <span className="ml-3">{label}</span>}
+      </Link>
+    </li>
   );
 };
