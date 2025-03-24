@@ -54,8 +54,8 @@ export const WorkEntriesHeader: React.FC<WorkEntriesHeaderProps> = ({
           </Button>
           
           <Button 
-            variant={selectMode ? "secondary" : "default"}
-            className="flex items-center gap-1 h-9 px-3 bg-fieldvision-blue hover:bg-fieldvision-blue/90"
+            variant="blue"
+            className="flex items-center gap-1 h-9 px-3"
             size="sm"
             onClick={handleCreateInvoice}
           >

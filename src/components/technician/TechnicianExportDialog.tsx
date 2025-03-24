@@ -56,7 +56,7 @@ export const TechnicianExportDialog: React.FC<TechnicianExportDialogProps> = ({
             <div className="flex flex-col gap-3">
               <Button 
                 onClick={handleExportGeoJSON} 
-                className="flex items-center justify-start gap-2"
+                className="flex items-center justify-start gap-2 bg-fieldvision-blue hover:bg-fieldvision-blue/90 text-white"
                 variant="outline"
               >
                 <FileType className="h-4 w-4" />
@@ -65,7 +65,7 @@ export const TechnicianExportDialog: React.FC<TechnicianExportDialogProps> = ({
               
               <Button 
                 onClick={handleExportKMZ} 
-                className="flex items-center justify-start gap-2"
+                className="flex items-center justify-start gap-2 bg-fieldvision-blue hover:bg-fieldvision-blue/90 text-white"
                 variant="outline"
               >
                 <FileType className="h-4 w-4" />

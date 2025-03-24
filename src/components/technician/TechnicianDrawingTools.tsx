@@ -29,40 +29,44 @@ export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
   
   return (
     <>
-      <Card>
-        <CardHeader className="py-2">
-          <CardTitle className="text-sm">Drawing Tools</CardTitle>
+      <Card className="border-fieldvision-blue">
+        <CardHeader className="py-2 bg-fieldvision-blue/10">
+          <CardTitle className="text-sm text-fieldvision-blue">Drawing Tools</CardTitle>
         </CardHeader>
         <CardContent className="py-2 space-y-2">
           <div className="flex flex-wrap gap-2">
             <Button 
-              variant={currentTool === 'pen' ? 'orange' : 'outline'} 
+              variant={currentTool === 'pen' ? 'default' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('pen')}
+              className={currentTool === 'pen' ? 'bg-fieldvision-blue hover:bg-fieldvision-blue/90' : ''}
             >
               <Pencil className="h-4 w-4 mr-2" />
               Pen
             </Button>
             <Button 
-              variant={currentTool === 'text' ? 'orange' : 'outline'} 
+              variant={currentTool === 'text' ? 'default' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('text')}
+              className={currentTool === 'text' ? 'bg-fieldvision-blue hover:bg-fieldvision-blue/90' : ''}
             >
               <Type className="h-4 w-4 mr-2" />
               Text
             </Button>
             <Button 
-              variant={currentTool === 'circle' ? 'orange' : 'outline'} 
+              variant={currentTool === 'circle' ? 'default' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('circle')}
+              className={currentTool === 'circle' ? 'bg-fieldvision-blue hover:bg-fieldvision-blue/90' : ''}
             >
               <Circle className="h-4 w-4 mr-2" />
               Circle
             </Button>
             <Button 
-              variant={currentTool === 'square' ? 'orange' : 'outline'} 
+              variant={currentTool === 'square' ? 'default' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('square')}
+              className={currentTool === 'square' ? 'bg-fieldvision-blue hover:bg-fieldvision-blue/90' : ''}
             >
               <Square className="h-4 w-4 mr-2" />
               Square
@@ -71,9 +75,9 @@ export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
         </CardContent>
       </Card>
       
-      <Card>
-        <CardHeader className="py-2">
-          <CardTitle className="text-sm">Tool Properties</CardTitle>
+      <Card className="border-fieldvision-blue">
+        <CardHeader className="py-2 bg-fieldvision-blue/10">
+          <CardTitle className="text-sm text-fieldvision-blue">Tool Properties</CardTitle>
         </CardHeader>
         <CardContent className="py-2">
           <div className="space-y-3">
@@ -84,7 +88,7 @@ export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
                   <button
                     key={color}
                     className={`w-6 h-6 rounded-full hover:ring-2 hover:ring-offset-1 ${
-                      color === currentColor ? 'ring-2 ring-ring ring-offset-1' : ''
+                      color === currentColor ? 'ring-2 ring-fieldvision-blue ring-offset-1' : ''
                     }`}
                     style={{ backgroundColor: color }}
                     aria-label={`Select ${color} color`}
@@ -101,7 +105,7 @@ export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
                   <button
                     key={width}
                     className={`w-8 h-8 border border-border rounded flex items-center justify-center hover:bg-muted ${
-                      width === currentWidth ? 'bg-muted' : ''
+                      width === currentWidth ? 'bg-fieldvision-blue/10 border-fieldvision-blue' : ''
                     }`}
                     onClick={() => setCurrentWidth(width)}
                   >

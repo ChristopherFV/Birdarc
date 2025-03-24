@@ -29,10 +29,10 @@ export const MapControls: React.FC<MapControlsProps> = ({
         <Button 
           variant="ghost" 
           size="sm" 
-          className={`text-xs h-7 px-2 ${isAddingPin ? 'bg-orange-100' : ''}`}
+          className={`text-xs h-7 px-2 ${isAddingPin ? 'bg-fieldvision-blue/10 text-fieldvision-blue' : ''}`}
           onClick={togglePinMode}
         >
-          <Pin className="h-3 w-3 mr-1" color={isAddingPin ? '#F18E1D' : 'currentColor'} />
+          <Pin className="h-3 w-3 mr-1" color={isAddingPin ? '#00b6cf' : 'currentColor'} />
           <span className="hidden sm:inline">{isAddingPin ? 'Cancel' : 'Add Pin'}</span>
           <span className="sm:hidden">{isAddingPin ? 'Cancel' : 'Pin'}</span>
         </Button>
