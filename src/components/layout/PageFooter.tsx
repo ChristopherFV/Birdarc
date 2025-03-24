@@ -54,7 +54,7 @@ export const PageFooter: React.FC<PageFooterProps> = ({
               <Link to="/technician/dashboard">
                 <MenubarItem>
                   <LayoutDashboard className="h-4 w-4 mr-2" />
-                  Dashboard
+                  Home
                 </MenubarItem>
               </Link>
               <Link to="/technician">
