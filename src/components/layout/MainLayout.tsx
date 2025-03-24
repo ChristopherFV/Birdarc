@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { SidebarProvider, SidebarInset, useSidebar } from "@/components/ui/sidebar";
 import { useApp } from '@/context/AppContext';
 import { AppSidebar } from './sidebar/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { Company } from '@/types/app-types';
 
 interface MainLayoutProps {
   children: React.ReactNode;
