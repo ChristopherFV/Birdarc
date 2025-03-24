@@ -14,7 +14,6 @@ import { motion } from 'framer-motion';
 import { TechDashboardMap } from './dashboard/TechDashboardMap';
 import { ProductionOverviewChart } from './dashboard/ProductionOverviewChart';
 import { TasksOverview } from './dashboard/TasksOverview';
-import { TimeEntryCard } from './dashboard/TimeEntryCard';
 import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 
 export const TechnicianDashboard: React.FC = () => {
@@ -87,7 +86,7 @@ export const TechnicianDashboard: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       whileHover={{ scale: 1.01 }}
-      className={`h-full ${className}`}
+      className={`w-full ${className}`}
     >
       {children}
     </motion.div>
@@ -104,89 +103,76 @@ export const TechnicianDashboard: React.FC = () => {
         
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-bold">Technician Dashboard</h1>
-          <Button 
-            onClick={() => handleOpenWorkEntry()} 
-            variant="default" 
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <PlusCircle className="h-4 w-4 mr-2" /> Log Work Entry
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              onClick={() => handleOpenWorkEntry()} 
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Clock className="h-4 w-4" /> Log Time
+            </Button>
+            <Button 
+              onClick={() => handleOpenWorkEntry()} 
+              variant="default" 
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
+            >
+              <PlusCircle className="h-4 w-4" /> Log Work
+            </Button>
+          </div>
         </div>
         
         <FilterBar />
         
-        {/* Responsive grid layout */}
-        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
+        {/* Vertical full-width layout */}
+        <div className="flex flex-col space-y-6 w-full">
           {/* Section 1: Tasks */}
-          <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
-            <AnimatedCard>
-              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
-                  <SectionHeader icon={<Calendar className="h-5 w-5" />} title="Tasks" />
-                </CardHeader>
-                <CardContent>
-                  <TasksOverview 
-                    assignedTasks={assignedTasks}
-                    completedTasks={completedTasks}
-                    onOpenWorkEntry={handleOpenWorkEntry}
-                    getProjectName={getProjectName}
-                  />
-                </CardContent>
-              </Card>
-            </AnimatedCard>
-          </div>
+          <AnimatedCard>
+            <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
+                <SectionHeader icon={<Calendar className="h-5 w-5" />} title="Tasks" />
+              </CardHeader>
+              <CardContent>
+                <TasksOverview 
+                  assignedTasks={assignedTasks}
+                  completedTasks={completedTasks}
+                  onOpenWorkEntry={handleOpenWorkEntry}
+                  getProjectName={getProjectName}
+                />
+              </CardContent>
+            </Card>
+          </AnimatedCard>
           
           {/* Section 2: Map View */}
-          <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
-            <AnimatedCard>
-              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
-                  <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Map View" />
-                </CardHeader>
-                <CardContent className="p-0 pt-2">
-                  <TechDashboardMap 
-                    tasks={[...assignedTasks, ...completedTasks]}
-                    mapboxToken={mapboxToken}
-                    showMapTokenInput={showMapTokenInput}
-                    setMapboxToken={setMapboxToken}
-                    setShowMapTokenInput={setShowMapTokenInput}
-                  />
-                </CardContent>
-              </Card>
-            </AnimatedCard>
-          </div>
+          <AnimatedCard>
+            <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
+                <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Map View" />
+              </CardHeader>
+              <CardContent className="p-0 pt-2">
+                <TechDashboardMap 
+                  tasks={[...assignedTasks, ...completedTasks]}
+                  mapboxToken={mapboxToken}
+                  showMapTokenInput={showMapTokenInput}
+                  setMapboxToken={setMapboxToken}
+                  setShowMapTokenInput={setShowMapTokenInput}
+                />
+              </CardContent>
+            </Card>
+          </AnimatedCard>
           
           {/* Section 3: Production */}
-          <div className={`${isMobile ? '' : 'col-span-2'}`}>
-            <AnimatedCard>
-              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
-                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production" />
-                </CardHeader>
-                <CardContent>
-                  <ProductionOverviewChart completedTasks={completedTasks} />
-                </CardContent>
-              </Card>
-            </AnimatedCard>
-          </div>
-          
-          {/* Section 4: Timesheet */}
-          <div className={`${isMobile ? '' : 'col-span-2'}`}>
-            <AnimatedCard>
-              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
-                  <SectionHeader icon={<Clock className="h-5 w-5" />} title="Timesheet" />
-                </CardHeader>
-                <CardContent>
-                  <TimeEntryCard 
-                    onOpenWorkEntry={() => handleOpenWorkEntry()}
-                    completedTasks={completedTasks}
-                    getProjectName={getProjectName}
-                  />
-                </CardContent>
-              </Card>
-            </AnimatedCard>
-          </div>
+          <AnimatedCard>
+            <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
+                <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production" />
+              </CardHeader>
+              <CardContent>
+                <ProductionOverviewChart completedTasks={completedTasks} />
+              </CardContent>
+            </Card>
+          </AnimatedCard>
         </div>
         
         <div className="flex flex-col items-center justify-center mt-4 mb-4 sm:mb-6">
