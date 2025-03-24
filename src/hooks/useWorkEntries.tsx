@@ -1,11 +1,9 @@
+
 import { useState, useMemo } from 'react';
 import { useApp } from '@/context/AppContext';
-import { WorkEntry } from '@/types/app-types';
+import { WorkEntry, SortColumn, SortDirection } from '@/types/app-types';
 import { useToast } from '@/hooks/use-toast';
 import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
-
-type SortColumn = 'date' | 'project' | 'teamMember' | 'billingCode' | 'status' | 'feetCompleted' | 'revenue' | null;
-type SortDirection = 'asc' | 'desc';
 
 export const useWorkEntries = () => {
   const { 
@@ -30,9 +28,18 @@ export const useWorkEntries = () => {
   
   const filteredEntries = getFilteredEntries();
   
+  // Add computed properties to entries for compatibility
+  const entriesWithComputedProps = useMemo(() => {
+    return filteredEntries.map(entry => ({
+      ...entry,
+      footage: entry.feetCompleted, // Alias for feetCompleted
+      revenue: calculateRevenue(entry, billingCodes) // Compute revenue
+    }));
+  }, [filteredEntries, calculateRevenue, billingCodes]);
+  
   // Filter entries by search term
   const searchFilteredEntries = useMemo(() => {
-    return filteredEntries.filter(entry => {
+    return entriesWithComputedProps.filter(entry => {
       const projectName = projects.find(p => p.id === entry.projectId)?.name || '';
       const teamMemberName = teamMembers.find(t => t.id === entry.teamMemberId)?.name || '';
       const searchTerms = [
@@ -44,7 +51,7 @@ export const useWorkEntries = () => {
       
       return search === '' || searchTerms.includes(search.toLowerCase());
     });
-  }, [filteredEntries, search, projects, teamMembers]);
+  }, [entriesWithComputedProps, search, projects, teamMembers]);
   
   // Sort entries
   const sortedEntries = useMemo(() => {
@@ -75,17 +82,13 @@ export const useWorkEntries = () => {
           valueA = codeA;
           valueB = codeB;
           break;
-        case 'status':
-          valueA = a.invoiceStatus;
-          valueB = b.invoiceStatus;
-          break;
-        case 'feetCompleted':
+        case 'footage':
           valueA = a.feetCompleted;
           valueB = b.feetCompleted;
           break;
         case 'revenue':
-          valueA = calculateRevenue(a, billingCodes);
-          valueB = calculateRevenue(b, billingCodes);
+          valueA = a.revenue;
+          valueB = b.revenue;
           break;
         default:
           valueA = new Date(a.date).getTime();
@@ -98,7 +101,7 @@ export const useWorkEntries = () => {
         return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
       }
     });
-  }, [searchFilteredEntries, sortColumn, sortDirection, projects, teamMembers, billingCodes, calculateRevenue]);
+  }, [searchFilteredEntries, sortColumn, sortDirection, projects, teamMembers, billingCodes]);
   
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -135,10 +138,23 @@ export const useWorkEntries = () => {
   const calculateTotalSelectedRevenue = () => {
     return sortedEntries
       .filter(entry => selectedEntries[entry.id])
-      .reduce((sum, entry) => sum + calculateRevenue(entry, billingCodes), 0);
+      .reduce((sum, entry) => sum + (entry.revenue || 0), 0);
   };
   
   const handleCreateInvoice = () => {
+    if (!selectMode) {
+      setSelectMode(true);
+      return;
+    }
+    
+    if (selectedCount === 0) {
+      toast({
+        title: "No entries selected",
+        description: "Please select at least one work entry to create an invoice."
+      });
+      return;
+    }
+    
     openAddInvoiceDialog();
   };
   

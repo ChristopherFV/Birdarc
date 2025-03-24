@@ -71,6 +71,23 @@ const WorkEntriesPage: React.FC = () => {
     return project ? project.name : 'Unknown Project';
   };
   
+  // Convert Record<string, boolean> to Set<string> for table component
+  const selectedEntriesSet = new Set(
+    Object.entries(selectedEntries)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => id)
+  );
+  
+  // Wrapper functions to adapt the handlers to the table component's expected signature
+  const handleSelectEntryAdapter = (id: string) => {
+    handleSelectEntry(id, !selectedEntries[id]);
+  };
+  
+  const handleSelectAllAdapter = () => {
+    const allSelected = sortedEntries.every(entry => selectedEntries[entry.id]);
+    handleSelectAll(!allSelected);
+  };
+  
   return (
     <SimplePageLayout 
       title="Invoicing" 
@@ -120,9 +137,9 @@ const WorkEntriesPage: React.FC = () => {
                 handleSort={handleSort}
                 onEditEntry={handleEditEntry}
                 selectMode={selectMode}
-                selectedEntries={selectedEntries}
-                handleSelectEntry={handleSelectEntry}
-                handleSelectAll={handleSelectAll}
+                selectedEntries={selectedEntriesSet}
+                handleSelectEntry={handleSelectEntryAdapter}
+                handleSelectAll={handleSelectAllAdapter}
                 renderActions={(entry) => (
                   entry.invoiceStatus === 'invoiced' && (
                     <Button 

@@ -2,6 +2,8 @@
 export type DateRangeType = 'day' | 'week' | 'month' | 'custom';
 export type GroupByType = 'day' | 'week' | 'month' | 'year';
 export type BillingUnitType = 'foot' | 'meter' | 'each';
+export type SortColumn = 'date' | 'project' | 'teamMember' | 'billingCode' | 'footage' | 'revenue' | null;
+export type SortDirection = 'asc' | 'desc';
 
 export type Project = {
   id: string;
@@ -55,6 +57,9 @@ export type WorkEntry = {
     lng: number;
     address?: string;
   };
+  // Adding these computed properties for compatibility
+  footage?: number; // Alias for feetCompleted
+  revenue?: number; // Computed property
 };
 
 export type Company = {

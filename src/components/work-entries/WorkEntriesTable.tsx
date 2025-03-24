@@ -1,12 +1,13 @@
+
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDistance } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Pencil } from 'lucide-react';
-import { Pagination } from '@/components/ui/pagination';
 import { Badge } from '@/components/ui/badge';
 import { WorkEntry, SortColumn, SortDirection } from '@/types/app-types';
+import { PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, Pagination as PaginationRoot } from '@/components/ui/pagination';
 
 export interface WorkEntriesTableProps {
   entries: WorkEntry[];
@@ -122,12 +123,12 @@ export const WorkEntriesTable: React.FC<WorkEntriesTableProps> = ({
                 <TableCell>{entry.projectId}</TableCell>
                 <TableCell>{entry.teamMemberId}</TableCell>
                 <TableCell>{entry.billingCodeId}</TableCell>
-                <TableCell className="text-right">{entry.footage} ft</TableCell>
-                <TableCell className="text-right">${entry.revenue.toFixed(2)}</TableCell>
+                <TableCell className="text-right">{entry.feetCompleted} ft</TableCell>
+                <TableCell className="text-right">${entry.revenue?.toFixed(2) || '0.00'}</TableCell>
                 <TableCell className="text-center">
                   <Badge
                     variant={
-                      entry.invoiceStatus === 'uninvoiced' ? 'outline' :
+                      entry.invoiceStatus === 'not_invoiced' ? 'outline' :
                       entry.invoiceStatus === 'invoiced' ? 'default' :
                       entry.invoiceStatus === 'paid' ? 'success' : 'secondary'
                     }
@@ -154,20 +155,37 @@ export const WorkEntriesTable: React.FC<WorkEntriesTableProps> = ({
         </TableBody>
       </Table>
       
-      {/* Pagination */}
+      {/* Custom pagination implementation */}
       <div className="flex items-center justify-end space-x-2">
-        <Pagination
-          totalItems={entries.length}
-          itemsPerPage={10}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
+        <PaginationRoot>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+            
+            {Array.from({ length: Math.min(5, Math.ceil(entries.length / 10)) }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink 
+                  isActive={currentPage === page}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(Math.min(Math.ceil(entries.length / 10), currentPage + 1))}
+                className={currentPage === Math.ceil(entries.length / 10) ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </PaginationRoot>
       </div>
     </div>
   );
-};
-
-// Helper function to show sort direction indicator
-const getSortIndicator = (direction: SortDirection) => {
-  return direction === 'asc' ? '↑' : '↓';
 };
