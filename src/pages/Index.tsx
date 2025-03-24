@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
@@ -50,16 +49,18 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
-            <FilterBar />
-            <RevenueChart />
-            <ProductionChart />
-          </div>
-          
-          <div className="lg:col-span-1 flex flex-col space-y-4" style={{ minHeight: isMobile ? 'auto' : 'calc(840px + 1.5rem)' }}>
-            <WorkEntryForm />
-            <RecentInvoices />
+        <div className="space-y-4 md:space-y-6 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
+              <FilterBar />
+              <RevenueChart />
+              <ProductionChart />
+            </div>
+            
+            <div className="lg:col-span-1 flex flex-col space-y-4" style={{ minHeight: 'auto' }}>
+              <WorkEntryForm />
+              <RecentInvoices />
+            </div>
           </div>
           
           <RecentWorkEntries />

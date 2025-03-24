@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Calendar, 
@@ -123,7 +122,7 @@ export const RecentWorkEntries: React.FC = () => {
     <Card className="w-full shadow-sm bg-white">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-xl font-semibold">Recent Work</CardTitle>
+          <CardTitle className="text-xl font-semibold">Recent Work Entries</CardTitle>
           <Link to="/work-entries">
             <Button variant="ghost" size="sm" className="text-fieldvision-blue flex items-center">
               View All <ChevronRight className="h-4 w-4 ml-1" />
