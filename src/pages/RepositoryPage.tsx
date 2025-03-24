@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { useSchedule } from '@/context/ScheduleContext';
@@ -51,7 +52,7 @@ const RepositoryPage = () => {
       showFooter={true}
       footerProps={{
         backLink: "/",
-        backLabel: "Dashboard"
+        backLabel: "Home"
       }}
     >
       <RepositoryHeader 

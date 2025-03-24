@@ -44,7 +44,7 @@ const WorkEntriesPage: React.FC = () => {
       showFooter={true}
       footerProps={{
         backLink: "/",
-        backLabel: "Dashboard"
+        backLabel: "Home"
       }}
     >
       <div className="grid grid-cols-1 gap-6">
