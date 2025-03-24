@@ -7,11 +7,21 @@ export type Project = {
   id: string;
   name: string;
   client: string;
+  status?: string;
+  progress?: number;
+  lastUpdated?: string;
   billingType?: 'hourly' | 'unit';
   hourlyRate?: number;
   serviceName?: string;
   useContractor?: boolean;
   contractorHourlyRate?: number;
+  location?: string;
+  totalFootage?: number;
+  completedFootage?: number;
+  startDate?: string;
+  estimatedCompletion?: string;
+  budget?: number;
+  description?: string;
 };
 
 export type BillingCode = {
