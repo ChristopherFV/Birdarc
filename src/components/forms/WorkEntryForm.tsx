@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useWorkEntryForm } from '@/hooks/useWorkEntryForm';
 import { DateSelector } from '@/components/forms/work-entry/DateSelector';
@@ -37,7 +36,6 @@ export const WorkEntryForm: React.FC = () => {
   const { getTasksByProjectId, updateMultipleTasks } = useSchedule();
   const { toast } = useToast();
 
-  // Fetch related tasks when project is selected
   useEffect(() => {
     if (formData.projectId) {
       const projectTasks = getTasksByProjectId(formData.projectId);
@@ -45,11 +43,9 @@ export const WorkEntryForm: React.FC = () => {
     } else {
       setRelatedTasks([]);
     }
-    // Reset selected tasks when project changes
     setSelectedTaskIds([]);
   }, [formData.projectId, getTasksByProjectId]);
 
-  // Handle task selection
   const handleTaskSelection = (taskId: string, checked: boolean) => {
     if (checked) {
       setSelectedTaskIds(prev => [...prev, taskId]);
@@ -58,15 +54,12 @@ export const WorkEntryForm: React.FC = () => {
     }
   };
 
-  // Enhanced submit handler to also complete selected tasks
   const enhancedSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      // Call the original submit handler
       await handleSubmit(e);
       
-      // If tasks were selected, mark them as completed
       if (selectedTaskIds.length > 0) {
         const updatedTasks = relatedTasks
           .filter(task => selectedTaskIds.includes(task.id))
@@ -89,7 +82,6 @@ export const WorkEntryForm: React.FC = () => {
   
   return (
     <div className="space-y-4 h-full flex flex-col">
-      {/* Work Entry Form Box */}
       <div className="bg-card rounded-lg border border-border shadow-subtle p-5 animate-in fade-in flex-grow" style={{ animationDelay: '200ms' }}>
         <div className="mb-4">
           <h3 className="text-lg font-medium">Log Work Entry</h3>
@@ -99,16 +91,14 @@ export const WorkEntryForm: React.FC = () => {
         </div>
         
         <form onSubmit={enhancedSubmit} className="space-y-4">
-          {/* Date Field */}
           <DateSelector
             date={formData.date}
             onDateSelect={handleDateSelect}
             open={calendarOpen}
             setOpen={setCalendarOpen}
-            error={formErrors.date} // Changed from formData.date to formErrors.date to correctly pass error string
+            error={formErrors.date}
           />
           
-          {/* Project Dropdown */}
           <ProjectSelector
             projectId={formData.projectId}
             projects={projects}
@@ -116,7 +106,6 @@ export const WorkEntryForm: React.FC = () => {
             error={formErrors.projectId}
           />
           
-          {/* Task Completion Section - Only show if project is selected */}
           {formData.projectId && relatedTasks.length > 0 && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Complete Tasks</h4>
@@ -156,7 +145,6 @@ export const WorkEntryForm: React.FC = () => {
             </div>
           )}
           
-          {/* Billing Code Dropdown */}
           <BillingCodeSelector
             billingCodeId={formData.billingCodeId}
             billingCodes={billingCodes}
@@ -164,19 +152,16 @@ export const WorkEntryForm: React.FC = () => {
             error={formErrors.billingCodeId}
           />
           
-          {/* Feet Completed Input */}
           <FeetCompletedInput
             value={formData.feetCompleted}
             onChange={handleChange}
             error={formErrors.feetCompleted}
           />
           
-          {/* Revenue Preview */}
           {previewRevenue !== null && (
             <RevenuePreview previewAmount={previewRevenue} />
           )}
           
-          {/* Team Member Dropdown */}
           <TeamMemberSelector
             teamMemberId={formData.teamMemberId}
             teamMembers={teamMembers}
@@ -184,7 +169,6 @@ export const WorkEntryForm: React.FC = () => {
             error={formErrors.teamMemberId}
           />
           
-          {/* Redline Revision Checkbox */}
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="redlineRevision" 
@@ -199,14 +183,12 @@ export const WorkEntryForm: React.FC = () => {
             </label>
           </div>
           
-          {/* Attachment Button */}
           <AttachmentButton 
             attachments={formData.attachments || []} 
             onAttach={handleFileAttachment}
             error={formErrors.attachments}
           />
           
-          {/* Submit Button */}
           <div className="pt-2">
             <SubmitButton 
               isSubmitting={isSubmitting} 

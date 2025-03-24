@@ -167,7 +167,7 @@ export const TechnicianWindow: React.FC = () => {
         
         <Button 
           onClick={handleCompleteReview}
-          className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
+          className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
         >
           Complete Task
         </Button>
