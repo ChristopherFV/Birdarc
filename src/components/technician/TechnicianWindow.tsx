@@ -74,29 +74,13 @@ export const TechnicianWindow: React.FC = () => {
         hasNotes={mapNotes.length > 0}
       />
       
-      {/* Logo centered above header */}
-      <div className="flex justify-center items-center py-2">
-        <img 
-          src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-          alt="Fieldvision Logo" 
-          className="h-8 w-auto object-contain" 
+      <TechnicianHeader />
+      
+      <div className="p-2 bg-background">
+        <TechnicianTaskSelector 
+          currentTaskId={selectedTaskId}
+          onTaskSelect={handleTaskSelect}
         />
-      </div>
-      
-      <TechnicianHeader taskTitle={taskData.title} />
-      
-      <div className="p-2 bg-background border-b border-border">
-        <div className="flex justify-between items-center">
-          <TechnicianTaskSelector 
-            currentTaskId={selectedTaskId}
-            onTaskSelect={handleTaskSelect}
-          />
-          <Link to="/technician/dashboard">
-            <Button variant="outline" size="sm" className="ml-2">
-              <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
-            </Button>
-          </Link>
-        </div>
       </div>
       
       {isMobile && (
@@ -139,7 +123,7 @@ export const TechnicianWindow: React.FC = () => {
         )}
       </div>
       
-      {/* Bottom navigation bar */}
+      {/* Bottom navigation bar with logo */}
       <div className="bg-fieldvision-navy p-3 flex justify-between items-center shadow-inner">
         <div className="flex items-center gap-3">
           <Link to="/technician/dashboard">
@@ -173,11 +157,20 @@ export const TechnicianWindow: React.FC = () => {
           </Menubar>
         </div>
         
+        {/* Logo in center of bottom bar */}
+        <div className="absolute left-1/2 transform -translate-x-1/2">
+          <img 
+            src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+            alt="Fieldvision Logo" 
+            className="h-6 w-auto object-contain" 
+          />
+        </div>
+        
         <Button 
           onClick={handleCompleteReview}
           className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
         >
-          Complete Review
+          Complete Task
         </Button>
       </div>
     </div>
