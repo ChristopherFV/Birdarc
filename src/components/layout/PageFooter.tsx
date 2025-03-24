@@ -27,11 +27,11 @@ export const PageFooter: React.FC<PageFooterProps> = ({
   logoAlt = "Fieldvision Logo"
 }) => {
   return (
-    <div className="bg-fieldvision-brown p-3 flex justify-between items-center shadow-inner">
+    <div className="bg-[#CB9D06] p-3 flex justify-between items-center shadow-inner">
       <div className="flex items-center gap-3">
         {backLink && (
           <Link to={backLink}>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-fieldvision-brown/80">
+            <Button variant="ghost" size="sm" className="text-white hover:bg-[#CB9D06]/80">
               <ChevronLeft className="h-4 w-4 mr-1" />
               {backLabel}
             </Button>
@@ -40,7 +40,7 @@ export const PageFooter: React.FC<PageFooterProps> = ({
         
         <Menubar className="bg-transparent border-none">
           <MenubarMenu>
-            <MenubarTrigger className="text-white hover:bg-fieldvision-brown/80 data-[state=open]:bg-fieldvision-brown/80">
+            <MenubarTrigger className="text-white hover:bg-[#CB9D06]/80 data-[state=open]:bg-[#CB9D06]/80">
               <LayoutDashboard className="h-4 w-4 mr-1" />
               Menu
             </MenubarTrigger>
@@ -75,3 +75,4 @@ export const PageFooter: React.FC<PageFooterProps> = ({
     </div>
   );
 };
+

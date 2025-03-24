@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -67,16 +66,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Fieldvision custom colors - Updated with provided colors
 				fieldvision: {
 					cream: '#EDE0D0',
-					navy: '#00b6cf', // Changed from #002B3D to #00b6cf
+					navy: '#00b6cf',
 					orange: '#F18E1D',
 					brown: '#52461B',
-					// Keep the existing color groups but update the DEFAULT values
 					blue: {
 						light: '#E1F5FE',
-						DEFAULT: '#00b6cf', // Changed from #002B3D to #00b6cf
+						DEFAULT: '#00b6cf',
 						dark: '#001A25'
 					},
 					gray: {
@@ -88,8 +85,9 @@ export default {
 					accent: {
 						green: '#4CAF50',
 						purple: '#9575CD',
-						orange: '#F18E1D' // Changed from FF9800 to orange
-					}
+						orange: '#F18E1D'
+					},
+					footer: '#CB9D06'
 				}
 			},
 			borderRadius: {
