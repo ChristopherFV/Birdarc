@@ -25,12 +25,13 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   return (
     <UISidebarHeader className="flex flex-col">
       <div className="flex items-center justify-between px-2 h-16">
-        <div className="flex items-center">
+        <div className="flex flex-col items-center">
           <img 
             src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
             alt="Fieldvision Logo" 
-            className="h-8" 
+            className="h-6" 
           />
+          <span className="text-[8px] text-fieldvision-orange mt-0.5">Enterprise Field Solutions</span>
         </div>
         <div className="hidden md:block">
           <Button 
