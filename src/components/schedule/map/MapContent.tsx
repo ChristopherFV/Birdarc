@@ -31,6 +31,8 @@ export const MapContent: React.FC<MapContentProps> = ({
     if (!mapContainer.current || !mapboxApiKey) return;
     
     try {
+      console.log("Initializing map with", tasks.length, "tasks");
+      
       // Set Mapbox access token
       mapboxgl.accessToken = mapboxApiKey;
       
@@ -152,6 +154,7 @@ export const MapContent: React.FC<MapContentProps> = ({
     
     const selectedTask = tasks.find(task => task.id === selectedTaskId);
     if (selectedTask?.location && selectedTask.location.lat && selectedTask.location.lng) {
+      console.log('Zooming to selected task:', selectedTask.title, selectedTask.location);
       // Zoom to the selected task location
       map.current.flyTo({
         center: [selectedTask.location.lng, selectedTask.location.lat],

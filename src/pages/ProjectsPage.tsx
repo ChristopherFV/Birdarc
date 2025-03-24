@@ -18,6 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapContent } from '@/components/schedule/map/MapContent';
 import { mockProjectLocations } from '@/utils/mockMapData';
+import { useToast } from "@/hooks/use-toast";
 
 const ProjectsPage = () => {
   const { projects } = useApp();
@@ -27,6 +28,7 @@ const ProjectsPage = () => {
   const [showListOverlay, setShowListOverlay] = useState(true);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   
   const mapboxToken = "pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg";
 
@@ -36,14 +38,45 @@ const ProjectsPage = () => {
     (project.location && project.location.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  // Find matching location data for projects
-  const projectLocations = mockProjectLocations.filter(loc => 
-    projects.some(p => p.id === loc.projectId)
-  );
+  // Enhanced project locations with proper coordinates for all projects
+  const projectLocations = projects.map(project => {
+    // Find matching location in mock data or generate a random one in USA
+    const mockLocation = mockProjectLocations.find(loc => loc.projectId === project.id) || 
+      mockProjectLocations[Math.floor(Math.random() * mockProjectLocations.length)];
+      
+    return {
+      id: project.id,
+      title: project.name,
+      description: `Client: ${project.client}`,
+      location: mockLocation.location,
+      startDate: new Date(),
+      endDate: new Date(),
+      projectId: project.id,
+      projectName: project.name,
+      teamMemberId: null,
+      priority: 'medium' as const,
+      status: project.status || 'pending' as const,
+      billingCodeId: null,
+      quantityEstimate: 0
+    };
+  });
+
+  useEffect(() => {
+    console.log("Project locations for map:", projectLocations);
+  }, [projectLocations]);
 
   const handleProjectMarkerClick = (id: string) => {
     setSelectedProjectId(id === selectedProjectId ? null : id);
     console.log('Project clicked:', id);
+    
+    // Find the project
+    const project = projects.find(p => p.id === id);
+    if (project) {
+      toast({
+        title: "Project Selected",
+        description: `${project.name} has been selected on the map`,
+      });
+    }
   };
 
   // Handle clicking a project in the list view

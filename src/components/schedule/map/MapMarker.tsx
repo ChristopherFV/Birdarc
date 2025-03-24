@@ -57,6 +57,8 @@ export const createTaskMarker = (
   handleClick: (id: string) => void,
   isSelected: boolean = false
 ): mapboxgl.Marker => {
+  console.log('Creating marker for task:', task.title, task.location);
+  
   // Determine marker color based on task type or priority
   let markerColor = '#3b82f6'; // Default blue
   

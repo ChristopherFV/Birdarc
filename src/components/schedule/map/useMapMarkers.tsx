@@ -30,10 +30,12 @@ export const useMapMarkers = (
     function addMarkers() {
       // Add markers for each task if tasks are visible
       if (showTasks) {
+        console.log('Adding markers for tasks:', tasks.length);
         tasks.forEach(task => {
           // Strict validation to ensure coordinates are valid
           if (task.location && 
               isValidCoordinate(task.location.lat, task.location.lng)) {
+            console.log('Creating marker for task:', task.title, task.location);
             const marker = createTaskMarker(map, task, handleTaskClick, task.id === selectedTaskId);
             markers.current.push(marker);
           } else {
