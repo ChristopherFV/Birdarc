@@ -7,6 +7,8 @@ import { Calendar, CheckCheck, Clock, MapIcon, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { motion } from 'framer-motion';
 
 // Import our dashboard components
 import { TechDashboardMap } from './dashboard/TechDashboardMap';
@@ -78,100 +80,123 @@ export const TechnicianDashboard: React.FC = () => {
     </div>
   );
 
+  // Card wrapper component with animation
+  const AnimatedCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ scale: 1.01 }}
+      className={`h-full ${className}`}
+    >
+      {children}
+    </motion.div>
+  );
+
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <TechnicianWorkEntryDialog
-        open={workEntryDialogOpen}
-        onOpenChange={setWorkEntryDialogOpen}
-        projectId={selectedProjectId || "project-1"}
-      />
-      
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl font-bold">Technician Dashboard</h1>
-        <Button 
-          onClick={() => handleOpenWorkEntry()} 
-          variant="default" 
-          className="bg-green-600 hover:bg-green-700"
-        >
-          <PlusCircle className="h-4 w-4 mr-2" /> Log Work Entry
-        </Button>
-      </div>
-      
-      <FilterBar />
-      
-      {/* Responsive grid layout */}
-      <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
-        {/* Section 1: Tasks */}
-        <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
-          <Card className="h-full">
-            <CardHeader className="py-3">
-              <SectionHeader icon={<Calendar className="h-5 w-5" />} title="Tasks" />
-            </CardHeader>
-            <CardContent>
-              <TasksOverview 
-                assignedTasks={assignedTasks}
-                completedTasks={completedTasks}
-                onOpenWorkEntry={handleOpenWorkEntry}
-                getProjectName={getProjectName}
-              />
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Section 2: Map View */}
-        <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
-          <Card className="h-full">
-            <CardHeader className="py-3">
-              <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Map View" />
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <TechDashboardMap 
-                tasks={[...assignedTasks, ...completedTasks]}
-                mapboxToken={mapboxToken}
-                showMapTokenInput={showMapTokenInput}
-                setMapboxToken={setMapboxToken}
-                setShowMapTokenInput={setShowMapTokenInput}
-              />
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Section 3: Production */}
-        <div className={`${isMobile ? '' : 'col-span-2'}`}>
-          <Card className="h-full">
-            <CardHeader className="py-3">
-              <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production" />
-            </CardHeader>
-            <CardContent>
-              <ProductionOverviewChart completedTasks={completedTasks} />
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Section 4: Timesheet */}
-        <div className={`${isMobile ? '' : 'col-span-2'}`}>
-          <Card className="h-full">
-            <CardHeader className="py-3">
-              <SectionHeader icon={<Clock className="h-5 w-5" />} title="Timesheet" />
-            </CardHeader>
-            <CardContent>
-              <TimeEntryCard 
-                onOpenWorkEntry={() => handleOpenWorkEntry()}
-                completedTasks={completedTasks}
-                getProjectName={getProjectName}
-              />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      <div className="flex flex-col items-center justify-center mt-4 mb-4 sm:mb-6">
-        <img 
-          src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-          alt="Fieldvision Logo" 
-          className="h-6 sm:h-8 w-auto object-contain" 
+    <ScrollArea className="h-[calc(100vh-4rem)]">
+      <div className="container mx-auto py-6 space-y-6">
+        <TechnicianWorkEntryDialog
+          open={workEntryDialogOpen}
+          onOpenChange={setWorkEntryDialogOpen}
+          projectId={selectedProjectId || "project-1"}
         />
+        
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold">Technician Dashboard</h1>
+          <Button 
+            onClick={() => handleOpenWorkEntry()} 
+            variant="default" 
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <PlusCircle className="h-4 w-4 mr-2" /> Log Work Entry
+          </Button>
+        </div>
+        
+        <FilterBar />
+        
+        {/* Responsive grid layout */}
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
+          {/* Section 1: Tasks */}
+          <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
+            <AnimatedCard>
+              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
+                  <SectionHeader icon={<Calendar className="h-5 w-5" />} title="Tasks" />
+                </CardHeader>
+                <CardContent>
+                  <TasksOverview 
+                    assignedTasks={assignedTasks}
+                    completedTasks={completedTasks}
+                    onOpenWorkEntry={handleOpenWorkEntry}
+                    getProjectName={getProjectName}
+                  />
+                </CardContent>
+              </Card>
+            </AnimatedCard>
+          </div>
+          
+          {/* Section 2: Map View */}
+          <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
+            <AnimatedCard>
+              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
+                  <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Map View" />
+                </CardHeader>
+                <CardContent className="p-0 pt-2">
+                  <TechDashboardMap 
+                    tasks={[...assignedTasks, ...completedTasks]}
+                    mapboxToken={mapboxToken}
+                    showMapTokenInput={showMapTokenInput}
+                    setMapboxToken={setMapboxToken}
+                    setShowMapTokenInput={setShowMapTokenInput}
+                  />
+                </CardContent>
+              </Card>
+            </AnimatedCard>
+          </div>
+          
+          {/* Section 3: Production */}
+          <div className={`${isMobile ? '' : 'col-span-2'}`}>
+            <AnimatedCard>
+              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
+                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production" />
+                </CardHeader>
+                <CardContent>
+                  <ProductionOverviewChart completedTasks={completedTasks} />
+                </CardContent>
+              </Card>
+            </AnimatedCard>
+          </div>
+          
+          {/* Section 4: Timesheet */}
+          <div className={`${isMobile ? '' : 'col-span-2'}`}>
+            <AnimatedCard>
+              <Card className="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
+                  <SectionHeader icon={<Clock className="h-5 w-5" />} title="Timesheet" />
+                </CardHeader>
+                <CardContent>
+                  <TimeEntryCard 
+                    onOpenWorkEntry={() => handleOpenWorkEntry()}
+                    completedTasks={completedTasks}
+                    getProjectName={getProjectName}
+                  />
+                </CardContent>
+              </Card>
+            </AnimatedCard>
+          </div>
+        </div>
+        
+        <div className="flex flex-col items-center justify-center mt-4 mb-4 sm:mb-6">
+          <img 
+            src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+            alt="Fieldvision Logo" 
+            className="h-6 sm:h-8 w-auto object-contain" 
+          />
+        </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 };
