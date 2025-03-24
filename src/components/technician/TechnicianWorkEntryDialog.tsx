@@ -13,8 +13,9 @@ import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CircleX } from "lucide-react";
+import { CircleX, Send } from "lucide-react";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { useApp } from '@/context/AppContext';
 
 interface TechnicianWorkEntryDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   projectId
 }) => {
   const { toast } = useToast();
+  const { teamMembers } = useApp();
   const {
     formData,
     calendarOpen,
@@ -37,7 +39,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     previewRevenue,
     projects,
     billingCodes,
-    teamMembers,
+    teamMembers: formTeamMembers,
     handleChange,
     handleDateSelect,
     handleSubmit,
@@ -47,6 +49,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   const [cancelNotes, setCancelNotes] = useState('');
   const [isRedlineRevision, setIsRedlineRevision] = useState(false);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [notifyTaskIssuer, setNotifyTaskIssuer] = useState(true);
 
   // Set project ID if provided
   useEffect(() => {
@@ -63,13 +66,28 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     // Include the redline revision status in the form data
     const updatedFormData = {
       ...formData,
-      isRedlineRevision
+      isRedlineRevision,
+      isTechnicianSubmission: true // Flag to identify technician submissions
     };
+    
     handleSubmit(e);
+    
+    // Notification to task issuer
+    if (notifyTaskIssuer) {
+      // Find task issuer (for demo purposes, we'll use the first manager role)
+      const taskIssuer = teamMembers.find(member => member.role.toLowerCase().includes('manager'));
+      
+      toast({
+        title: "Notification sent",
+        description: `Work entry has been submitted and ${taskIssuer ? taskIssuer.name : 'the task issuer'} has been notified for approval.`,
+      });
+    }
+    
     toast({
       title: "Work entry submitted",
-      description: "Your work entry has been submitted for approval.",
+      description: "Your work entry has been saved to your dashboard and submitted for approval.",
     });
+    
     onOpenChange(false);
   };
 
@@ -141,7 +159,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
           {/* Team Member Dropdown */}
           <TeamMemberSelector
             teamMemberId={formData.teamMemberId}
-            teamMembers={teamMembers}
+            teamMembers={formTeamMembers}
             onChange={handleChange}
             error={formErrors.teamMemberId}
           />
@@ -158,6 +176,21 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
               className="text-sm font-medium leading-none cursor-pointer"
             >
               Redline Revision Made
+            </label>
+          </div>
+
+          {/* Notify Task Issuer Checkbox */}
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="notifyTaskIssuer" 
+              checked={notifyTaskIssuer} 
+              onCheckedChange={(checked) => setNotifyTaskIssuer(checked === true)}
+            />
+            <label 
+              htmlFor="notifyTaskIssuer" 
+              className="text-sm font-medium leading-none cursor-pointer"
+            >
+              Notify task issuer for approval
             </label>
           </div>
           
@@ -205,8 +238,9 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
               <Button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="bg-fieldvision-orange hover:bg-fieldvision-orange/90"
+                className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 flex items-center gap-2"
               >
+                <Send className="size-4" />
                 {isSubmitting ? 'Submitting...' : 'Submit for Approval'}
               </Button>
             </div>

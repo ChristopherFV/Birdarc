@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useWorkEntryForm } from '@/hooks/useWorkEntryForm';
 import { DateSelector } from '@/components/forms/work-entry/DateSelector';
 import { ProjectSelector } from '@/components/forms/work-entry/ProjectSelector';
@@ -9,6 +9,7 @@ import { RevenuePreview } from '@/components/forms/work-entry/RevenuePreview';
 import { TeamMemberSelector } from '@/components/forms/work-entry/TeamMemberSelector';
 import { SubmitButton } from '@/components/forms/work-entry/SubmitButton';
 import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const WorkEntryForm: React.FC = () => {
   const {
@@ -26,6 +27,8 @@ export const WorkEntryForm: React.FC = () => {
     handleSubmit,
     handleFileAttachment
   } = useWorkEntryForm();
+  
+  const [isRedlineRevision, setIsRedlineRevision] = useState(false);
   
   return (
     <div className="space-y-4 h-full flex flex-col">
@@ -83,6 +86,21 @@ export const WorkEntryForm: React.FC = () => {
             onChange={handleChange}
             error={formErrors.teamMemberId}
           />
+          
+          {/* Redline Revision Checkbox */}
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="redlineRevision" 
+              checked={isRedlineRevision} 
+              onCheckedChange={(checked) => setIsRedlineRevision(checked === true)}
+            />
+            <label 
+              htmlFor="redlineRevision" 
+              className="text-sm font-medium leading-none cursor-pointer"
+            >
+              Redline Revision Made
+            </label>
+          </div>
           
           {/* Attachment Button */}
           <AttachmentButton 

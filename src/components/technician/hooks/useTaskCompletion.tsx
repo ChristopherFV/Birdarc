@@ -7,6 +7,7 @@ import {
   notesToKMZ, 
   downloadFile 
 } from '@/utils/mapExportUtils';
+import { useApp } from '@/context/AppContext';
 
 interface UseTaskCompletionOptions {
   mapNotes?: MapNote[];
@@ -15,6 +16,7 @@ interface UseTaskCompletionOptions {
 export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
   const { mapNotes = [] } = options;
   const { toast } = useToast();
+  const { addWorkEntry } = useApp();
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -73,6 +75,16 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
       });
     }
   };
+
+  // Save task data to technician's dashboard/history
+  const saveToTechnicianDashboard = (taskData) => {
+    // This is where we would typically save task data to a database
+    // For now, we'll just log it to console
+    console.log('Saving task data to technician dashboard:', taskData);
+    
+    // In a real implementation, this would likely involve API calls
+    // or Context updates to store the data for the technician's dashboard
+  };
   
   return {
     workEntryDialogOpen,
@@ -86,6 +98,7 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
     exportAsGeoJSON,
     exportAsKMZ,
     shouldExportMap,
-    setShouldExportMap
+    setShouldExportMap,
+    saveToTechnicianDashboard
   };
 };
