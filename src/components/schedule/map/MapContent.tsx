@@ -53,6 +53,24 @@ export const MapContent: React.FC<MapContentProps> = ({
         console.log('Map loaded successfully');
         setUsingMapbox(true);
         setMapError(null);
+        
+        // Fit bounds to show all markers if tasks exist
+        if (tasks.length > 0) {
+          const bounds = new mapboxgl.LngLatBounds();
+          
+          tasks.forEach(task => {
+            if (task.location && task.location.lng && task.location.lat) {
+              bounds.extend([task.location.lng, task.location.lat]);
+            }
+          });
+          
+          if (!bounds.isEmpty()) {
+            map.current?.fitBounds(bounds, {
+              padding: 50,
+              maxZoom: 12
+            });
+          }
+        }
       });
       
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -69,7 +87,7 @@ export const MapContent: React.FC<MapContentProps> = ({
       setMapError(error instanceof Error ? error.message : 'Failed to initialize map');
       setUsingMapbox(false);
     }
-  }, [mapboxApiKey]);
+  }, [mapboxApiKey, tasks]);
   
   // Use custom hook to manage markers
   useMapMarkers(
