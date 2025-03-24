@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, Filter, FileCheck, X } from 'lucide-react';
+import { Search, Filter, FileCheck, X, FilePlus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -53,27 +53,39 @@ export const WorkEntriesHeader: React.FC<WorkEntriesHeaderProps> = ({
             {isFiltersOpen ? "Hide Filters" : "Show Filters"}
           </Button>
           
-          <Button 
-            variant="blue"
-            className="flex items-center gap-1 h-9 px-3"
-            size="sm"
-            onClick={handleCreateInvoice}
-          >
-            <FileCheck size={14} />
-            {selectMode ? (
-              selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"
-            ) : "Create Invoice"}
-          </Button>
-          
-          {selectMode && (
+          {selectMode ? (
+            <>
+              <Button 
+                variant="blue"
+                className="flex items-center gap-1 h-9 px-3"
+                size="sm"
+                onClick={handleCreateInvoice}
+                style={{ backgroundColor: "#0EA5E9" }}
+              >
+                <FileCheck size={14} />
+                {selectedCount > 0 ? `Create Invoice (${selectedCount})` : "Create Invoice"}
+              </Button>
+              
+              <Button 
+                variant="destructive"
+                className="flex items-center gap-1 h-9 px-3"
+                size="sm"
+                onClick={handleCancelInvoice}
+              >
+                <X size={14} />
+                Cancel
+              </Button>
+            </>
+          ) : (
             <Button 
-              variant="destructive"
+              variant="blue"
               className="flex items-center gap-1 h-9 px-3"
               size="sm"
-              onClick={handleCancelInvoice}
+              onClick={handleCreateInvoice}
+              style={{ backgroundColor: "#0EA5E9" }}
             >
-              <X size={14} />
-              Cancel
+              <FilePlus size={14} />
+              Create Invoice
             </Button>
           )}
         </div>

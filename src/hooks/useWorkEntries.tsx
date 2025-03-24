@@ -154,6 +154,7 @@ export const useWorkEntries = () => {
       return;
     }
     
+    // Open the invoice dialog directly
     openAddInvoiceDialog();
   };
   
