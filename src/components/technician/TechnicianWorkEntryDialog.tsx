@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -70,7 +69,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   const [taskEntries, setTaskEntries] = useState<TaskEntry[]>([]);
   const [projectTasks, setProjectTasks] = useState<{ id: string, title: string }[]>([]);
 
-  // Set project ID if provided and get related tasks
   useEffect(() => {
     if (projectId && open) {
       const syntheticEvent = {
@@ -78,12 +76,10 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
       } as React.ChangeEvent<HTMLSelectElement>;
       handleChange(syntheticEvent);
 
-      // Get tasks related to this project
       const relatedTasks = tasks.filter(task => task.projectId === projectId)
         .map(task => ({ id: task.id, title: task.title }));
       setProjectTasks(relatedTasks);
 
-      // Initialize task entries with the first task if available
       if (relatedTasks.length > 0 && taskEntries.length === 0) {
         setTaskEntries([
           {
@@ -110,7 +106,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     const updatedEntries = [...taskEntries];
     updatedEntries[index] = { ...updatedEntries[index], [field]: value };
     
-    // If changing workType, reset the relevant fields
     if (field === 'workType') {
       if (value === 'unit') {
         updatedEntries[index].hoursWorked = '';
@@ -133,7 +128,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
       return;
     }
 
-    // Find a task not already in the entries
     const usedTaskIds = taskEntries.map(entry => entry.taskId);
     const availableTask = projectTasks.find(task => !usedTaskIds.includes(task.id));
 
@@ -212,23 +206,19 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     e.preventDefault();
     
     if (multipleTasksEnabled) {
-      // Validate task entries
       if (!validateTaskEntries()) {
         return;
       }
 
-      // Process multiple task entries
       for (const entry of taskEntries) {
         const taskInfo = projectTasks.find(t => t.id === entry.taskId);
         
-        // Here you would submit each entry to your backend
         toast({
           title: "Work logged for multiple tasks",
           description: `Logged work for task: ${taskInfo?.title || entry.taskId}`,
         });
       }
     } else {
-      // Validate single entry
       if (workType === 'hourly' && (!hoursWorked || Number(hoursWorked) <= 0)) {
         toast({
           title: "Error",
@@ -238,7 +228,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
         return;
       }
       
-      // Process single task entry using existing form data
       const updatedFormData = {
         ...formData,
         isRedlineRevision,
@@ -250,7 +239,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
       handleSubmit(e);
     }
     
-    // Notification to task issuer
     if (notifyTaskIssuer) {
       const taskIssuer = teamMembers.find(member => member.role.toLowerCase().includes('manager'));
       
@@ -297,7 +285,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
         </DialogHeader>
         
         <form onSubmit={onSubmit} className="space-y-4 mt-4">
-          {/* Date Field */}
           <DateSelector
             date={formData.date}
             onDateSelect={handleDateSelect}
@@ -306,7 +293,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             error={formErrors.date}
           />
           
-          {/* Project Dropdown */}
           <ProjectSelector
             projectId={formData.projectId}
             projects={projects}
@@ -314,7 +300,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             error={formErrors.projectId}
           />
           
-          {/* Multiple Tasks Toggle */}
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="multipleTasksEnabled" 
@@ -330,7 +315,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
           </div>
           
           {multipleTasksEnabled ? (
-            /* Multiple Tasks UI */
             <div className="space-y-4">
               {taskEntries.map((entry, index) => (
                 <div key={index} className="p-4 border rounded-md space-y-3">
@@ -349,7 +333,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                     )}
                   </div>
                   
-                  {/* Task Selector */}
                   <div>
                     <label className="block text-sm font-medium mb-1">
                       Task
@@ -371,7 +354,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                     </Select>
                   </div>
                   
-                  {/* Work Type Selection */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium mb-1">
                       Work Type
@@ -394,7 +376,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                   
                   {entry.workType === 'unit' ? (
                     <>
-                      {/* Billing Code Dropdown */}
                       <div>
                         <label className="block text-sm font-medium mb-1">
                           Billing Code
@@ -409,14 +390,13 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                           <SelectContent>
                             {billingCodes.map(code => (
                               <SelectItem key={code.id} value={code.id}>
-                                {code.name} (${code.ratePerUnit}/unit)
+                                {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/unit)
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
                       
-                      {/* Feet Completed Input */}
                       <div>
                         <label htmlFor={`feetCompleted-${index}`} className="block text-sm font-medium mb-1">
                           Units Completed
@@ -433,7 +413,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                       </div>
                     </>
                   ) : (
-                    /* Hours Worked Input */
                     <div>
                       <label htmlFor={`hoursWorked-${index}`} className="block text-sm font-medium mb-1">
                         Hours Worked
@@ -459,7 +438,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                 </div>
               ))}
               
-              {/* Add Task Button */}
               <Button
                 type="button"
                 variant="outline"
@@ -472,9 +450,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
               </Button>
             </div>
           ) : (
-            /* Single Task UI */
             <>
-              {/* Work Type Selection */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium mb-1">
                   Work Type
@@ -497,7 +473,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
               
               {workType === 'unit' ? (
                 <>
-                  {/* Billing Code Dropdown - Only show for unit-based work */}
                   <BillingCodeSelector
                     billingCodeId={formData.billingCodeId}
                     billingCodes={billingCodes}
@@ -505,20 +480,17 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                     error={formErrors.billingCodeId}
                   />
                   
-                  {/* Feet Completed Input - Only show for unit-based work */}
                   <FeetCompletedInput
                     value={formData.feetCompleted}
                     onChange={handleChange}
                     error={formErrors.feetCompleted}
                   />
                   
-                  {/* Revenue Preview - Only show for unit-based work */}
                   {previewRevenue !== null && (
                     <RevenuePreview previewAmount={previewRevenue} />
                   )}
                 </>
               ) : (
-                /* Hours Worked Input - Only show for hourly work */
                 <div>
                   <label htmlFor="hoursWorked" className="block text-sm font-medium mb-1">
                     Hours Worked
@@ -542,7 +514,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                 </div>
               )}
               
-              {/* Team Member Dropdown */}
               <TeamMemberSelector
                 teamMemberId={formData.teamMemberId}
                 teamMembers={formTeamMembers}
@@ -552,7 +523,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             </>
           )}
           
-          {/* Redline Revision Checkbox */}
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="redlineRevision" 
@@ -567,7 +537,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             </label>
           </div>
 
-          {/* Notify Task Issuer Checkbox */}
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="notifyTaskIssuer" 
@@ -582,7 +551,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             </label>
           </div>
           
-          {/* Attachment Button */}
           <AttachmentButton 
             attachments={formData.attachments || []} 
             onAttach={handleFileAttachment}
