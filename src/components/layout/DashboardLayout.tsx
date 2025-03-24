@@ -9,7 +9,8 @@ import {
   FileText, 
   Settings, 
   Building2, 
-  LogOut 
+  LogOut,
+  HardHat
 } from 'lucide-react';
 import { CompanySelector } from '@/components/ui/CompanySelector';
 import { Link } from 'react-router-dom';
@@ -94,6 +95,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               label="Projects" 
               href="#" 
               collapsed={collapsed} 
+            />
+            <NavItem 
+              icon={<HardHat size={20} />} 
+              label="Technician" 
+              href="/technician" 
+              collapsed={collapsed}
+              active={location.pathname.startsWith('/technician')} 
+            />
+            <NavItem 
+              icon={<LayoutDashboard size={20} />} 
+              label="Tech Dashboard" 
+              href="/technician/dashboard" 
+              collapsed={collapsed}
+              active={location.pathname === '/technician/dashboard'} 
             />
             <NavItem 
               icon={<Settings size={20} />} 

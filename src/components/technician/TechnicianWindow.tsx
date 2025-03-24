@@ -14,6 +14,9 @@ import { useTechnicianNotes } from './hooks/useTechnicianNotes';
 import { useTechnicianTask } from './hooks/useTechnicianTask';
 import { useTaskCompletion } from './hooks/useTaskCompletion';
 import { useDrawingTools } from './hooks/useDrawingTools';
+import { Link } from 'react-router-dom';
+import { LayoutDashboard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const TechnicianWindow: React.FC = () => {
   const isMobile = useIsMobile();
@@ -76,10 +79,17 @@ export const TechnicianWindow: React.FC = () => {
       />
       
       <div className="p-2 bg-background border-b border-border">
-        <TechnicianTaskSelector 
-          currentTaskId={selectedTaskId}
-          onTaskSelect={handleTaskSelect}
-        />
+        <div className="flex justify-between items-center">
+          <TechnicianTaskSelector 
+            currentTaskId={selectedTaskId}
+            onTaskSelect={handleTaskSelect}
+          />
+          <Link to="/technician/dashboard">
+            <Button variant="outline" size="sm" className="ml-2">
+              <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
+            </Button>
+          </Link>
+        </div>
       </div>
       
       {isMobile && (

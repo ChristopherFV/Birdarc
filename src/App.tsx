@@ -13,6 +13,7 @@ import RepositoryPage from "./pages/RepositoryPage";
 import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
+import { TechnicianDashboard } from "@/components/technician/TechnicianDashboard";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/work-entries" element={<WorkEntriesPage />} />
               <Route path="/repository" element={<RepositoryPage />} />
               <Route path="/technician" element={<TechnicianWindow />} />
+              <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
