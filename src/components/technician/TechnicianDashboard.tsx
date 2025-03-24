@@ -84,18 +84,6 @@ export const TechnicianDashboard: React.FC = () => {
     }
   };
 
-  // Action button for the footer
-  const actionButton = (
-    <Button 
-      onClick={() => handleOpenWorkEntry()}
-      className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
-      size="sm"
-    >
-      <Plus className="h-4 w-4 mr-1" />
-      New Entry
-    </Button>
-  );
-
   return (
     <div className="flex flex-col h-screen">
       <ScrollArea className="h-[calc(100vh-4rem)]">
@@ -160,11 +148,10 @@ export const TechnicianDashboard: React.FC = () => {
         </div>
       </ScrollArea>
       
-      {/* Add the PageFooter component */}
+      {/* Add the PageFooter component with no action button */}
       <PageFooter
         backLink="/"
         backLabel="Home"
-        actionButton={actionButton}
       />
     </div>
   );
