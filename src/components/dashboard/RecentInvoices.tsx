@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { FileText, Check, AlertCircle, Plus, List, RefreshCw } from 'lucide-react';
+import { FileText, Check, AlertCircle, Plus, List, RefreshCw, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PaymentModal } from '@/components/invoicing/PaymentModal';
 
 // Mock data for invoices
 const mockInvoices = [
@@ -19,7 +20,8 @@ const mockInvoices = [
     date: new Date(2023, 6, 15),
     amount: 2450.00,
     status: 'paid',
-    client: 'City Telecom'
+    client: 'City Telecom',
+    email: 'billing@citytelecom.com'
   },
   {
     id: 'INV-002',
@@ -27,7 +29,8 @@ const mockInvoices = [
     date: new Date(2023, 6, 28),
     amount: 3200.00,
     status: 'unpaid',
-    client: 'Metro Connect'
+    client: 'Metro Connect',
+    email: 'accounts@metroconnect.net'
   },
   {
     id: 'INV-003',
@@ -35,16 +38,32 @@ const mockInvoices = [
     date: new Date(2023, 7, 5),
     amount: 1875.50,
     status: 'paid',
-    client: 'County ISP'
+    client: 'County ISP',
+    email: 'finance@countyisp.org'
   }
 ];
 
 export const RecentInvoices: React.FC = () => {
   const { openAddInvoiceDialog } = useAddInvoiceDialog();
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<(typeof mockInvoices)[0] | null>(null);
   
   const handleCreateInvoice = (e: React.MouseEvent) => {
     e.preventDefault();
     openAddInvoiceDialog();
+  };
+  
+  const handlePayInvoice = (invoice: (typeof mockInvoices)[0]) => {
+    setSelectedInvoice(invoice);
+    setPaymentModalOpen(true);
+  };
+  
+  const handlePaymentComplete = (success: boolean) => {
+    if (success && selectedInvoice) {
+      // In a real app, you'd update the invoice status in your database
+      console.log(`Payment completed for invoice ${selectedInvoice.id}`);
+      // For this demo, we'll leave the mock data as is
+    }
   };
   
   // QuickBooks sync indicator component embedded in the card header
@@ -119,17 +138,28 @@ export const RecentInvoices: React.FC = () => {
                   </TableCell>
                   <TableCell className="p-2 text-right whitespace-nowrap">
                     <p className="font-medium">${invoice.amount.toFixed(2)}</p>
-                    <div className="mt-1 flex justify-end">
+                    <div className="mt-1 flex justify-end gap-2">
                       {invoice.status === 'paid' ? (
                         <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
                           <Check size={12} className="mr-1" />
                           Paid
                         </Badge>
                       ) : (
-                        <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
-                          <AlertCircle size={12} className="mr-1" />
-                          Unpaid
-                        </Badge>
+                        <>
+                          <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+                            <AlertCircle size={12} className="mr-1" />
+                            Unpaid
+                          </Badge>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-6 px-2 text-xs"
+                            onClick={() => handlePayInvoice(invoice)}
+                          >
+                            <CreditCard size={12} className="mr-1" />
+                            Pay
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>
@@ -155,6 +185,18 @@ export const RecentInvoices: React.FC = () => {
           </Link>
         </Button>
       </CardFooter>
+      
+      {selectedInvoice && (
+        <PaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          invoiceNumber={selectedInvoice.id}
+          clientName={selectedInvoice.client}
+          clientEmail={selectedInvoice.email}
+          amount={selectedInvoice.amount}
+          onPaymentComplete={handlePaymentComplete}
+        />
+      )}
     </Card>
   );
 };

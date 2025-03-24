@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { EditWorkEntryDialog } from '@/components/forms/EditWorkEntryDialog';
@@ -13,6 +13,9 @@ import { FilterBar } from '@/components/ui/FilterBar';
 import { AIInsightsPanel } from '@/components/ai/AIInsightsPanel';
 import { useApp } from '@/context/AppContext';
 import { useSchedule } from '@/context/ScheduleContext';
+import { PaymentModal } from '@/components/invoicing/PaymentModal';
+import { Button } from '@/components/ui/button';
+import { CreditCard, CheckCircle } from 'lucide-react';
 
 const WorkEntriesPage: React.FC = () => {
   const {
@@ -43,6 +46,25 @@ const WorkEntriesPage: React.FC = () => {
   const { tasks } = useSchedule();
   
   const isMobile = useIsMobile();
+  
+  // Payment modal state
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<{
+    id: string;
+    client: string;
+    email: string;
+    amount: number;
+  } | null>(null);
+  
+  const handlePayInvoice = (invoiceId: string, client: string, amount: number) => {
+    setSelectedInvoice({
+      id: invoiceId,
+      client,
+      email: 'client@example.com', // In a real app, you'd get this from your database
+      amount
+    });
+    setPaymentModalOpen(true);
+  };
   
   return (
     <SimplePageLayout 
@@ -96,23 +118,54 @@ const WorkEntriesPage: React.FC = () => {
                 selectedEntries={selectedEntries}
                 handleSelectEntry={handleSelectEntry}
                 handleSelectAll={handleSelectAll}
+                // In a real app, you would add these props and implement them in WorkEntriesTable
+                // renderActions={(entry) => (
+                //   entry.invoiceStatus === 'invoiced' && (
+                //     <Button 
+                //       size="sm" 
+                //       variant="ghost" 
+                //       onClick={() => handlePayInvoice(
+                //         `INV-${entry.id.substring(0, 4)}`, 
+                //         getProjectName(entry.projectId),
+                //         calculateRevenue(entry, billingCodes)
+                //       )}
+                //     >
+                //       <CreditCard className="h-4 w-4 mr-1" />
+                //       Pay
+                //     </Button>
+                //   )
+                // )}
               />
             </CardContent>
           </Card>
         </div>
-      </div>
 
-      {editingEntry && (
-        <EditWorkEntryDialog
-          entry={editingEntry}
-          open={!!editingEntry}
-          onOpenChange={(open) => {
-            if (!open) setEditingEntry(null);
-          }}
-        />
-      )}
-      
-      <AddInvoiceDialog />
+        {editingEntry && (
+          <EditWorkEntryDialog
+            entry={editingEntry}
+            open={!!editingEntry}
+            onOpenChange={(open) => {
+              if (!open) setEditingEntry(null);
+            }}
+          />
+        )}
+        
+        <AddInvoiceDialog />
+        
+        {selectedInvoice && (
+          <PaymentModal
+            open={paymentModalOpen}
+            onOpenChange={setPaymentModalOpen}
+            invoiceNumber={selectedInvoice.id}
+            clientName={selectedInvoice.client}
+            clientEmail={selectedInvoice.email}
+            amount={selectedInvoice.amount}
+            onPaymentComplete={(success) => {
+              console.log(`Payment ${success ? 'succeeded' : 'failed'} for invoice ${selectedInvoice.id}`);
+            }}
+          />
+        )}
+      </div>
     </SimplePageLayout>
   );
 };
