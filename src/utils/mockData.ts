@@ -15,6 +15,12 @@ const randomNumber = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+// Generate a past date formatted as YYYY-MM-DD
+const generatePastDate = (maxDaysAgo: number = 60): string => {
+  const daysAgo = randomNumber(1, maxDaysAgo);
+  return format(subDays(new Date(), daysAgo), 'yyyy-MM-dd');
+};
+
 // Mock companies
 export const mockCompanies: Company[] = [
   { id: 'comp-1', name: 'Fiber Network Solutions' },
@@ -22,13 +28,128 @@ export const mockCompanies: Company[] = [
   { id: 'comp-3', name: 'LightSpeed Installations' }
 ];
 
-// Mock projects
+// Enhanced mock projects with more Fieldvision-specific details
 export const mockProjects: Project[] = [
-  { id: 'proj-1', name: 'Downtown Fiber Expansion', client: 'Metro City Council' },
-  { id: 'proj-2', name: 'Westside Business District', client: 'Westside Development Corp' },
-  { id: 'proj-3', name: 'North County Residential', client: 'North County ISP' },
-  { id: 'proj-4', name: 'Industrial Park Network', client: 'Industrial Growth Partners' },
-  { id: 'proj-5', name: 'University Campus Upgrade', client: 'State University System' }
+  { 
+    id: 'proj-1', 
+    name: 'Downtown Fiber Expansion', 
+    client: 'Metro City Council',
+    status: 'Active',
+    progress: 65,
+    lastUpdated: generatePastDate(10),
+    location: 'Downtown, Metro City',
+    totalFootage: 15800,
+    completedFootage: 10270,
+    startDate: '2023-06-15',
+    estimatedCompletion: '2023-10-30',
+    budget: 478000,
+    description: 'Expanding fiber network in downtown Metro City to improve connectivity for businesses and government buildings.'
+  },
+  { 
+    id: 'proj-2', 
+    name: 'Westside Business District', 
+    client: 'Westside Development Corp',
+    status: 'Active',
+    progress: 42,
+    lastUpdated: generatePastDate(5),
+    location: 'Westside Business Park',
+    totalFootage: 12500,
+    completedFootage: 5250,
+    startDate: '2023-07-20',
+    estimatedCompletion: '2023-11-15',
+    budget: 356000,
+    description: 'Fiber installation for new business district development with 25 commercial buildings.'
+  },
+  { 
+    id: 'proj-3', 
+    name: 'North County Residential', 
+    client: 'North County ISP',
+    status: 'Planning',
+    progress: 12,
+    lastUpdated: generatePastDate(3),
+    location: 'North County Subdivision',
+    totalFootage: 22000,
+    completedFootage: 2640,
+    startDate: '2023-08-05',
+    estimatedCompletion: '2024-02-28',
+    budget: 625000,
+    description: 'Residential fiber deployment across 450 homes in North County subdivision.'
+  },
+  { 
+    id: 'proj-4', 
+    name: 'Industrial Park Network', 
+    client: 'Industrial Growth Partners',
+    status: 'Completed',
+    progress: 100,
+    lastUpdated: generatePastDate(25),
+    location: 'Eastside Industrial Zone',
+    totalFootage: 8500,
+    completedFootage: 8500,
+    startDate: '2023-05-10',
+    estimatedCompletion: '2023-07-31',
+    budget: 295000,
+    description: 'Complete fiber network installation for industrial park with specialized requirements for manufacturing facilities.'
+  },
+  { 
+    id: 'proj-5', 
+    name: 'University Campus Upgrade', 
+    client: 'State University System',
+    status: 'Active',
+    progress: 78,
+    lastUpdated: generatePastDate(7),
+    location: 'State University Main Campus',
+    totalFootage: 18200,
+    completedFootage: 14196,
+    startDate: '2023-06-01',
+    estimatedCompletion: '2023-09-30',
+    budget: 512000,
+    description: 'Upgrading existing fiber infrastructure across university campus to support advanced research requirements.'
+  },
+  { 
+    id: 'proj-6', 
+    name: 'Medical Center Network', 
+    client: 'Regional Healthcare System',
+    status: 'Active',
+    progress: 55,
+    lastUpdated: generatePastDate(4),
+    location: 'Regional Medical Center',
+    totalFootage: 9600,
+    completedFootage: 5280,
+    startDate: '2023-07-12',
+    estimatedCompletion: '2023-10-15',
+    budget: 380000,
+    description: 'High-capacity fiber network for medical imaging and healthcare data transmission across hospital complex.'
+  },
+  { 
+    id: 'proj-7', 
+    name: 'Government Complex', 
+    client: 'County Administration',
+    status: 'On Hold',
+    progress: 35,
+    lastUpdated: generatePastDate(15),
+    location: 'County Government Center',
+    totalFootage: 6800,
+    completedFootage: 2380,
+    startDate: '2023-06-22',
+    estimatedCompletion: '2023-11-30',
+    budget: 255000,
+    description: 'Secure fiber network installation for county government buildings with redundant pathways.'
+  },
+  { 
+    id: 'proj-8', 
+    name: 'South Harbor Marina', 
+    client: 'Marina Development Authority',
+    status: 'Planning',
+    progress: 8,
+    lastUpdated: generatePastDate(2),
+    location: 'South Harbor Waterfront',
+    totalFootage: 5400,
+    completedFootage: 432,
+    startDate: '2023-09-01',
+    estimatedCompletion: '2023-12-15',
+    budget: 185000,
+    description: 'Weather-resistant fiber network for marina facilities with specialized marine environment protections.'
+  }
 ];
 
 // Mock billing codes

@@ -108,10 +108,11 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                   <SidebarMenuItem>
                     <SidebarMenuButton 
                       asChild 
+                      isActive={location.pathname === '/projects'} 
                       tooltip="Projects"
-                      className={location.pathname === '#' ? 'bg-primary/10 text-primary font-medium' : ''}
+                      className={location.pathname === '/projects' ? 'bg-primary/10 text-primary font-medium' : ''}
                     >
-                      <Link to="#">
+                      <Link to="/projects">
                         <Building2 />
                         <span>Projects</span>
                       </Link>
