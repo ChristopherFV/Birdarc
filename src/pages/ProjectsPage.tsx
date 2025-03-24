@@ -31,6 +31,12 @@ const ProjectsPage = () => {
   
   const mapboxToken = "pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg";
 
+  useEffect(() => {
+    if (!showMapView) {
+      setSelectedProjectId(null);
+    }
+  }, [showMapView]);
+
   const filteredProjects = projects.filter(project => 
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     project.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -105,10 +111,11 @@ const ProjectsPage = () => {
     setShowMapView(!showMapView);
     if (!showMapView) {
       setShowListOverlay(true);
+    } else {
+      setSelectedProjectId(null);
     }
   };
 
-  // Mobile full-screen map view
   if (isMobile && showMapView) {
     return (
       <div className="h-screen w-screen overflow-hidden">
@@ -312,7 +319,6 @@ const ProjectsPage = () => {
           </Card>
         </div>
       ) : (
-        
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center">

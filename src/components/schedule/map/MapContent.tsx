@@ -31,6 +31,7 @@ export const MapContent: React.FC<MapContentProps> = ({
   const [hasInitialZoom, setHasInitialZoom] = useState(false);
   const previousSelectedId = useRef<string | null>(null);
   const isMobile = useIsMobile();
+  const hasZoomedToSelection = useRef<boolean>(false);
   
   // Initialize and set up Mapbox when API key is provided
   useEffect(() => {
@@ -132,9 +133,10 @@ export const MapContent: React.FC<MapContentProps> = ({
         }
 
         // If a task is already selected during initialization, zoom to it
-        if (selectedTaskId && !previousSelectedId.current) {
+        if (selectedTaskId && !hasZoomedToSelection.current) {
           zoomToSelectedTask(selectedTaskId);
           previousSelectedId.current = selectedTaskId;
+          hasZoomedToSelection.current = true;
         }
       });
       
@@ -187,6 +189,7 @@ export const MapContent: React.FC<MapContentProps> = ({
     
     if (selectedTaskId) {
       zoomToSelectedTask(selectedTaskId);
+      hasZoomedToSelection.current = true;
     } else if (previousSelectedId.current && !selectedTaskId) {
       // If a task was selected before but now none is selected, zoom out to show all tasks
       const bounds = new mapboxgl.LngLatBounds();
@@ -204,6 +207,7 @@ export const MapContent: React.FC<MapContentProps> = ({
           pitch: 0,
           duration: 1500
         });
+        hasZoomedToSelection.current = false;
       }
     }
     
