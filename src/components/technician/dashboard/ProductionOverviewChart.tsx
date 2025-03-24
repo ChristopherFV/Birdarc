@@ -13,7 +13,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { Task } from '@/context/ScheduleContext';
-import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval, addDays } from 'date-fns';
 import { useApp } from '@/context/AppContext';
 import { formatUnits } from '@/utils/charts';
 
@@ -21,92 +21,99 @@ interface ProductionOverviewChartProps {
   completedTasks: Task[];
 }
 
-// Sample task data for demonstration
-const sampleCompletedTasks: Task[] = [
-  {
-    id: 'task-1',
-    title: 'Fiber Installation - Downtown',
-    description: 'Install 75 feet of fiber optic cable',
-    location: { address: '123 Main St', lat: 37.7749, lng: -122.4194 },
-    startDate: new Date('2023-06-01'),
-    endDate: new Date('2023-06-01'),
-    projectId: '1',
-    projectName: 'Downtown Fiber Expansion',
-    teamMemberId: '1',
-    teamMemberName: 'Alex Johnson',
-    priority: 'medium',
-    status: 'completed',
-    billingCodeId: 'code-1',
-    quantityEstimate: 75
-  },
-  {
-    id: 'task-2',
-    title: 'Splicing - Business District',
-    description: 'Complete fiber splicing for business district',
-    location: { address: '456 Market St', lat: 37.7899, lng: -122.4014 },
-    startDate: new Date('2023-06-03'),
-    endDate: new Date('2023-06-03'),
-    projectId: '1',
-    projectName: 'Downtown Fiber Expansion',
-    teamMemberId: '1',
-    teamMemberName: 'Alex Johnson',
-    priority: 'high',
-    status: 'completed',
-    billingCodeId: 'code-6',
-    quantityEstimate: 30
-  },
-  {
-    id: 'task-3',
-    title: 'Aerial Installation',
-    description: 'Complete 120 feet of aerial installation',
-    location: { address: '789 Oak St', lat: 37.7691, lng: -122.4449 },
-    startDate: new Date('2023-06-05'),
-    endDate: new Date('2023-06-05'),
-    projectId: '1',
-    projectName: 'Downtown Fiber Expansion',
-    teamMemberId: '1',
-    teamMemberName: 'Alex Johnson',
-    priority: 'medium',
-    status: 'completed',
-    billingCodeId: 'code-3',
-    quantityEstimate: 120
-  },
-  {
-    id: 'task-4',
-    title: 'Underground Installation',
-    description: 'Install 200 feet of underground conduit',
-    location: { address: '101 Pine St', lat: 37.7924, lng: -122.3990 },
-    startDate: new Date('2023-06-10'),
-    endDate: new Date('2023-06-10'),
-    projectId: '2',
-    projectName: 'Westside Business District',
-    teamMemberId: '1',
-    teamMemberName: 'Alex Johnson',
-    priority: 'high',
-    status: 'completed',
-    billingCodeId: 'code-1',
-    quantityEstimate: 200
-  },
-  {
-    id: 'task-5',
-    title: 'Equipment Installation',
-    description: 'Install networking equipment at 3 locations',
-    location: { address: '222 Montgomery St', lat: 37.7904, lng: -122.4024 },
-    startDate: new Date('2023-06-15'),
-    endDate: new Date('2023-06-15'),
-    projectId: '2',
-    projectName: 'Westside Business District',
-    teamMemberId: '1',
-    teamMemberName: 'Alex Johnson',
-    priority: 'medium',
-    status: 'completed',
-    billingCodeId: 'code-5',
-    quantityEstimate: 3
+// Enhanced sample task data for demonstration - covering multiple months
+const generateSampleTasks = (): Task[] => {
+  const today = new Date();
+  const tasks: Task[] = [];
+  
+  // Generate tasks for the past 12 months
+  for (let i = 0; i < 12; i++) {
+    const monthDate = subMonths(today, i);
+    const monthStart = startOfMonth(monthDate);
+    
+    // Create 3-6 tasks per month with realistic values
+    const tasksPerMonth = Math.floor(Math.random() * 4) + 3; // 3-6 tasks
+    
+    for (let j = 0; j < tasksPerMonth; j++) {
+      // Spread tasks throughout the month
+      const taskDate = addDays(monthStart, Math.floor(Math.random() * 28));
+      
+      // Alternate between projects and billing codes
+      const projectId = `${j % 2 + 1}`;
+      const projectName = j % 2 === 0 ? 'Downtown Fiber Expansion' : 'Westside Business District';
+      
+      // Randomize billing codes for variety
+      const billingCodeOptions = ['code-1', 'code-3', 'code-6', 'code-5'];
+      const billingCodeId = billingCodeOptions[Math.floor(Math.random() * billingCodeOptions.length)];
+      
+      // Assign realistic quantities based on billing code
+      let quantity = 100;
+      switch (billingCodeId) {
+        case 'code-1': // Underground Standard
+          quantity = Math.floor(Math.random() * 300) + 100; // 100-400
+          break;
+        case 'code-3': // Aerial Standard
+          quantity = Math.floor(Math.random() * 500) + 200; // 200-700
+          break;
+        case 'code-6': // Splicing
+          quantity = Math.floor(Math.random() * 40) + 10; // 10-50
+          break;
+        case 'code-5': // Equipment
+          quantity = Math.floor(Math.random() * 5) + 1; // 1-6
+          break;
+      }
+      
+      // Task titles based on billing code
+      let title = 'Fiber Installation';
+      switch (billingCodeId) {
+        case 'code-1':
+          title = 'Underground Installation';
+          break;
+        case 'code-3':
+          title = 'Aerial Installation';
+          break;
+        case 'code-6':
+          title = 'Fiber Splicing';
+          break;
+        case 'code-5':
+          title = 'Equipment Installation';
+          break;
+      }
+      
+      // Add location variation
+      const locationOffset = (j * 0.01) + (i * 0.005);
+      
+      tasks.push({
+        id: `task-${i}-${j}`,
+        title: `${title} - ${format(taskDate, 'MMM yyyy')}`,
+        description: `Complete ${quantity} units of ${title.toLowerCase()}`,
+        location: { 
+          address: `${100 + j * 100} Main St, Building ${j+1}`, 
+          lat: 37.7749 + locationOffset, 
+          lng: -122.4194 - locationOffset 
+        },
+        startDate: taskDate,
+        endDate: taskDate,
+        projectId,
+        projectName,
+        teamMemberId: '1',
+        teamMemberName: 'Alex Johnson',
+        priority: j % 2 === 0 ? 'high' : 'medium',
+        status: 'completed',
+        billingCodeId,
+        quantityEstimate: quantity
+      });
+    }
   }
-];
+  
+  return tasks;
+};
+
+// Use the generated sample tasks
+const sampleCompletedTasks = generateSampleTasks();
 
 export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = ({ 
-  completedTasks = sampleCompletedTasks // Use sample data as default
+  completedTasks = sampleCompletedTasks // Use enhanced sample data as default
 }) => {
   const { 
     dateRange, 
@@ -312,3 +319,4 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
     </div>
   );
 };
+
