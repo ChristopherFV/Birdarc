@@ -14,6 +14,7 @@ import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
 import { TechnicianDashboard } from "@/components/technician/TechnicianDashboard";
+import { MainLayout } from "@/components/layout/MainLayout";
 
 const queryClient = new QueryClient();
 
@@ -28,10 +29,9 @@ const App = () => (
           <AddInvoiceDialog />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/invoicing" element={<WorkEntriesPage />} />
-              {/* Removed duplicate /work-entries route */}
-              <Route path="/repository" element={<RepositoryPage />} />
+              <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+              <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
+              <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />
               <Route path="/technician" element={<TechnicianWindow />} />
               <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
               <Route path="*" element={<NotFound />} />
