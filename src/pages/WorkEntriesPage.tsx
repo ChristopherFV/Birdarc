@@ -8,6 +8,8 @@ import { WorkEntriesHeader } from '@/components/work-entries/WorkEntriesHeader';
 import { WorkEntriesTable } from '@/components/work-entries/WorkEntriesTable';
 import { useWorkEntries } from '@/hooks/useWorkEntries';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 const WorkEntriesPage: React.FC = () => {
   const {
@@ -35,10 +37,26 @@ const WorkEntriesPage: React.FC = () => {
   
   const isMobile = useIsMobile();
   
+  const actionButton = (
+    <Button 
+      className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+      size="sm"
+    >
+      <Plus className="h-4 w-4 mr-1" />
+      New Entry
+    </Button>
+  );
+  
   return (
     <SimplePageLayout 
       title="Work Entries" 
       subtitle="View and manage all work entries"
+      showFooter={true}
+      footerProps={{
+        backLink: "/",
+        backLabel: "Dashboard",
+        actionButton: actionButton
+      }}
     >
       <div className="space-y-4 sm:space-y-6">
         <WorkEntriesHeader 

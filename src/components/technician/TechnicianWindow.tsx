@@ -13,10 +13,8 @@ import { useTechnicianNotes } from './hooks/useTechnicianNotes';
 import { useTechnicianTask } from './hooks/useTechnicianTask';
 import { useTaskCompletion } from './hooks/useTaskCompletion';
 import { useDrawingTools } from './hooks/useDrawingTools';
-import { Link } from 'react-router-dom';
-import { LayoutDashboard, ChevronLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
+import { PageFooter } from '@/components/layout/PageFooter';
 
 export const TechnicianWindow: React.FC = () => {
   const isMobile = useIsMobile();
@@ -45,6 +43,16 @@ export const TechnicianWindow: React.FC = () => {
   useEffect(() => {
     setShowMapTokenInput(false);
   }, []);
+  
+  // Action button for the footer
+  const actionButton = (
+    <Button 
+      onClick={handleCompleteReview}
+      className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
+    >
+      Complete Task
+    </Button>
+  );
   
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -122,56 +130,12 @@ export const TechnicianWindow: React.FC = () => {
         )}
       </div>
       
-      {/* Bottom navigation bar with logo - Updated color from fieldvision-navy to fieldvision-brown */}
-      <div className="bg-fieldvision-brown p-3 flex justify-between items-center shadow-inner">
-        <div className="flex items-center gap-3">
-          <Link to="/technician/dashboard">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-fieldvision-brown/80">
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Back
-            </Button>
-          </Link>
-          
-          <Menubar className="bg-transparent border-none">
-            <MenubarMenu>
-              <MenubarTrigger className="text-white hover:bg-fieldvision-brown/80 data-[state=open]:bg-fieldvision-brown/80">
-                <LayoutDashboard className="h-4 w-4 mr-1" />
-                Menu
-              </MenubarTrigger>
-              <MenubarContent>
-                <Link to="/technician/dashboard">
-                  <MenubarItem>
-                    <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </MenubarItem>
-                </Link>
-                <Link to="/schedule">
-                  <MenubarItem>
-                    <Check className="h-4 w-4 mr-2" />
-                    My Tasks
-                  </MenubarItem>
-                </Link>
-              </MenubarContent>
-            </MenubarMenu>
-          </Menubar>
-        </div>
-        
-        {/* Logo in center of bottom bar */}
-        <div className="absolute left-1/2 transform -translate-x-1/2">
-          <img 
-            src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-            alt="Fieldvision Logo" 
-            className="h-6 w-auto object-contain" 
-          />
-        </div>
-        
-        <Button 
-          onClick={handleCompleteReview}
-          className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
-        >
-          Complete Task
-        </Button>
-      </div>
+      {/* Using the new PageFooter component */}
+      <PageFooter
+        backLink="/technician/dashboard"
+        backLabel="Back"
+        actionButton={actionButton}
+      />
     </div>
   );
 };
