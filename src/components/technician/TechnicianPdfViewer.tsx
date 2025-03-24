@@ -1,8 +1,24 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, RotateCw, Maximize2, Minimize2, Pencil, Type, Circle, Square, Menu } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+interface ScreenOrientationAPI {
+  lock?: (orientation: 'portrait' | 'landscape') => Promise<void>;
+  unlock?: () => void;
+  type?: string;
+  angle?: number;
+}
+
+interface ScreenWithOrientation extends Screen {
+  orientation?: ScreenOrientationAPI;
+}
+
+declare global {
+  interface Window {
+    screen: ScreenWithOrientation;
+  }
+}
 
 interface TechnicianPdfViewerProps {
   currentTool: 'pen' | 'text' | 'circle' | 'square';
@@ -44,9 +60,8 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
       if (pdfContainerRef.current.requestFullscreen) {
         pdfContainerRef.current.requestFullscreen();
       }
-      // Force landscape orientation if possible
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(err => {
+      if (window.screen.orientation && window.screen.orientation.lock) {
+        window.screen.orientation.lock('landscape').catch(err => {
           console.error('Failed to lock screen orientation:', err);
         });
       }
@@ -59,12 +74,11 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
     }
   };
 
-  // Listen for fullscreen change events
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
-      if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
-        screen.orientation.unlock();
+      if (!document.fullscreenElement && window.screen.orientation && window.screen.orientation.unlock) {
+        window.screen.orientation.unlock();
       }
     };
 
