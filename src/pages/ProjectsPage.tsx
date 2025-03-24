@@ -90,7 +90,7 @@ const ProjectsPage = () => {
   };
 
   const handleProjectClick = (projectId: string) => {
-    if (selectedProjectId === projectId) return;
+    if (showMapView && selectedProjectId === projectId) return;
     
     setSelectedProjectId(projectId);
     
@@ -108,11 +108,12 @@ const ProjectsPage = () => {
   };
 
   const toggleView = () => {
+    if (showMapView) {
+      setSelectedProjectId(null);
+    }
     setShowMapView(!showMapView);
     if (!showMapView) {
       setShowListOverlay(true);
-    } else {
-      setSelectedProjectId(null);
     }
   };
 

@@ -32,6 +32,7 @@ export const MapContent: React.FC<MapContentProps> = ({
   const previousSelectedId = useRef<string | null>(null);
   const isMobile = useIsMobile();
   const hasZoomedToSelection = useRef<boolean>(false);
+  const isInitialLoad = useRef<boolean>(true);
   
   // Initialize and set up Mapbox when API key is provided
   useEffect(() => {
@@ -114,7 +115,7 @@ export const MapContent: React.FC<MapContentProps> = ({
         }
         
         // Only fit bounds to all markers on initial load if no task is selected
-        if (tasks.length > 0 && !selectedTaskId && !hasInitialZoom) {
+        if (tasks.length > 0 && !selectedTaskId && !hasInitialZoom && isInitialLoad.current) {
           const bounds = new mapboxgl.LngLatBounds();
           
           tasks.forEach(task => {
@@ -130,10 +131,11 @@ export const MapContent: React.FC<MapContentProps> = ({
             });
             setHasInitialZoom(true);
           }
+          isInitialLoad.current = false;
         }
 
         // If a task is already selected during initialization, zoom to it
-        if (selectedTaskId && !hasZoomedToSelection.current) {
+        if (selectedTaskId) {
           zoomToSelectedTask(selectedTaskId);
           previousSelectedId.current = selectedTaskId;
           hasZoomedToSelection.current = true;
@@ -154,6 +156,7 @@ export const MapContent: React.FC<MapContentProps> = ({
         if (map.current) {
           map.current.remove();
           map.current = null;
+          isInitialLoad.current = true;
         }
       };
     } catch (error) {
@@ -184,10 +187,13 @@ export const MapContent: React.FC<MapContentProps> = ({
   
   // Effect to zoom to selected task when selectedTaskId changes
   useEffect(() => {
-    // Only trigger zoom if the selected task actually changed
-    if (!map.current || selectedTaskId === previousSelectedId.current) return;
+    // Skip this effect on initial render when map is not ready yet
+    if (!map.current) return;
     
-    if (selectedTaskId) {
+    console.log("Selected task ID changed:", selectedTaskId, "Previous:", previousSelectedId.current);
+    
+    if (selectedTaskId && selectedTaskId !== previousSelectedId.current) {
+      // New project selected, zoom to it
       zoomToSelectedTask(selectedTaskId);
       hasZoomedToSelection.current = true;
     } else if (previousSelectedId.current && !selectedTaskId) {
