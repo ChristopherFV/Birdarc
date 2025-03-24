@@ -1,7 +1,7 @@
 
 import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, LayoutDashboard, Check } from 'lucide-react';
+import { ChevronLeft, LayoutDashboard, CheckSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Menubar, 
@@ -54,12 +54,12 @@ export const PageFooter: React.FC<PageFooterProps> = ({
               <Link to="/technician/dashboard">
                 <MenubarItem>
                   <LayoutDashboard className="h-4 w-4 mr-2" />
-                  Home
+                  Dashboard
                 </MenubarItem>
               </Link>
               <Link to="/technician">
                 <MenubarItem>
-                  <Check className="h-4 w-4 mr-2" />
+                  <CheckSquare className="h-4 w-4 mr-2" />
                   My Tasks
                 </MenubarItem>
               </Link>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSchedule, Task, TaskStatus } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -18,6 +17,7 @@ import { SectionHeader } from './dashboard/SectionHeader';
 import { PageFooter } from '@/components/layout/PageFooter';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const TechnicianDashboard: React.FC = () => {
   const { tasks, updateTask } = useSchedule();
@@ -148,10 +148,18 @@ export const TechnicianDashboard: React.FC = () => {
         </div>
       </ScrollArea>
       
-      {/* Add the PageFooter component with no action button */}
+      {/* Replace the existing PageFooter with updated version */}
       <PageFooter
-        backLink="/"
-        backLabel="Home"
+        backLink="/technician"
+        backLabel="My Tasks"
+        actionButton={
+          <Link to="/technician">
+            <Button variant="blue" size="sm" className="text-white">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Task
+            </Button>
+          </Link>
+        }
       />
     </div>
   );

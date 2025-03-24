@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const DashboardFooter: React.FC = () => {
   return (
@@ -11,7 +12,12 @@ export const DashboardFooter: React.FC = () => {
         alt="Fieldvision Logo" 
         className="h-6 sm:h-8 w-auto object-contain mb-2" 
       />
+      <Link to="/technician">
+        <Button variant="secondary" size="sm" className="mt-2">
+          <Plus className="h-4 w-4 mr-1" />
+          View My Tasks
+        </Button>
+      </Link>
     </div>
   );
 };
-
