@@ -146,6 +146,22 @@ export const MapContent: React.FC<MapContentProps> = ({
     }
   }, [mapboxApiKey, tasks]);
   
+  // Effect to zoom to selected task when selectedTaskId changes
+  useEffect(() => {
+    if (!map.current || !selectedTaskId) return;
+    
+    const selectedTask = tasks.find(task => task.id === selectedTaskId);
+    if (selectedTask?.location && selectedTask.location.lat && selectedTask.location.lng) {
+      // Zoom to the selected task location
+      map.current.flyTo({
+        center: [selectedTask.location.lng, selectedTask.location.lat],
+        zoom: 14,
+        essential: true,
+        duration: 1500
+      });
+    }
+  }, [selectedTaskId, tasks]);
+  
   // Use custom hook to manage markers
   useMapMarkers(
     map.current,

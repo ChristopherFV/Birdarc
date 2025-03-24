@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { PlusCircle, FileEdit, Trash2, Search, Filter, MapPin, List, Map as MapIcon, Building2 } from "lucide-react";
 import { useAddProjectDialog } from "@/hooks/useAddProjectDialog";
@@ -25,6 +25,7 @@ const ProjectsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showMapView, setShowMapView] = useState(false);
   const [showListOverlay, setShowListOverlay] = useState(true);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const isMobile = useIsMobile();
   
   const mapboxToken = "pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg";
@@ -35,12 +36,24 @@ const ProjectsPage = () => {
     (project.location && project.location.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  // Find matching location data for projects
   const projectLocations = mockProjectLocations.filter(loc => 
     projects.some(p => p.id === loc.projectId)
   );
 
   const handleProjectMarkerClick = (id: string) => {
+    setSelectedProjectId(id === selectedProjectId ? null : id);
     console.log('Project clicked:', id);
+  };
+
+  // Handle clicking a project in the list view
+  const handleProjectClick = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    
+    // If not in map view, switch to map view
+    if (!showMapView) {
+      setShowMapView(true);
+    }
   };
 
   // Toggle between map and list views
@@ -126,7 +139,7 @@ const ProjectsPage = () => {
                   showTasks={true}
                   tasks={projectLocations}
                   onTaskClick={handleProjectMarkerClick}
-                  selectedTaskId={null}
+                  selectedTaskId={selectedProjectId}
                 />
                 
                 {/* List Overlay */}
@@ -157,7 +170,11 @@ const ProjectsPage = () => {
                             </TableHeader>
                             <TableBody>
                               {filteredProjects.slice(0, 5).map((project) => (
-                                <TableRow key={project.id}>
+                                <TableRow 
+                                  key={project.id} 
+                                  className={selectedProjectId === project.id ? "bg-muted" : "cursor-pointer hover:bg-muted/50"}
+                                  onClick={() => handleProjectClick(project.id)}
+                                >
                                   <TableCell className="font-medium">{project.name}</TableCell>
                                   <TableCell>{project.client}</TableCell>
                                   <TableCell>
@@ -219,7 +236,10 @@ const ProjectsPage = () => {
                 </TableHeader>
                 <TableBody>
                   {filteredProjects.map((project) => (
-                    <TableRow key={project.id}>
+                    <TableRow 
+                      key={project.id}
+                      className={selectedProjectId === project.id ? "bg-muted" : ""}
+                    >
                       <TableCell className="font-medium">{project.name}</TableCell>
                       <TableCell>{project.client}</TableCell>
                       <TableCell>
@@ -255,7 +275,11 @@ const ProjectsPage = () => {
                           <Button variant="ghost" size="icon">
                             <Trash2 className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => setShowMapView(true)}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleProjectClick(project.id)}
+                          >
                             <MapPin className="h-4 w-4 mr-1" />
                             Map
                           </Button>
