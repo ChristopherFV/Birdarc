@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { CheckCheck } from 'lucide-react';
 import { 
@@ -228,7 +229,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
   };
 
   return (
-    <div className="h-[400px] w-full">
+    <div className="h-full w-full">
       {chartData.length === 0 ? (
         <p className="text-muted-foreground text-center py-12">No completed tasks to display</p>
       ) : (
@@ -247,36 +248,41 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
             <XAxis 
               dataKey="name" 
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickLine={false}
               axisLine={{ stroke: '#eaeaea' }}
-              dy={10}
+              dy={5}
+              height={30}
+              // Limit the number of ticks displayed based on container width
+              interval={'preserveStartEnd'}
             />
             <YAxis 
               yAxisId="left"
               tickFormatter={(value) => formatUnits(value, billingUnit)}
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickLine={false}
               axisLine={false}
-              width={60}
+              width={45}
+              tickCount={5}
             />
             <YAxis 
               yAxisId="right" 
               orientation="right" 
               domain={[0, (maxUnits * dataScale) || 1000]}
               tickFormatter={(value) => formatUnits(value, billingUnit)}
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickLine={false}
               axisLine={false}
-              width={60}
+              width={45}
+              tickCount={5}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend 
               verticalAlign="top" 
-              height={36}
+              height={25}
               iconType="circle"
               iconSize={8}
-              wrapperStyle={{ paddingBottom: '10px' }}
+              wrapperStyle={{ paddingBottom: '5px' }}
               formatter={(value) => <span className="text-xs font-medium text-gray-700">{value}</span>}
             />
             <Bar 
@@ -287,6 +293,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
               radius={[4, 4, 0, 0]}
               animationDuration={1000}
               minPointSize={3}
+              barSize={20}
             />
             <Line 
               yAxisId="right" 

@@ -1,9 +1,11 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import { MapIcon, MapPin, CheckCircle } from 'lucide-react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useToast } from "@/hooks/use-toast";
 import { Task } from '@/context/ScheduleContext';
+import { Button } from '@/components/ui/button';
 
 interface TechDashboardMapProps {
   tasks: Task[];
@@ -32,20 +34,25 @@ export const TechDashboardMap: React.FC<TechDashboardMapProps> = ({
     
     if (token) {
       setMapboxToken(token);
-      setShowMapTokenInput(false);
       localStorage.setItem('mapbox_token', token);
+      setShowMapTokenInput(false);
       
-      initializeMap();
+      // Initialize map with the new token
+      initializeMap(token);
     }
   };
   
-  const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
+  const initializeMap = (token: string) => {
+    if (!mapContainer.current) return;
 
     try {
-      mapboxgl.accessToken = mapboxToken;
-      
-      if (map.current) map.current.remove();
+      // Clear any existing map
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+
+      mapboxgl.accessToken = token;
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -79,10 +86,29 @@ export const TechDashboardMap: React.FC<TechDashboardMapProps> = ({
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
     
+    if (tasks.length === 0) {
+      // If no tasks, center on US
+      map.current.setCenter([-98.5795, 39.8283]);
+      map.current.setZoom(3);
+      return;
+    }
+    
     const bounds = new mapboxgl.LngLatBounds();
+    let validLocations = 0;
     
     tasks.forEach(task => {
+      if (!task.location || typeof task.location.lat !== 'number' || typeof task.location.lng !== 'number') {
+        return;
+      }
+      
       const { lat, lng } = task.location;
+      
+      // Simple validation to prevent errors
+      if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+        return;
+      }
+      
+      validLocations++;
       
       const el = document.createElement('div');
       el.className = 'marker';
@@ -108,32 +134,42 @@ export const TechDashboardMap: React.FC<TechDashboardMapProps> = ({
       el.style.justifyContent = 'center';
       el.style.cursor = 'pointer';
       
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([lng, lat])
-        .setPopup(new mapboxgl.Popup().setHTML(`
-          <strong>${task.title}</strong><br>
-          <small>${task.location.address}</small><br>
-          <small>Status: ${task.status}</small>
-          <small>Priority: ${task.priority}</small>
-        `))
-        .addTo(map.current);
-      
-      markers.current.push(marker);
-      
-      bounds.extend([lng, lat]);
+      try {
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([lng, lat])
+          .setPopup(new mapboxgl.Popup().setHTML(`
+            <strong>${task.title}</strong><br>
+            <small>${task.location.address || 'No address'}</small><br>
+            <small>Status: ${task.status}</small>
+            <small>Priority: ${task.priority}</small>
+          `))
+          .addTo(map.current!);
+        
+        markers.current.push(marker);
+        bounds.extend([lng, lat]);
+      } catch (err) {
+        console.error('Error adding marker:', err);
+      }
     });
     
-    if (markers.current.length > 0) {
-      map.current.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 12
-      });
+    if (validLocations > 0) {
+      try {
+        map.current.fitBounds(bounds, {
+          padding: 50,
+          maxZoom: 12
+        });
+      } catch (err) {
+        console.error('Error fitting bounds:', err);
+        // Fall back to US view
+        map.current.setCenter([-98.5795, 39.8283]);
+        map.current.setZoom(3);
+      }
     }
   };
   
   useEffect(() => {
     if (mapboxToken && !showMapTokenInput) {
-      initializeMap();
+      initializeMap(mapboxToken);
     }
     
     return () => {
@@ -162,9 +198,9 @@ export const TechDashboardMap: React.FC<TechDashboardMapProps> = ({
               className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Enter your Mapbox token"
             />
-            <button type="submit" className="bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm">
+            <Button type="submit" className="bg-primary text-primary-foreground px-3 py-2 rounded-md text-sm">
               Set Token
-            </button>
+            </Button>
           </form>
           <p className="text-xs text-muted-foreground mt-2">
             You can get a token at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">mapbox.com</a>

@@ -12,7 +12,7 @@ import { ProductionOverviewChart } from './dashboard/ProductionOverviewChart';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { DashboardFooter } from './dashboard/DashboardFooter';
 import { TaskColumns } from './dashboard/TaskColumns';
-import { CheckCheck } from 'lucide-react';
+import { CheckCheck, Map as MapIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SectionHeader } from './dashboard/SectionHeader';
 
@@ -50,10 +50,8 @@ export const TechnicianDashboard: React.FC = () => {
       setMapboxToken(storedToken);
       setShowMapTokenInput(false);
     } else {
-      // Default test token if none stored
-      const defaultToken = "pk.eyJ1IjoiY2h1Y2swZGIsImEiOiJjbTFwdHYzN0oZGIzMm1wdHYzIn0.KUTPcuD8hk7VOzTYJ5WODg";
-      setMapboxToken(defaultToken);
-      localStorage.setItem('mapbox_token', defaultToken);
+      // Without a valid token, we'll show the input
+      setShowMapTokenInput(true);
     }
   }, []);
 
@@ -87,39 +85,41 @@ export const TechnicianDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           {/* Left column with chart and map */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Production Chart */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">
-                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="h-[280px]">
-                  <ProductionOverviewChart completedTasks={completedTasks} />
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Map below chart */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">
-                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Task Map" />
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[280px]">
-                  <TechDashboardMap 
-                    tasks={[...assignedTasks, ...completedTasks]}
-                    mapboxToken={mapboxToken}
-                    showMapTokenInput={showMapTokenInput}
-                    setMapboxToken={setMapboxToken}
-                    setShowMapTokenInput={setShowMapTokenInput}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Production Chart */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">
+                    <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="h-[280px]">
+                    <ProductionOverviewChart completedTasks={completedTasks} />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Map */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">
+                    <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Task Map" />
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="h-[280px]">
+                    <TechDashboardMap 
+                      tasks={[...assignedTasks, ...completedTasks]}
+                      mapboxToken={mapboxToken}
+                      showMapTokenInput={showMapTokenInput}
+                      setMapboxToken={setMapboxToken}
+                      setShowMapTokenInput={setShowMapTokenInput}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
           {/* Right column with task cards */}
