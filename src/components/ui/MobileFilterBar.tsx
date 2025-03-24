@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Filter, ChevronDown, X } from 'lucide-react';
+import { Filter, ChevronDown, X, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DateRangeFilter } from './filters/DateRangeFilter';
@@ -43,26 +43,32 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center text-xs font-medium text-muted-foreground">
           <Filter size={12} className="mr-1" />
-          <span>Filters:</span>
+          <span>Filters</span>
         </div>
         
-        <ExportButton />
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="h-7 text-xs px-2">
+            <ArrowUpDown size={12} className="mr-1" />
+            Sort
+          </Button>
+          <ExportButton />
+        </div>
       </div>
       
       <div className="grid grid-cols-2 gap-2 mb-2">
         <Sheet>
           <SheetTrigger asChild>
             <Button 
-              variant="secondary" 
+              variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs"
+              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
               onClick={() => setActiveFilter('date')}
             >
               <span>Date Range</span>
               <ChevronDown size={12} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-72">
+          <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
             <div className="py-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Date Range</h3>
@@ -78,16 +84,16 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
         <Sheet>
           <SheetTrigger asChild>
             <Button 
-              variant="secondary" 
+              variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs"
+              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
               onClick={() => setActiveFilter('group')}
             >
               <span>Group By</span>
               <ChevronDown size={12} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-72">
+          <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
             <div className="py-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Group By</h3>
@@ -105,16 +111,16 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
         <Sheet>
           <SheetTrigger asChild>
             <Button 
-              variant="secondary" 
+              variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs"
+              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
               onClick={() => setActiveFilter('project')}
             >
               <span>Project</span>
               <ChevronDown size={12} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-72">
+          <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
             <div className="py-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Project</h3>
@@ -130,16 +136,16 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
         <Sheet>
           <SheetTrigger asChild>
             <Button 
-              variant="secondary" 
+              variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs"
+              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
               onClick={() => setActiveFilter('team')}
             >
               <span>Team</span>
               <ChevronDown size={12} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-72">
+          <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
             <div className="py-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Team Member</h3>
@@ -155,16 +161,16 @@ export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({
         <Sheet>
           <SheetTrigger asChild>
             <Button 
-              variant="secondary" 
+              variant="outline" 
               size="sm" 
-              className="w-full flex items-center justify-between px-3 py-1 text-xs"
+              className="w-full flex items-center justify-between px-3 py-1 text-xs h-8"
               onClick={() => setActiveFilter('billing')}
             >
               <span>Billing</span>
               <ChevronDown size={12} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-72">
+          <SheetContent side="bottom" className="h-[70vh] rounded-t-xl pt-1">
             <div className="py-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Billing Code</h3>

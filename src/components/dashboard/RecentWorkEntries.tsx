@@ -56,53 +56,60 @@ export const RecentWorkEntries: React.FC = () => {
 
   if (isMobile) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-medium">Recent Work Entries</h2>
-          <button className="text-sm text-blue-500 flex items-center">
-            View All <ChevronRight className="h-4 w-4 ml-1" />
+          <h2 className="text-base font-medium">Recent Work Entries</h2>
+          <button className="text-xs text-blue-500 flex items-center">
+            View All <ChevronRight className="h-3 w-3 ml-1" />
           </button>
         </div>
         
-        {recentEntries.map((entry) => (
-          <Card key={entry.id} className="overflow-hidden">
-            <CardContent className="p-3">
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-medium">
-                  {getBillingCodeInfo(entry.billingCodeId)}
-                </div>
-                <div className="font-semibold text-green-600">
-                  {formatCurrency(calculateRevenue(entry))}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-sm text-muted-foreground">
-                <div className="flex items-center">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  {formatDate(new Date(entry.date))}
-                </div>
-                <div className="flex items-center">
-                  <User className="h-3 w-3 mr-1" />
-                  {getTeamMemberName(entry.teamMemberId)}
-                </div>
-                <div className="flex items-center">
-                  <Briefcase className="h-3 w-3 mr-1" />
-                  {getProjectName(entry.projectId)}
-                </div>
-                <div className="flex items-center">
-                  <FileText className="h-3 w-3 mr-1" />
-                  {entry.feetCompleted} ft
-                </div>
-              </div>
-            </CardContent>
+        {recentEntries.length === 0 ? (
+          <Card className="p-4 text-center text-muted-foreground">
+            <FileText className="h-6 w-6 mx-auto mb-2 opacity-70" />
+            <p>No work entries found</p>
           </Card>
-        ))}
+        ) : (
+          recentEntries.map((entry) => (
+            <Card key={entry.id} className="overflow-hidden shadow-sm">
+              <CardContent className="p-3">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="font-medium text-sm">
+                    {getBillingCodeInfo(entry.billingCodeId)}
+                  </div>
+                  <div className="font-semibold text-green-600 text-sm">
+                    {formatCurrency(calculateRevenue(entry))}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                  <div className="flex items-center">
+                    <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
+                    {formatDate(new Date(entry.date))}
+                  </div>
+                  <div className="flex items-center">
+                    <User className="h-3 w-3 mr-1 flex-shrink-0" />
+                    {getTeamMemberName(entry.teamMemberId)}
+                  </div>
+                  <div className="flex items-center">
+                    <Briefcase className="h-3 w-3 mr-1 flex-shrink-0" />
+                    {getProjectName(entry.projectId)}
+                  </div>
+                  <div className="flex items-center">
+                    <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
+                    {entry.feetCompleted} ft
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     );
   }
   
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-sm">
       <CardHeader>
         <CardTitle>Recent Work Entries</CardTitle>
         <CardDescription>

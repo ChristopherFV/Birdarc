@@ -28,7 +28,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center text-xs font-medium text-muted-foreground">
           <Filter size={12} className="mr-1" />
-          <span>Filters:</span>
+          <span>Filters</span>
         </div>
         
         <ExportButton />

@@ -16,37 +16,37 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background px-2 md:px-0">
       {isMobile ? (
         <Tabs 
           value={activeTab} 
           onValueChange={setActiveTab} 
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-3 mb-4">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="work-entry">Work Entry</TabsTrigger>
-            <TabsTrigger value="recent">Recent</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-3 mb-4 bg-muted/70 p-0.5 rounded-lg sticky top-0 z-20 mt-2">
+            <TabsTrigger value="dashboard" className="text-xs py-2">Dashboard</TabsTrigger>
+            <TabsTrigger value="work-entry" className="text-xs py-2">Work Entry</TabsTrigger>
+            <TabsTrigger value="recent" className="text-xs py-2">Recent Work</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="dashboard" className="space-y-4">
+          <TabsContent value="dashboard" className="space-y-4 pb-16 animate-fade-in">
             <FilterBar />
-            <Card className="p-2">
+            <Card className="p-3 shadow-sm">
+              <h3 className="text-sm font-medium mb-1">Revenue Overview</h3>
               <RevenueChart />
             </Card>
-            <Card className="p-2">
+            <Card className="p-3 shadow-sm">
+              <h3 className="text-sm font-medium mb-1">Production</h3>
               <ProductionChart />
             </Card>
-            <Card className="p-2">
-              <RecentInvoices />
-            </Card>
+            <RecentInvoices />
           </TabsContent>
           
-          <TabsContent value="work-entry">
+          <TabsContent value="work-entry" className="pb-16 animate-fade-in">
             <WorkEntryForm />
           </TabsContent>
           
-          <TabsContent value="recent">
+          <TabsContent value="recent" className="pb-16 animate-fade-in">
             <RecentWorkEntries />
           </TabsContent>
         </Tabs>
