@@ -2,11 +2,12 @@
 import React from 'react';
 import { 
   SidebarHeader as UISidebarHeader,
-  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { CompanySelector } from '@/components/ui/CompanySelector';
 import { Company } from '@/types/app-types';
-import { ChevronLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
+import { useSidebar } from '@/components/ui/sidebar';
 
 interface SidebarHeaderProps {
   companies: Company[];
@@ -19,6 +20,8 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   selectedCompany, 
   setSelectedCompany 
 }) => {
+  const { toggleSidebar } = useSidebar();
+  
   return (
     <UISidebarHeader className="flex flex-col">
       <div className="flex items-center justify-between px-2 h-16">
@@ -30,9 +33,15 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           />
         </div>
         <div className="hidden md:block">
-          <SidebarTrigger>
-            <ChevronLeft size={18} />
-          </SidebarTrigger>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={toggleSidebar}
+            className="p-1 hover:bg-gray-100 rounded-md"
+          >
+            <Menu className="h-5 w-5 text-fieldvision-orange" />
+            <span className="sr-only">Toggle Menu</span>
+          </Button>
         </div>
       </div>
       <div className="px-2 pt-2 pb-2">

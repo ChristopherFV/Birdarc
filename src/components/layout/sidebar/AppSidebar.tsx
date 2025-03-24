@@ -3,7 +3,6 @@ import React from 'react';
 import { 
   Sidebar, 
   SidebarContent,
-  SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
 import { SidebarHeader } from './SidebarHeader';
@@ -11,6 +10,8 @@ import { SidebarMainNav } from './SidebarMainNav';
 import { SidebarTechNav } from './SidebarTechNav';
 import { SidebarFooterNav } from './SidebarFooterNav';
 import { Company } from '@/types/app-types';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 
 interface AppSidebarProps {
   companies: Company[];
@@ -23,7 +24,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   selectedCompany,
   setSelectedCompany
 }) => {
-  const { state } = useSidebar();
+  const { toggleSidebar } = useSidebar();
   
   return (
     <>
@@ -42,9 +43,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         <SidebarFooterNav />
       </Sidebar>
       
-      {/* Add the collapse trigger button */}
+      {/* Mobile menu toggle button */}
       <div className="fixed bottom-4 left-4 z-50 md:hidden">
-        <SidebarTrigger />
+        <Button 
+          variant="orange" 
+          size="icon" 
+          onClick={toggleSidebar}
+          className="rounded-full shadow-md"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle Menu</span>
+        </Button>
       </div>
     </>
   );
