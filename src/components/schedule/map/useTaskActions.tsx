@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Task } from '@/context/ScheduleContext';
+import { Task, TaskStatus } from '@/context/ScheduleContext';
 
 export const useTaskActions = (
   tasks: Task[],
@@ -52,7 +52,7 @@ export const useTaskActions = (
     if (selectedTaskId) {
       const task = tasks.find(t => t.id === selectedTaskId);
       if (task) {
-        const newStatus = confirmationAction === 'complete' ? 'completed' : 'cancelled';
+        const newStatus: TaskStatus = confirmationAction === 'complete' ? 'completed' : 'cancelled';
         const updatedTask = { ...task, status: newStatus };
         
         try {
