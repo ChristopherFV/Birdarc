@@ -42,7 +42,7 @@ const WorkEntriesPage: React.FC = () => {
   } = useWorkEntries();
   
   // Get context data for AI insights
-  const { billingCodes, projects, teamMembers } = useApp();
+  const { billingCodes, projects, teamMembers, calculateRevenue } = useApp();
   const { tasks } = useSchedule();
   
   const isMobile = useIsMobile();
@@ -64,6 +64,11 @@ const WorkEntriesPage: React.FC = () => {
       amount
     });
     setPaymentModalOpen(true);
+  };
+  
+  const getProjectName = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.name : 'Unknown Project';
   };
   
   return (
@@ -118,23 +123,22 @@ const WorkEntriesPage: React.FC = () => {
                 selectedEntries={selectedEntries}
                 handleSelectEntry={handleSelectEntry}
                 handleSelectAll={handleSelectAll}
-                // In a real app, you would add these props and implement them in WorkEntriesTable
-                // renderActions={(entry) => (
-                //   entry.invoiceStatus === 'invoiced' && (
-                //     <Button 
-                //       size="sm" 
-                //       variant="ghost" 
-                //       onClick={() => handlePayInvoice(
-                //         `INV-${entry.id.substring(0, 4)}`, 
-                //         getProjectName(entry.projectId),
-                //         calculateRevenue(entry, billingCodes)
-                //       )}
-                //     >
-                //       <CreditCard className="h-4 w-4 mr-1" />
-                //       Pay
-                //     </Button>
-                //   )
-                // )}
+                renderActions={(entry) => (
+                  entry.invoiceStatus === 'invoiced' && (
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => handlePayInvoice(
+                        `INV-${entry.id.substring(0, 4)}`, 
+                        getProjectName(entry.projectId),
+                        calculateRevenue(entry, billingCodes)
+                      )}
+                    >
+                      <CreditCard className="h-4 w-4 mr-1" />
+                      Pay
+                    </Button>
+                  )
+                )}
               />
             </CardContent>
           </Card>

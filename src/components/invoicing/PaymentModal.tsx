@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CreditCard, Bank, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, CreditCard, Building, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { PaymentMethod, processPayment, calculateProcessingFee } from '@/utils/stripeUtils';
 
 interface PaymentModalProps {
@@ -142,7 +142,7 @@ export function PaymentModal({
                 <div className="flex items-center space-x-2 rounded-md border p-3">
                   <RadioGroupItem value="ach" id="ach" />
                   <Label htmlFor="ach" className="flex items-center gap-2 cursor-pointer">
-                    <Bank size={16} />
+                    <Building size={16} />
                     ACH Transfer
                     <span className="text-xs text-muted-foreground ml-auto">
                       0.8% fee (max $5)
