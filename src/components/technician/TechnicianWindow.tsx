@@ -15,8 +15,9 @@ import { useTechnicianTask } from './hooks/useTechnicianTask';
 import { useTaskCompletion } from './hooks/useTaskCompletion';
 import { useDrawingTools } from './hooks/useDrawingTools';
 import { Link } from 'react-router-dom';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, ChevronLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
 
 export const TechnicianWindow: React.FC = () => {
   const isMobile = useIsMobile();
@@ -73,10 +74,16 @@ export const TechnicianWindow: React.FC = () => {
         hasNotes={mapNotes.length > 0}
       />
       
-      <TechnicianHeader
-        taskTitle={taskData.title}
-        handleCompleteReview={handleCompleteReview}
-      />
+      {/* Logo centered above header */}
+      <div className="flex justify-center items-center py-2">
+        <img 
+          src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+          alt="Fieldvision Logo" 
+          className="h-8 w-auto object-contain" 
+        />
+      </div>
+      
+      <TechnicianHeader taskTitle={taskData.title} />
       
       <div className="p-2 bg-background border-b border-border">
         <div className="flex justify-between items-center">
@@ -132,12 +139,46 @@ export const TechnicianWindow: React.FC = () => {
         )}
       </div>
       
-      <div className="flex flex-col items-center justify-center mt-4 mb-4 sm:mb-6">
-        <img 
-          src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-          alt="Fieldvision Logo" 
-          className="h-6 sm:h-8 w-auto object-contain" 
-        />
+      {/* Bottom navigation bar */}
+      <div className="bg-fieldvision-navy p-3 flex justify-between items-center shadow-inner">
+        <div className="flex items-center gap-3">
+          <Link to="/technician/dashboard">
+            <Button variant="ghost" size="sm" className="text-white hover:bg-fieldvision-navy/80">
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Back
+            </Button>
+          </Link>
+          
+          <Menubar className="bg-transparent border-none">
+            <MenubarMenu>
+              <MenubarTrigger className="text-white hover:bg-fieldvision-navy/80 data-[state=open]:bg-fieldvision-navy/80">
+                <LayoutDashboard className="h-4 w-4 mr-1" />
+                Menu
+              </MenubarTrigger>
+              <MenubarContent>
+                <Link to="/technician/dashboard">
+                  <MenubarItem>
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </MenubarItem>
+                </Link>
+                <Link to="/schedule">
+                  <MenubarItem>
+                    <Check className="h-4 w-4 mr-2" />
+                    My Tasks
+                  </MenubarItem>
+                </Link>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+        </div>
+        
+        <Button 
+          onClick={handleCompleteReview}
+          className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
+        >
+          Complete Review
+        </Button>
       </div>
     </div>
   );
