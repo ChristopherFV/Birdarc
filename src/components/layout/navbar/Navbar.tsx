@@ -3,7 +3,7 @@ import React from 'react';
 import { useApp } from '@/context/AppContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Bell, LogOut, Settings, User } from 'lucide-react';
+import { Bell, LogOut, Settings, User } from 'lucide-react';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -16,11 +16,11 @@ import {
 export const Navbar: React.FC = () => {
   const { selectedCompany } = useApp();
   
-  // Using placeholder user data since currentUser is not available in context
+  // Using American user data
   const user = {
-    name: "Anima Agrawal",
-    location: "U.P, India",
-    email: "user@example.com",
+    name: "Michael Johnson",
+    location: "Seattle, WA",
+    email: "michael.johnson@example.com",
     avatarUrl: undefined
   };
   
@@ -30,7 +30,9 @@ export const Navbar: React.FC = () => {
       <div className="flex items-center gap-3">
         <div className="flex items-center">
           <div className="w-8 h-8 rounded-full bg-fieldvision-blue flex items-center justify-center text-white mr-3">
-            <span className="text-sm font-semibold">A</span>
+            <span className="text-sm font-semibold">
+              {selectedCompany?.name?.charAt(0) || 'F'}
+            </span>
           </div>
           <h1 className="text-lg font-medium">{selectedCompany.name}</h1>
         </div>
