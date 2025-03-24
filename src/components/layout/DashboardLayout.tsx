@@ -85,7 +85,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             />
             <NavItem 
               icon={<FileText size={20} />} 
-              label="Fieldvision" 
+              label="Team Files" 
               href="/repository" 
               collapsed={collapsed}
               active={location.pathname === '/repository'} 

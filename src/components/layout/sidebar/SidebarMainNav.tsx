@@ -64,7 +64,7 @@ export const SidebarMainNav: React.FC = () => {
               : 'hover:bg-muted text-foreground'}`}
         >
           <FolderArchive className="h-4 w-4" />
-          <span>Repository</span>
+          <span>Team Files</span>
         </Link>
         
         <Link
