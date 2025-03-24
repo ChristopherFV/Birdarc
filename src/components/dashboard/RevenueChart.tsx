@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line } from 'recharts';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
-import { ReloadIcon } from '@radix-ui/react-icons';
+import { Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const CustomChartTooltip = ({ active, payload, label }: any) => {
@@ -107,7 +108,7 @@ export const RevenueChart = () => {
       <CardContent>
         {isLoading ? (
           <div className="h-[250px] flex items-center justify-center">
-            <ReloadIcon className="h-6 w-6 animate-spin text-primary/50" />
+            <Loader2 className="h-6 w-6 animate-spin text-primary/50" />
           </div>
         ) : (
           <div className="h-[250px] md:h-[300px] w-full">

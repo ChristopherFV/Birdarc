@@ -10,7 +10,11 @@ import { GroupByFilter } from '@/components/ui/filters/GroupByFilter';
 import { BillingCodeFilter } from '@/components/ui/filters/BillingCodeFilter';
 import { ExportButton } from '@/components/ui/filters/ExportButton';
 
-export const MobileFilterBar = () => {
+interface MobileFilterBarProps {
+  technicianView?: boolean;
+}
+
+export const MobileFilterBar: React.FC<MobileFilterBarProps> = ({ technicianView = false }) => {
   const [open, setOpen] = useState(false);
   
   return (
@@ -44,7 +48,7 @@ export const MobileFilterBar = () => {
           
           <div className="space-y-3">
             <h3 className="text-sm font-medium">Team Member</h3>
-            <TeamMemberFilter />
+            <TeamMemberFilter technicianView={technicianView} />
           </div>
           
           <div className="space-y-3">
@@ -58,7 +62,7 @@ export const MobileFilterBar = () => {
           </div>
           
           <div className="mt-6">
-            <ExportButton variant="default" className="w-full" />
+            <ExportButton className="w-full" />
           </div>
         </div>
       </SheetContent>

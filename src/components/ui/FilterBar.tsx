@@ -9,18 +9,22 @@ import { ExportButton } from './filters/ExportButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileFilterBar } from './MobileFilterBar';
 
-export const FilterBar = () => {
+interface FilterBarProps {
+  technicianView?: boolean;
+}
+
+export const FilterBar: React.FC<FilterBarProps> = ({ technicianView = false }) => {
   const isMobile = useIsMobile();
   
   if (isMobile) {
-    return <MobileFilterBar />;
+    return <MobileFilterBar technicianView={technicianView} />;
   }
   
   return (
     <div className="flex flex-wrap gap-2 pb-2">
       <DateRangeFilter />
       <ProjectFilter />
-      <TeamMemberFilter />
+      <TeamMemberFilter technicianView={technicianView} />
       <BillingCodeFilter />
       <GroupByFilter />
       <div className="ml-auto">
