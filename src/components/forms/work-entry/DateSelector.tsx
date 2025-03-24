@@ -47,6 +47,7 @@ export const DateSelector: React.FC<DateSelectorProps> = ({
             selected={date}
             onSelect={onDateSelect}
             initialFocus
+            className="p-3 pointer-events-auto"
           />
         </PopoverContent>
       </Popover>

@@ -105,7 +105,7 @@ export const WorkEntryForm: React.FC = () => {
             onDateSelect={handleDateSelect}
             open={calendarOpen}
             setOpen={setCalendarOpen}
-            error={formData.date}
+            error={formErrors.date} // Changed from formData.date to formErrors.date to correctly pass error string
           />
           
           {/* Project Dropdown */}
