@@ -1,8 +1,18 @@
 
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCheck, TrendingUp } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, ComposedChart } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CheckCheck } from 'lucide-react';
+import { 
+  ComposedChart, 
+  Bar, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
 import { Task } from '@/context/ScheduleContext';
 import { format } from 'date-fns';
 import { useApp } from '@/context/AppContext';
@@ -18,7 +28,8 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
     dateRange, 
     groupBy,
     selectedProject,
-    selectedTeamMember
+    selectedTeamMember,
+    billingUnit
   } = useApp();
 
   // Process data for the chart based on filters
@@ -91,18 +102,68 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
       cumulativeUnits += item.units;
       return {
         ...item,
-        cumulative: cumulativeUnits
+        cumulativeUnits
       };
     });
-  }, [completedTasks, groupBy, selectedProject, dateRange]);
+  }, [completedTasks, groupBy, selectedProject, dateRange, selectedTeamMember]);
+
+  // Format units based on billing unit type
+  const formatUnits = (value: number) => {
+    switch (billingUnit) {
+      case 'foot':
+        return `${value} ft`;
+      case 'meter':
+        return `${value} m`;
+      case 'each':
+        return value.toString();
+      default:
+        return `${value} units`;
+    }
+  };
+
+  // Calculate max values for scaling
+  const maxUnits = Math.max(...chartData.map(item => item.units || 0));
+  const maxCumulative = Math.max(...chartData.map(item => item.cumulativeUnits || 0));
+  const dataScale = maxCumulative > maxUnits * 5 ? 1.2 : 2;
+
+  // Custom tooltip component
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="rounded-lg bg-white p-3 shadow-md border border-gray-100">
+          <p className="font-medium text-gray-800 mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <div key={`tooltip-${index}`} className="flex items-center text-sm mb-1">
+              <div 
+                className="w-3 h-3 rounded-full mr-2" 
+                style={{ backgroundColor: entry.color }}
+              />
+              <span className="mr-2 text-gray-600">{entry.name}:</span>
+              <span className="font-medium text-gray-800">
+                {formatUnits(entry.value)}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <Card className="mt-6">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <CheckCheck className="h-5 w-5" />
-          Production Overview
-        </CardTitle>
+        <div className="flex flex-row justify-between items-center">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <CheckCheck className="h-5 w-5" />
+              Production Overview
+            </CardTitle>
+            <CardDescription>
+              Units completed over time
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {chartData.length === 0 ? (
@@ -111,20 +172,69 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
           <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Legend />
-                <Bar yAxisId="left" dataKey="units" fill="#3b82f6" name="Units Completed" />
+                <defs>
+                  <linearGradient id="colorUnits" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0.2}/>
+                  </linearGradient>
+                  <linearGradient id="colorCumulative" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="5%" stopColor="#ff9800" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#ff9800" stopOpacity={1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 11, fill: "#64748b" }}
+                  tickLine={false}
+                  axisLine={{ stroke: '#eaeaea' }}
+                  dy={10}
+                />
+                <YAxis 
+                  yAxisId="left"
+                  tickFormatter={(value) => formatUnits(value)}
+                  tick={{ fontSize: 11, fill: "#64748b" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={60}
+                />
+                <YAxis 
+                  yAxisId="right" 
+                  orientation="right" 
+                  domain={[0, (maxUnits * dataScale) || 1000]}
+                  tickFormatter={(value) => formatUnits(value)}
+                  tick={{ fontSize: 11, fill: "#64748b" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={60}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  verticalAlign="top" 
+                  height={36}
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ paddingBottom: '10px' }}
+                  formatter={(value) => <span className="text-xs font-medium text-gray-700">{value}</span>}
+                />
+                <Bar 
+                  yAxisId="left" 
+                  dataKey="units" 
+                  name="Units Completed" 
+                  fill="url(#colorUnits)" 
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={1000}
+                />
                 <Line 
                   yAxisId="right" 
+                  dataKey="cumulativeUnits" 
+                  name="Cumulative Units" 
                   type="monotone" 
-                  dataKey="cumulative" 
-                  stroke="#22c55e" 
-                  name="Cumulative Units"
-                  strokeWidth={2} 
+                  stroke="url(#colorCumulative)"
+                  strokeWidth={2}
+                  dot={{ r: 3, strokeWidth: 0, fill: "#ff9800" }}
+                  activeDot={{ r: 6, strokeWidth: 0, fill: "#ff9800" }}
+                  animationDuration={1500}
                 />
               </ComposedChart>
             </ResponsiveContainer>
