@@ -44,19 +44,19 @@ const data: InvoicingStatusData[] = [
 const chartConfig = {
   wip: {
     label: "Work In Progress",
-    color: "var(--color-wip)"
+    color: "#F18E1D" // Orange
   },
   invoiced: {
     label: "Invoiced",
-    color: "var(--color-invoiced)"
+    color: "#00b6cf" // Blue
   },
   pending: {
     label: "Pending Approval",
-    color: "var(--color-pending)"
+    color: "#52461B" // Brown
   },
   total: {
     label: "Total Value",
-    color: "var(--color-total)"
+    color: "#9b87f5" // Purple
   }
 };
 
@@ -76,7 +76,7 @@ export const InvoicingStatusChart: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="h-[280px] w-full"> {/* Adjusted height to ensure it fits */}
+        <div className="h-[280px] w-full">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
@@ -115,26 +115,26 @@ export const InvoicingStatusChart: React.FC = () => {
                 <Bar 
                   dataKey="wip" 
                   stackId="a" 
-                  fill="var(--color-wip)" 
+                  fill="#F18E1D" 
                   radius={[4, 4, 0, 0]} 
                   barSize={32}
                 />
                 <Bar 
                   dataKey="invoiced" 
                   stackId="a" 
-                  fill="var(--color-invoiced)" 
+                  fill="#00b6cf" 
                   radius={[0, 0, 0, 0]}
                 />
                 <Bar 
                   dataKey="pending" 
                   stackId="a" 
-                  fill="var(--color-pending)" 
+                  fill="#52461B" 
                   radius={[0, 0, 4, 4]}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="total" 
-                  stroke="var(--color-total)" 
+                  stroke="#9b87f5" 
                   strokeWidth={2}
                   dot={{ r: 4, strokeWidth: 2 }}
                   activeDot={{ r: 6, strokeWidth: 2 }}

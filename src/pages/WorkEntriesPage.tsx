@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { InvoicingStatusChart } from '@/components/invoicing/InvoicingStatusChart';
+import { FilterBar } from '@/components/ui/FilterBar';
 
 const WorkEntriesPage: React.FC = () => {
   const {
@@ -62,6 +63,15 @@ const WorkEntriesPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-6">
         {/* Invoicing Status Chart spans full width */}
         <InvoicingStatusChart />
+        
+        {/* Filter Bar */}
+        {isFiltersOpen && (
+          <Card className="bg-card border-border shadow-sm">
+            <CardContent className="p-4">
+              <FilterBar />
+            </CardContent>
+          </Card>
+        )}
         
         <div className="space-y-4">
           <WorkEntriesHeader 

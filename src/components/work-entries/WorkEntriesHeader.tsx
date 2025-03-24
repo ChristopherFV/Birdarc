@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
-import { FilterBar } from '@/components/ui/FilterBar';
 
 interface WorkEntriesHeaderProps {
   search: string;
@@ -45,18 +44,18 @@ export const WorkEntriesHeader: React.FC<WorkEntriesHeaderProps> = ({
         
         <div className="flex items-center gap-2">
           <Button 
-            variant="outline" 
+            variant={isFiltersOpen ? "secondary" : "outline"}
             onClick={() => setIsFiltersOpen(!isFiltersOpen)}
             className="flex items-center gap-1 h-9 px-3"
             size="sm"
           >
             <Filter size={14} />
-            Filters
+            {isFiltersOpen ? "Hide Filters" : "Show Filters"}
           </Button>
           
           <Button 
             variant={selectMode ? "secondary" : "default"}
-            className="flex items-center gap-1 h-9 px-3"
+            className="flex items-center gap-1 h-9 px-3 bg-fieldvision-blue hover:bg-fieldvision-blue/90"
             size="sm"
             onClick={handleCreateInvoice}
           >
@@ -79,16 +78,6 @@ export const WorkEntriesHeader: React.FC<WorkEntriesHeaderProps> = ({
           )}
         </div>
       </div>
-      
-      <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-        <CollapsibleContent>
-          <Card className="bg-card">
-            <CardContent className="p-4">
-              <FilterBar />
-            </CardContent>
-          </Card>
-        </CollapsibleContent>
-      </Collapsible>
     </div>
   );
 };
