@@ -27,9 +27,9 @@ export const PendingNotification: React.FC<PendingNotificationProps> = ({
   }
   
   return (
-    <Card className="mb-6 border-yellow-200 bg-yellow-50">
+    <Card className="mb-6 border-fieldvision-blue bg-fieldvision-blue/10">
       <CardContent className="p-4">
-        <div className="flex items-center gap-2 text-yellow-700 mb-2">
+        <div className="flex items-center gap-2 text-fieldvision-blue mb-2">
           <CircleAlert className="h-5 w-5" />
           <h3 className="font-medium">Files Pending Approval</h3>
         </div>
