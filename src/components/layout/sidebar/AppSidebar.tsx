@@ -10,10 +10,11 @@ import { SidebarMainNav } from './SidebarMainNav';
 import { SidebarTechNav } from './SidebarTechNav';
 import { SidebarFooterNav } from './SidebarFooterNav';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 
 export const AppSidebar: React.FC = () => {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   
   return (
     <>
@@ -26,6 +27,22 @@ export const AppSidebar: React.FC = () => {
         </SidebarContent>
         
         <SidebarFooterNav />
+        
+        {/* Toggle button positioned on the sidebar border */}
+        <div className="absolute -right-3 top-16 z-50">
+          <Button 
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-6 w-6 rounded-full bg-white border border-border shadow-sm"
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-3 w-3" />
+            ) : (
+              <ChevronLeft className="h-3 w-3" />
+            )}
+          </Button>
+        </div>
       </Sidebar>
       
       {/* Mobile menu toggle button */}
