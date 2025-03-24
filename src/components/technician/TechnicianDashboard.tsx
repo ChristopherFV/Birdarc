@@ -129,7 +129,7 @@ export const TechnicianDashboard: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="space-y-2 max-h-[208px] overflow-y-auto">
                   {assignedTasks.length === 0 ? (
                     <p className="text-muted-foreground text-sm">No active tasks</p>
                   ) : (
@@ -161,7 +161,7 @@ export const TechnicianDashboard: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="space-y-2 max-h-[208px] overflow-y-auto">
                   {assignedTasks.length === 0 ? (
                     <p className="text-muted-foreground text-sm">No scheduled tasks</p>
                   ) : (
@@ -199,14 +199,14 @@ export const TechnicianDashboard: React.FC = () => {
             </Card>
             
             {/* Recently Completed */}
-            <Card>
+            <Card className="mb-6">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">
                   <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Recently Completed" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="space-y-2 max-h-[208px] overflow-y-auto">
                   {completedTasks.length === 0 ? (
                     <p className="text-muted-foreground text-sm">No completed tasks</p>
                   ) : (
@@ -232,7 +232,7 @@ export const TechnicianDashboard: React.FC = () => {
           </div>
           
           {/* Map (spans 2 columns on large screens) */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 mb-6">
             <TechDashboardMap 
               tasks={[...assignedTasks, ...completedTasks]}
               mapboxToken={mapboxToken}
@@ -243,7 +243,7 @@ export const TechnicianDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="flex flex-col items-center justify-center mt-8 mb-4">
+        <div className="flex flex-col items-center justify-center mt-2 mb-4">
           <img 
             src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
             alt="Fieldvision Logo" 
