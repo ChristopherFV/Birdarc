@@ -5,6 +5,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Task } from '@/context/ScheduleContext';
 import { useMapMarkers } from './useMapMarkers';
 import { MapFallback } from './MapFallback';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MapContentProps {
   mapboxApiKey?: string;
@@ -12,6 +13,7 @@ interface MapContentProps {
   tasks: Task[];
   onTaskClick: (id: string) => void;
   selectedTaskId: string | null;
+  fullScreen?: boolean;
 }
 
 export const MapContent: React.FC<MapContentProps> = ({
@@ -19,7 +21,8 @@ export const MapContent: React.FC<MapContentProps> = ({
   showTasks,
   tasks,
   onTaskClick,
-  selectedTaskId
+  selectedTaskId,
+  fullScreen = false
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -27,6 +30,7 @@ export const MapContent: React.FC<MapContentProps> = ({
   const [mapError, setMapError] = useState<string | null>(null);
   const [hasInitialZoom, setHasInitialZoom] = useState(false);
   const previousSelectedId = useRef<string | null>(null);
+  const isMobile = useIsMobile();
   
   // Initialize and set up Mapbox when API key is provided
   useEffect(() => {
@@ -228,5 +232,9 @@ export const MapContent: React.FC<MapContentProps> = ({
     );
   }
   
-  return <div ref={mapContainer} className="absolute inset-0" />;
+  const containerClass = isMobile && fullScreen 
+    ? "fixed inset-0 z-50" 
+    : "absolute inset-0";
+  
+  return <div ref={mapContainer} className={containerClass} />;
 };

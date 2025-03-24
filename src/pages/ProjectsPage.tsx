@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FileEdit, Trash2, Search, Filter, MapPin, List, Map as MapIcon, Building2 } from "lucide-react";
+import { PlusCircle, FileEdit, Trash2, Search, MapPin, List, Map as MapIcon, Building2, ArrowLeft } from "lucide-react";
 import { useAddProjectDialog } from "@/hooks/useAddProjectDialog";
 import { useApp } from '@/context/AppContext';
 import { 
@@ -12,13 +12,12 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { FilterBar } from '@/components/ui/FilterBar';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapContent } from '@/components/schedule/map/MapContent';
 import { mockProjectLocations } from '@/utils/mockMapData';
 import { useToast } from "@/hooks/use-toast";
 import { TaskStatus } from "@/context/ScheduleContext";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const ProjectsPage = () => {
   const { projects } = useApp();
@@ -71,10 +70,6 @@ const ProjectsPage = () => {
     };
   });
 
-  useEffect(() => {
-    console.log("Project locations for map:", projectLocations);
-  }, [projectLocations]);
-
   const handleProjectMarkerClick = (id: string) => {
     setSelectedProjectId(id === selectedProjectId ? null : id);
     console.log('Project clicked:', id);
@@ -112,6 +107,69 @@ const ProjectsPage = () => {
       setShowListOverlay(true);
     }
   };
+
+  // Mobile full-screen map view
+  if (isMobile && showMapView) {
+    return (
+      <div className="h-screen w-screen overflow-hidden">
+        <div className="absolute top-0 left-0 z-[60] p-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowMapView(false)}
+            className="bg-white dark:bg-gray-800 shadow-md"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to List
+          </Button>
+        </div>
+        
+        {selectedProjectId && (
+          <div className="absolute bottom-4 left-2 right-2 z-[60]">
+            <Card className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-lg">
+              <CardContent className="p-3">
+                {(() => {
+                  const project = projects.find(p => p.id === selectedProjectId);
+                  return project ? (
+                    <div className="space-y-2">
+                      <h3 className="font-medium">{project.name}</h3>
+                      <div className="text-sm text-muted-foreground">
+                        Client: {project.client}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Location: {project.location || "No location"}
+                      </div>
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                          {project.status || "Active"}
+                        </span>
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          onClick={() => setSelectedProjectId(null)}
+                        >
+                          Close
+                        </Button>
+                      </div>
+                    </div>
+                  ) : <div>No project selected</div>;
+                })()}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        
+        <MapContent 
+          mapboxApiKey={mapboxToken}
+          showTasks={true}
+          tasks={projectLocations}
+          onTaskClick={handleProjectMarkerClick}
+          selectedTaskId={selectedProjectId}
+          fullScreen={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto space-y-6 px-2 md:px-0">
@@ -254,6 +312,7 @@ const ProjectsPage = () => {
           </Card>
         </div>
       ) : (
+        
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center">
