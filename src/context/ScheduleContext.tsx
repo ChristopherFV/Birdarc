@@ -46,6 +46,8 @@ interface ScheduleContextType {
   updateTask: (task: Task) => void;
   deleteTask: (id: string) => void;
   getTasksForDate: (date: Date) => Task[];
+  getTasksByProjectId: (projectId: string | null) => Task[];
+  updateMultipleTasks: (tasks: Task[]) => void;
 }
 
 const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
@@ -107,6 +109,16 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     ));
   };
   
+  // New method to update multiple tasks at once
+  const updateMultipleTasks = (updatedTasks: Task[]) => {
+    const taskMap = new Map(updatedTasks.map(task => [task.id, task]));
+    
+    setTasks(tasks.map(task => {
+      const updatedTask = taskMap.get(task.id);
+      return updatedTask || task;
+    }));
+  };
+  
   const deleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
@@ -120,6 +132,15 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
   
+  // New method to get tasks by project ID
+  const getTasksByProjectId = (projectId: string | null): Task[] => {
+    if (!projectId) return [];
+    return tasks.filter(task => 
+      task.projectId === projectId && 
+      (task.status === 'pending' || task.status === 'in_progress')
+    );
+  };
+  
   return (
     <ScheduleContext.Provider value={{
       tasks,
@@ -128,7 +149,9 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       addTask,
       updateTask,
       deleteTask,
-      getTasksForDate
+      getTasksForDate,
+      getTasksByProjectId,
+      updateMultipleTasks
     }}>
       {children}
     </ScheduleContext.Provider>

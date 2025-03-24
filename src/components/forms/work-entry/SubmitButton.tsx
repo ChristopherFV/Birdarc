@@ -1,28 +1,31 @@
 
 import React from 'react';
-import { Send } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface SubmitButtonProps {
   isSubmitting: boolean;
-  isTechnicianView?: boolean;
+  label?: string;
 }
 
 export const SubmitButton: React.FC<SubmitButtonProps> = ({ 
   isSubmitting,
-  isTechnicianView = false
+  label = "Submit Work Entry" 
 }) => {
   return (
-    <button
-      type="submit"
+    <Button 
+      type="submit" 
+      className="w-full"
       disabled={isSubmitting}
-      className={`
-        w-full py-2.5 bg-fieldvision-orange text-white font-medium rounded-md
-        hover:bg-fieldvision-orange/90 transition-colors flex items-center justify-center gap-2
-        ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}
-      `}
     >
-      {isTechnicianView && <Send className="size-4" />}
-      {isSubmitting ? 'Saving...' : isTechnicianView ? 'Submit for Approval' : 'Save Work Entry'}
-    </button>
+      {isSubmitting ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Submitting...
+        </>
+      ) : (
+        label
+      )}
+    </Button>
   );
 };

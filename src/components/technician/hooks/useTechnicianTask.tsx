@@ -1,10 +1,20 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSchedule, Task } from '@/context/ScheduleContext';
+import { useSearchParams } from 'react-router-dom';
 
 export const useTechnicianTask = () => {
-  const [selectedTaskId, setSelectedTaskId] = useState<string>("task-123");
+  const [searchParams] = useSearchParams();
+  const taskId = searchParams.get('taskId') || "task-123";
+  const [selectedTaskId, setSelectedTaskId] = useState<string>(taskId);
   const { tasks } = useSchedule();
+  
+  // Update selected task ID when URL parameter changes
+  useEffect(() => {
+    if (taskId) {
+      setSelectedTaskId(taskId);
+    }
+  }, [taskId]);
   
   const defaultTaskData: Task = {
     id: 'task-123',
@@ -27,6 +37,11 @@ export const useTechnicianTask = () => {
   
   const handleTaskSelect = (taskId: string) => {
     setSelectedTaskId(taskId);
+    
+    // Update URL with the selected task ID for easier sharing/bookmarking
+    const url = new URL(window.location.href);
+    url.searchParams.set('taskId', taskId);
+    window.history.pushState({}, '', url);
   };
   
   const getSelectedTask = (): Task => {

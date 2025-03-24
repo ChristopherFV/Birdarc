@@ -56,7 +56,7 @@ export const TechnicianTaskSelector: React.FC<TechnicianTaskSelectorProps> = ({
                 <div className="truncate">
                   <span className="font-medium">{task.title}</span>
                   <span className="text-xs text-muted-foreground ml-2">
-                    {formatTaskDate(task.startDate)}
+                    ID: {task.id.slice(0, 8)}... | {formatTaskDate(task.startDate)}
                   </span>
                 </div>
               </SelectItem>
