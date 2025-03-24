@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { useApp } from '@/context/AppContext';
 import { WorkEntry } from '@/types/app-types';
@@ -140,21 +139,6 @@ export const useWorkEntries = () => {
   };
   
   const handleCreateInvoice = () => {
-    if (!selectMode) {
-      setSelectMode(true);
-      return;
-    }
-    
-    if (selectedCount === 0) {
-      toast({
-        title: "No entries selected",
-        description: "Please select at least one work entry to create an invoice.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Open the invoice dialog directly
     openAddInvoiceDialog();
   };
   

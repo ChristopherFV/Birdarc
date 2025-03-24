@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
 import { useApp } from '@/context/AppContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarIcon, Plus, Trash2, FileText, Send } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { InvoiceUploader } from './InvoiceUploader';
@@ -34,12 +35,15 @@ type InvoiceItem = {
 
 export const AddInvoiceDialog = () => {
   const { isOpen, closeAddInvoiceDialog } = useAddInvoiceDialog();
-  const { updateWorkEntry, workEntries, projects, billingCodes, calculateRevenue } = useApp();
+  const { updateWorkEntry, workEntries, projects, billingCodes, calculateRevenue, startDate, endDate, setCustomDateRange } = useApp();
   const { toast } = useToast();
   
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState<Date>(new Date());
-  const [dueDate, setDueDate] = useState<Date>(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 30 days from now
+  const [dueDate, setDueDate] = useState<Date>(addDays(new Date(), 30)); // 30 days from now
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [invoiceStartDate, setInvoiceStartDate] = useState<Date>(startDate);
+  const [invoiceEndDate, setInvoiceEndDate] = useState<Date>(endDate);
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [clientAddress, setClientAddress] = useState('');
@@ -47,6 +51,38 @@ export const AddInvoiceDialog = () => {
   const [selectedEntryIds, setSelectedEntryIds] = useState<string[]>([]);
   const [additionalItems, setAdditionalItems] = useState<InvoiceItem[]>([]);
   const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
+
+  // Update client info when project changes
+  useEffect(() => {
+    if (selectedProjectId) {
+      const project = projects.find(p => p.id === selectedProjectId);
+      if (project) {
+        setClientName(project.client || '');
+      }
+    }
+  }, [selectedProjectId, projects]);
+
+  // Filter entries based on selected project and date range
+  const getFilteredEntriesForInvoice = () => {
+    return workEntries.filter(entry => {
+      const entryDate = new Date(entry.date);
+      const inDateRange = entryDate >= invoiceStartDate && entryDate <= invoiceEndDate;
+      const matchesProject = selectedProjectId ? entry.projectId === selectedProjectId : true;
+      const isNotInvoiced = entry.invoiceStatus === 'not_invoiced';
+      
+      return inDateRange && matchesProject && isNotInvoiced;
+    });
+  };
+
+  // Get filtered entries
+  const filteredEntriesForInvoice = getFilteredEntriesForInvoice();
+
+  // Update selected entries when project or date range changes
+  useEffect(() => {
+    // Auto-select all filtered entries
+    const newSelectedEntryIds = filteredEntriesForInvoice.map(entry => entry.id);
+    setSelectedEntryIds(newSelectedEntryIds);
+  }, [selectedProjectId, invoiceStartDate, invoiceEndDate]);
 
   const handleInvoiceDataImported = (data: InvoiceData) => {
     setInvoiceData(data);
@@ -137,7 +173,7 @@ export const AddInvoiceDialog = () => {
 
     toast({
       title: "Success",
-      description: `Invoice #${invoiceNumber} created and ready to send to ${clientName}`,
+      description: `Invoice #${invoiceNumber} created for ${clientName} with ${selectedEntryIds.length} work entries`,
     });
     
     handleClose();
@@ -146,7 +182,8 @@ export const AddInvoiceDialog = () => {
   const handleClose = () => {
     setInvoiceNumber('');
     setInvoiceDate(new Date());
-    setDueDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+    setDueDate(addDays(new Date(), 30));
+    setSelectedProjectId('');
     setClientName('');
     setClientEmail('');
     setClientAddress('');
@@ -157,13 +194,16 @@ export const AddInvoiceDialog = () => {
     closeAddInvoiceDialog();
   };
 
-  // Get non-invoiced entries
-  const nonInvoicedEntries = workEntries.filter(entry => entry.invoiceStatus === 'not_invoiced');
-
   // Get project names for entries
   const getProjectName = (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
     return project ? project.name : 'Unknown Project';
+  };
+
+  // Get team member names for entries
+  const getTeamMemberName = (teamMemberId: string) => {
+    const teamMember = teamMembers.find(m => m.id === teamMemberId);
+    return teamMember ? teamMember.name : 'Unknown';
   };
 
   return (
@@ -175,7 +215,7 @@ export const AddInvoiceDialog = () => {
             Create New Invoice
           </DialogTitle>
           <DialogDescription>
-            Create an invoice to send to your customer.
+            Create an invoice for work entries within a specific project and time period.
           </DialogDescription>
         </DialogHeader>
 
@@ -221,6 +261,79 @@ export const AddInvoiceDialog = () => {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="projectSelector" className="required">Select Project</Label>
+                <Select 
+                  value={selectedProjectId} 
+                  onValueChange={setSelectedProjectId}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a project" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map(project => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Invoice Start Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !invoiceStartDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {invoiceStartDate ? format(invoiceStartDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={invoiceStartDate}
+                        onSelect={(date) => setInvoiceStartDate(date || startDate)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Invoice End Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !invoiceEndDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {invoiceEndDate ? format(invoiceEndDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={invoiceEndDate}
+                        onSelect={(date) => setInvoiceEndDate(date || endDate)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="clientName" className="required">Client Name</Label>
@@ -252,7 +365,7 @@ export const AddInvoiceDialog = () => {
                       <Calendar
                         mode="single"
                         selected={dueDate}
-                        onSelect={(date) => setDueDate(date || new Date())}
+                        onSelect={(date) => setDueDate(date || addDays(new Date(), 30))}
                         initialFocus
                       />
                     </PopoverContent>
@@ -291,10 +404,10 @@ export const AddInvoiceDialog = () => {
                   </span>
                 </div>
                 <div className="border rounded-md">
-                  {nonInvoicedEntries.length > 0 ? (
+                  {filteredEntriesForInvoice.length > 0 ? (
                     <ScrollArea className="max-h-[150px]">
                       <ul className="divide-y">
-                        {nonInvoicedEntries.map(entry => (
+                        {filteredEntriesForInvoice.map(entry => (
                           <li key={entry.id} className="p-2 hover:bg-accent">
                             <label className="flex items-center justify-between cursor-pointer p-1">
                               <div className="flex items-center gap-2">
@@ -304,12 +417,12 @@ export const AddInvoiceDialog = () => {
                                   onChange={() => toggleEntrySelection(entry.id)}
                                   className="rounded"
                                 />
-                                <span>
-                                  {getProjectName(entry.projectId)} - {entry.date}
+                                <span className="text-sm">
+                                  {format(new Date(entry.date), "MMM d, yyyy")} - {getTeamMemberName(entry.teamMemberId)}
                                 </span>
                               </div>
                               <span className="text-sm font-medium">
-                                {entry.feetCompleted} units - ${calculateRevenue(entry, billingCodes).toFixed(2)}
+                                {entry.feetCompleted} ft - ${calculateRevenue(entry, billingCodes).toFixed(2)}
                               </span>
                             </label>
                           </li>
@@ -318,7 +431,9 @@ export const AddInvoiceDialog = () => {
                     </ScrollArea>
                   ) : (
                     <p className="p-4 text-center text-muted-foreground text-sm">
-                      No non-invoiced work entries available
+                      {selectedProjectId 
+                        ? "No non-invoiced work entries available for the selected project and date range" 
+                        : "Please select a project to view work entries"}
                     </p>
                   )}
                 </div>
@@ -334,7 +449,7 @@ export const AddInvoiceDialog = () => {
                 <div className="border rounded-md p-3">
                   {additionalItems.length > 0 ? (
                     <div className="space-y-3">
-                      {additionalItems.map((item, index) => (
+                      {additionalItems.map((item) => (
                         <div key={item.id} className="grid grid-cols-12 gap-2 items-center">
                           <div className="col-span-5">
                             <Input
@@ -421,7 +536,7 @@ export const AddInvoiceDialog = () => {
           <Button 
             variant="default" 
             onClick={handleSubmitInvoice} 
-            disabled={!invoiceNumber || !clientName || (selectedEntryIds.length === 0 && additionalItems.length === 0)}
+            disabled={!invoiceNumber || !clientName || !selectedProjectId || (selectedEntryIds.length === 0 && additionalItems.length === 0)}
             className="gap-2"
           >
             <Send className="h-4 w-4" />
