@@ -34,6 +34,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           companies={companies}
           selectedCompany={selectedCompany}
           setSelectedCompany={setSelectedCompany}
+          isCollapsed={isCollapsed}
         />
         
         <SidebarContent>
@@ -44,26 +45,26 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         <SidebarFooterNav />
       </Sidebar>
       
-      {/* Desktop toggle button - positioned absolutely to the right of the sidebar */}
-      <div className="fixed top-4 left-[calc(var(--sidebar-width)_-_1rem)] z-50 hidden md:block transition-all duration-300 ease-in-out" 
+      {/* Desktop toggle button - positioned above filters */}
+      <div className="fixed top-2 left-[calc(var(--sidebar-width)_-_0.5rem)] z-50 hidden md:block transition-all duration-300 ease-in-out" 
            style={{ 
-             left: isCollapsed ? "2.5rem" : "calc(var(--sidebar-width) - 1rem)" 
+             left: isCollapsed ? "8rem" : "calc(var(--sidebar-width) - 0.5rem)" 
            }}>
         <Button 
           variant="orange" 
           size="sm" 
           onClick={toggleSidebar}
-          className="shadow-md flex items-center gap-1"
+          className="shadow-md flex items-center gap-1 h-7 px-2"
         >
           {isCollapsed ? (
             <>
-              <ArrowRight className="h-4 w-4" />
-              <span>Menu</span>
+              <ArrowRight className="h-3 w-3" />
+              <span className="text-xs">Menu</span>
             </>
           ) : (
             <>
-              <ArrowLeft className="h-4 w-4" />
-              <span>Hide</span>
+              <ArrowLeft className="h-3 w-3" />
+              <span className="text-xs">Hide</span>
             </>
           )}
         </Button>
