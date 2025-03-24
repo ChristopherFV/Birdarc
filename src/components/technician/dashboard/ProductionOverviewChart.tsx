@@ -1,6 +1,4 @@
-
 import React, { useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCheck } from 'lucide-react';
 import { 
   ComposedChart, 
@@ -230,97 +228,80 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
   };
 
   return (
-    <Card className="mt-6">
-      <CardHeader className="pb-2">
-        <div className="flex flex-row justify-between items-center">
-          <div>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CheckCheck className="h-5 w-5" />
-              Production Overview
-            </CardTitle>
-            <CardDescription>
-              Units completed over time
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {chartData.length === 0 ? (
-          <p className="text-muted-foreground text-center py-12">No completed tasks to display</p>
-        ) : (
-          <div className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={chartData}>
-                <defs>
-                  <linearGradient id="colorUnits" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0.2}/>
-                  </linearGradient>
-                  <linearGradient id="colorCumulative" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="5%" stopColor="#ff9800" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#ff9800" stopOpacity={1}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                <XAxis 
-                  dataKey="name" 
-                  tick={{ fontSize: 11, fill: "#64748b" }}
-                  tickLine={false}
-                  axisLine={{ stroke: '#eaeaea' }}
-                  dy={10}
-                />
-                <YAxis 
-                  yAxisId="left"
-                  tickFormatter={(value) => formatUnits(value, billingUnit)}
-                  tick={{ fontSize: 11, fill: "#64748b" }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={60}
-                />
-                <YAxis 
-                  yAxisId="right" 
-                  orientation="right" 
-                  domain={[0, (maxUnits * dataScale) || 1000]}
-                  tickFormatter={(value) => formatUnits(value, billingUnit)}
-                  tick={{ fontSize: 11, fill: "#64748b" }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={60}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend 
-                  verticalAlign="top" 
-                  height={36}
-                  iconType="circle"
-                  iconSize={8}
-                  wrapperStyle={{ paddingBottom: '10px' }}
-                  formatter={(value) => <span className="text-xs font-medium text-gray-700">{value}</span>}
-                />
-                <Bar 
-                  yAxisId="left" 
-                  dataKey="units" 
-                  name="Units Completed" 
-                  fill="url(#colorUnits)" 
-                  radius={[4, 4, 0, 0]}
-                  animationDuration={1000}
-                  minPointSize={3}
-                />
-                <Line 
-                  yAxisId="right" 
-                  dataKey="cumulativeUnits" 
-                  name="Cumulative Units" 
-                  type="monotone" 
-                  stroke="url(#colorCumulative)"
-                  strokeWidth={2}
-                  dot={{ r: 3, strokeWidth: 0, fill: "#ff9800" }}
-                  activeDot={{ r: 6, strokeWidth: 0, fill: "#ff9800" }}
-                  animationDuration={1500}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="h-[400px] w-full">
+      {chartData.length === 0 ? (
+        <p className="text-muted-foreground text-center py-12">No completed tasks to display</p>
+      ) : (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData}>
+            <defs>
+              <linearGradient id="colorUnits" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#8884d8" stopOpacity={0.2}/>
+              </linearGradient>
+              <linearGradient id="colorCumulative" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="5%" stopColor="#ff9800" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#ff9800" stopOpacity={1}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+            <XAxis 
+              dataKey="name" 
+              tick={{ fontSize: 11, fill: "#64748b" }}
+              tickLine={false}
+              axisLine={{ stroke: '#eaeaea' }}
+              dy={10}
+            />
+            <YAxis 
+              yAxisId="left"
+              tickFormatter={(value) => formatUnits(value, billingUnit)}
+              tick={{ fontSize: 11, fill: "#64748b" }}
+              tickLine={false}
+              axisLine={false}
+              width={60}
+            />
+            <YAxis 
+              yAxisId="right" 
+              orientation="right" 
+              domain={[0, (maxUnits * dataScale) || 1000]}
+              tickFormatter={(value) => formatUnits(value, billingUnit)}
+              tick={{ fontSize: 11, fill: "#64748b" }}
+              tickLine={false}
+              axisLine={false}
+              width={60}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend 
+              verticalAlign="top" 
+              height={36}
+              iconType="circle"
+              iconSize={8}
+              wrapperStyle={{ paddingBottom: '10px' }}
+              formatter={(value) => <span className="text-xs font-medium text-gray-700">{value}</span>}
+            />
+            <Bar 
+              yAxisId="left" 
+              dataKey="units" 
+              name="Units Completed" 
+              fill="url(#colorUnits)" 
+              radius={[4, 4, 0, 0]}
+              animationDuration={1000}
+              minPointSize={3}
+            />
+            <Line 
+              yAxisId="right" 
+              dataKey="cumulativeUnits" 
+              name="Cumulative Units" 
+              type="monotone" 
+              stroke="url(#colorCumulative)"
+              strokeWidth={2}
+              dot={{ r: 3, strokeWidth: 0, fill: "#ff9800" }}
+              activeDot={{ r: 6, strokeWidth: 0, fill: "#ff9800" }}
+              animationDuration={1500}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      )}
+    </div>
   );
 };

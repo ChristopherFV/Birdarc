@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { motion } from 'framer-motion';
 
 // Import our dashboard components
 import { TechDashboardMap } from './dashboard/TechDashboardMap';
@@ -79,29 +78,16 @@ export const TechnicianDashboard: React.FC = () => {
     </div>
   );
 
-  // Card wrapper component with animation
-  const AnimatedCard = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ scale: 1.01 }}
-      className={`w-full ${className}`}
-    >
-      {children}
-    </motion.div>
-  );
-
   return (
     <ScrollArea className="h-[calc(100vh-4rem)]">
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="container mx-auto py-6">
         <TechnicianWorkEntryDialog
           open={workEntryDialogOpen}
           onOpenChange={setWorkEntryDialogOpen}
           projectId={selectedProjectId || "project-1"}
         />
         
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">Technician Dashboard</h1>
           <div className="flex space-x-2">
             <Button 
@@ -125,30 +111,141 @@ export const TechnicianDashboard: React.FC = () => {
         
         <FilterBar />
         
-        {/* Vertical full-width layout */}
-        <div className="flex flex-col space-y-6 w-full">
-          {/* Section 1: Tasks */}
-          <AnimatedCard>
-            <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
-                <SectionHeader icon={<Calendar className="h-5 w-5" />} title="Tasks" />
+        {/* Main layout grid with production on top, map in middle, tasks on right */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          {/* Production Chart (spans 2 columns on large screens) */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production Overview" />
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <TasksOverview 
-                  assignedTasks={assignedTasks}
-                  completedTasks={completedTasks}
-                  onOpenWorkEntry={handleOpenWorkEntry}
-                  getProjectName={getProjectName}
-                />
+                <ProductionOverviewChart completedTasks={completedTasks} />
               </CardContent>
             </Card>
-          </AnimatedCard>
+          </div>
           
-          {/* Section 2: Map View */}
-          <AnimatedCard>
-            <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
-                <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Map View" />
+          {/* Tasks Column (right side) */}
+          <div className="space-y-6">
+            {/* My Assigned Tasks */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<Calendar className="h-5 w-5" />} title="My Assigned Tasks" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {assignedTasks.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No active tasks</p>
+                  ) : (
+                    assignedTasks.map(task => (
+                      <div 
+                        key={task.id} 
+                        className="block p-3 border rounded-md hover:bg-secondary transition-colors"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium text-sm">{task.title}</h3>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Project: {getProjectName(task.projectId)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Upcoming Schedule */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<Clock className="h-5 w-5" />} title="Upcoming Schedule" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {assignedTasks.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No scheduled tasks</p>
+                  ) : (
+                    [...assignedTasks]
+                      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+                      .map(task => (
+                        <div 
+                          key={task.id} 
+                          className="block p-3 border rounded-md hover:bg-secondary/20 transition-colors"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-sm">{task.title}</h3>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Project: {getProjectName(task.projectId)}
+                              </p>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-xs"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                onOpenWorkEntry(task.projectId);
+                              }}
+                            >
+                              Log Hours
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Recently Completed */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Recently Completed" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {completedTasks.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No completed tasks</p>
+                  ) : (
+                    completedTasks.slice(0, 5).map(task => (
+                      <div 
+                        key={task.id} 
+                        className="block p-3 border rounded-md bg-secondary/30"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium text-sm">{task.title}</h3>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Project: {getProjectName(task.projectId)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Map (spans 2 columns on large screens) */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">
+                  <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Task Map" />
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0 pt-2">
                 <TechDashboardMap 
@@ -160,22 +257,10 @@ export const TechnicianDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </AnimatedCard>
-          
-          {/* Section 3: Production */}
-          <AnimatedCard>
-            <Card className="w-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <CardHeader className="py-3 bg-gradient-to-r from-fieldvision-navy/10 to-transparent">
-                <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production" />
-              </CardHeader>
-              <CardContent>
-                <ProductionOverviewChart completedTasks={completedTasks} />
-              </CardContent>
-            </Card>
-          </AnimatedCard>
+          </div>
         </div>
         
-        <div className="flex flex-col items-center justify-center mt-4 mb-4 sm:mb-6">
+        <div className="flex flex-col items-center justify-center mt-8 mb-4">
           <img 
             src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
             alt="Fieldvision Logo" 
