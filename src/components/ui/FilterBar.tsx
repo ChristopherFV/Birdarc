@@ -7,6 +7,7 @@ import { ProjectFilter } from './filters/ProjectFilter';
 import { TeamMemberFilter } from './filters/TeamMemberFilter';
 import { BillingCodeFilter } from './filters/BillingCodeFilter';
 import { ExportButton } from './filters/ExportButton';
+import { useSidebar } from '@/components/ui/sidebar';
 
 interface FilterBarProps {
   technicianView?: boolean;
@@ -15,8 +16,11 @@ interface FilterBarProps {
 export const FilterBar: React.FC<FilterBarProps> = ({ 
   technicianView = false 
 }) => {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
   return (
-    <div className="bg-card border border-border rounded-lg shadow-subtle mb-6 p-3">
+    <div className={`bg-card border border-border rounded-lg shadow-subtle mb-6 p-3 ${isCollapsed ? 'ml-14' : ''}`}>
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center text-xs font-medium text-muted-foreground">
           <Filter size={12} className="mr-1" />

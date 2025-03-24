@@ -1,5 +1,8 @@
 
 import React from 'react';
+import { 
+  SidebarHeader as UISidebarHeader,
+} from "@/components/ui/sidebar";
 import { CompanySelector } from '@/components/ui/CompanySelector';
 import { Company } from '@/types/app-types';
 
@@ -17,7 +20,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   isCollapsed = false
 }) => {
   return (
-    <div className="flex flex-col h-full">
+    <UISidebarHeader className="flex flex-col">
       <div className="flex items-center justify-center px-2 h-16">
         <div className={`flex flex-col items-center ${isCollapsed ? 'w-14' : ''}`}>
           <img 
@@ -31,7 +34,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
         </div>
       </div>
       {!isCollapsed && (
-        <div className="px-2 pt-0 pb-2 hidden">
+        <div className="px-2 pt-2 pb-2">
           <CompanySelector 
             companies={companies}
             selectedCompany={selectedCompany}
@@ -39,6 +42,6 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           />
         </div>
       )}
-    </div>
+    </UISidebarHeader>
   );
 };

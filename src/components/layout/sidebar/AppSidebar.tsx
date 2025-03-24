@@ -5,13 +5,13 @@ import {
   SidebarContent,
   useSidebar
 } from "@/components/ui/sidebar";
+import { SidebarHeader } from './SidebarHeader';
 import { SidebarMainNav } from './SidebarMainNav';
 import { SidebarTechNav } from './SidebarTechNav';
 import { SidebarFooterNav } from './SidebarFooterNav';
 import { Company } from '@/types/app-types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { CompanySelector } from '@/components/ui/CompanySelector';
+import { Menu, ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface AppSidebarProps {
   companies: Company[];
@@ -29,19 +29,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   
   return (
     <>
-      <Sidebar className="bg-white border-r border-fieldvision-orange/50 shadow-sm pt-16">
+      <Sidebar className="bg-white border-r border-fieldvision-orange/50 shadow-sm">
+        <SidebarHeader 
+          companies={companies}
+          selectedCompany={selectedCompany}
+          setSelectedCompany={setSelectedCompany}
+          isCollapsed={isCollapsed}
+        />
+        
         <SidebarContent>
-          {/* Company selector (hidden when collapsed) */}
-          {!isCollapsed && (
-            <div className="px-2 py-2">
-              <CompanySelector 
-                companies={companies}
-                selectedCompany={selectedCompany}
-                onChange={setSelectedCompany}
-              />
-            </div>
-          )}
-          
           <SidebarMainNav />
           <SidebarTechNav />
         </SidebarContent>
@@ -50,9 +46,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       </Sidebar>
       
       {/* Desktop toggle button - positioned above filters */}
-      <div className="fixed top-2 z-50 hidden md:block transition-all duration-300 ease-in-out" 
+      <div className="fixed top-2 left-[calc(var(--sidebar-width)_-_0.5rem)] z-50 hidden md:block transition-all duration-300 ease-in-out" 
            style={{ 
-             left: isCollapsed ? "5rem" : "calc(var(--sidebar-width) - 0.5rem)" 
+             left: isCollapsed ? "8rem" : "calc(var(--sidebar-width) - 0.5rem)" 
            }}>
         <Button 
           variant="orange" 
@@ -82,6 +78,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           onClick={toggleSidebar}
           className="rounded-full shadow-md"
         >
+          <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle Menu</span>
         </Button>
       </div>
