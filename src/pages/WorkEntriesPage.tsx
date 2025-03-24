@@ -8,8 +8,6 @@ import { WorkEntriesHeader } from '@/components/work-entries/WorkEntriesHeader';
 import { WorkEntriesTable } from '@/components/work-entries/WorkEntriesTable';
 import { useWorkEntries } from '@/hooks/useWorkEntries';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import { InvoicingStatusChart } from '@/components/invoicing/InvoicingStatusChart';
 import { FilterBar } from '@/components/ui/FilterBar';
 
@@ -39,16 +37,6 @@ const WorkEntriesPage: React.FC = () => {
   
   const isMobile = useIsMobile();
   
-  const actionButton = (
-    <Button 
-      className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
-      size="sm"
-    >
-      <Plus className="h-4 w-4 mr-1" />
-      New Entry
-    </Button>
-  );
-  
   return (
     <SimplePageLayout 
       title="Invoicing" 
@@ -56,8 +44,7 @@ const WorkEntriesPage: React.FC = () => {
       showFooter={true}
       footerProps={{
         backLink: "/",
-        backLabel: "Dashboard",
-        actionButton: actionButton
+        backLabel: "Dashboard"
       }}
     >
       <div className="grid grid-cols-1 gap-6">
