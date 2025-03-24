@@ -8,7 +8,7 @@ import {
   downloadFile 
 } from '@/utils/mapExportUtils';
 import { useApp } from '@/context/AppContext';
-import { useSchedule, Task } from '@/context/ScheduleContext';
+import { useSchedule, Task, TaskStatus } from '@/context/ScheduleContext';
 
 interface UseTaskCompletionOptions {
   mapNotes?: MapNote[];
@@ -36,7 +36,8 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
   const completeTask = () => {
     // Update task status if we have task data
     if (taskData) {
-      const updatedTask = { ...taskData, status: 'completed' };
+      // Use the proper TaskStatus type for completed
+      const updatedTask = { ...taskData, status: 'completed' as TaskStatus };
       try {
         updateTask(updatedTask);
         
