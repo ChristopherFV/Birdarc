@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
       {/* Left side with company logo/name */}
       <div className="flex items-center gap-3">
         <div className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-fieldvision-blue flex items-center justify-center text-white mr-2 md:mr-3">
+          <div className="w-8 h-8 rounded-full bg-fieldvision-blue flex items-center justify-center text-white mr-2">
             <span className="text-sm font-semibold">
               {selectedCompany?.name?.charAt(0) || 'F'}
             </span>
