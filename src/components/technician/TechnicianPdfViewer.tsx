@@ -58,37 +58,37 @@ export const TechnicianPdfViewer: React.FC<TechnicianPdfViewerProps> = ({
         <div className="absolute top-2 right-2 bg-background/95 p-2 rounded-md shadow-md border border-border">
           <div className="grid grid-cols-2 gap-2">
             <Button 
-              variant={currentTool === 'pen' ? 'default' : 'outline'} 
+              variant={currentTool === 'pen' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('pen')}
-              className={`h-8 px-2 ${currentTool === 'pen' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}`}
+              className="h-8 px-2"
             >
               <Pencil className="h-3 w-3 mr-1" />
               Pen
             </Button>
             <Button 
-              variant={currentTool === 'text' ? 'default' : 'outline'} 
+              variant={currentTool === 'text' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('text')}
-              className={`h-8 px-2 ${currentTool === 'text' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}`}
+              className="h-8 px-2"
             >
               <Type className="h-3 w-3 mr-1" />
               Text
             </Button>
             <Button 
-              variant={currentTool === 'circle' ? 'default' : 'outline'} 
+              variant={currentTool === 'circle' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('circle')}
-              className={`h-8 px-2 ${currentTool === 'circle' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}`}
+              className="h-8 px-2"
             >
               <Circle className="h-3 w-3 mr-1" />
               Circle
             </Button>
             <Button 
-              variant={currentTool === 'square' ? 'default' : 'outline'} 
+              variant={currentTool === 'square' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('square')}
-              className={`h-8 px-2 ${currentTool === 'square' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}`}
+              className="h-8 px-2"
             >
               <Square className="h-3 w-3 mr-1" />
               Square

@@ -18,7 +18,7 @@ export const TechnicianNotesTab: React.FC = () => {
             className="w-full border border-border rounded-md p-2 h-32 text-sm"
             placeholder="Add your notes here..."
           />
-          <Button size="sm" className="w-full">Save Notes</Button>
+          <Button variant="orange" size="sm" className="w-full">Save Notes</Button>
         </div>
       </CardContent>
     </Card>

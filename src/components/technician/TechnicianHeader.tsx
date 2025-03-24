@@ -34,9 +34,8 @@ export const TechnicianHeader: React.FC<TechnicianHeaderProps> = ({
             Save Changes
           </Button>
           <Button 
-            variant="default" 
-            size="sm" 
-            style={{ backgroundColor: "#F18E1D", color: "white" }}
+            variant="orange" 
+            size="sm"
             onClick={handleCompleteReview}
           >
             {isMobile ? 'Close' : 'Close Task'}

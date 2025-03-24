@@ -36,37 +36,33 @@ export const TechnicianDrawingTools: React.FC<TechnicianDrawingToolsProps> = ({
         <CardContent className="py-2 space-y-2">
           <div className="flex flex-wrap gap-2">
             <Button 
-              variant={currentTool === 'pen' ? 'default' : 'outline'} 
+              variant={currentTool === 'pen' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('pen')}
-              className={currentTool === 'pen' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}
             >
               <Pencil className="h-4 w-4 mr-2" />
               Pen
             </Button>
             <Button 
-              variant={currentTool === 'text' ? 'default' : 'outline'} 
+              variant={currentTool === 'text' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('text')}
-              className={currentTool === 'text' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}
             >
               <Type className="h-4 w-4 mr-2" />
               Text
             </Button>
             <Button 
-              variant={currentTool === 'circle' ? 'default' : 'outline'} 
+              variant={currentTool === 'circle' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('circle')}
-              className={currentTool === 'circle' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}
             >
               <Circle className="h-4 w-4 mr-2" />
               Circle
             </Button>
             <Button 
-              variant={currentTool === 'square' ? 'default' : 'outline'} 
+              variant={currentTool === 'square' ? 'orange' : 'outline'} 
               size="sm"
               onClick={() => setCurrentTool('square')}
-              className={currentTool === 'square' ? 'bg-fieldvision-orange hover:bg-fieldvision-orange/90' : ''}
             >
               <Square className="h-4 w-4 mr-2" />
               Square
