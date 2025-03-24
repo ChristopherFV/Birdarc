@@ -2,17 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { useSchedule, Task } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 import { useApp } from '@/context/AppContext';
 import { Calendar, CheckCheck, Clock, MapIcon, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Import our newly created dashboard components
+// Import our dashboard components
 import { TechDashboardMap } from './dashboard/TechDashboardMap';
 import { ProductionOverviewChart } from './dashboard/ProductionOverviewChart';
 import { TasksOverview } from './dashboard/TasksOverview';
 import { TimeEntryCard } from './dashboard/TimeEntryCard';
+import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
 
 export const TechnicianDashboard: React.FC = () => {
   const { tasks } = useSchedule();
@@ -20,9 +21,9 @@ export const TechnicianDashboard: React.FC = () => {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string>("");
   const [showMapTokenInput, setShowMapTokenInput] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<string>('tasks');
   const [workEntryDialogOpen, setWorkEntryDialogOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   // Filter for assigned tasks (in a real app, this would filter by the current user ID)
   const assignedTasks = tasks.filter(task => 
@@ -69,6 +70,14 @@ export const TechnicianDashboard: React.FC = () => {
     return project ? project.name : "Unknown Project";
   };
 
+  // Section header component
+  const SectionHeader = ({ icon, title }: { icon: React.ReactNode, title: string }) => (
+    <div className="flex items-center gap-2 font-semibold text-lg mb-2">
+      {icon}
+      {title}
+    </div>
+  );
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <TechnicianWorkEntryDialog
@@ -90,53 +99,71 @@ export const TechnicianDashboard: React.FC = () => {
       
       <FilterBar />
       
-      <Tabs defaultValue="tasks" value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="tasks">
-            <Calendar className="h-4 w-4 mr-2" /> Tasks
-          </TabsTrigger>
-          <TabsTrigger value="map">
-            <MapIcon className="h-4 w-4 mr-2" /> Map View
-          </TabsTrigger>
-          <TabsTrigger value="production">
-            <CheckCheck className="h-4 w-4 mr-2" /> Production
-          </TabsTrigger>
-          <TabsTrigger value="timesheet">
-            <Clock className="h-4 w-4 mr-2" /> Timesheet
-          </TabsTrigger>
-        </TabsList>
+      {/* Responsive grid layout */}
+      <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
+        {/* Section 1: Tasks */}
+        <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
+          <Card className="h-full">
+            <CardHeader className="py-3">
+              <SectionHeader icon={<Calendar className="h-5 w-5" />} title="Tasks" />
+            </CardHeader>
+            <CardContent>
+              <TasksOverview 
+                assignedTasks={assignedTasks}
+                completedTasks={completedTasks}
+                onOpenWorkEntry={handleOpenWorkEntry}
+                getProjectName={getProjectName}
+              />
+            </CardContent>
+          </Card>
+        </div>
         
-        <TabsContent value="tasks" className="space-y-4">
-          <TasksOverview 
-            assignedTasks={assignedTasks}
-            completedTasks={completedTasks}
-            onOpenWorkEntry={handleOpenWorkEntry}
-            getProjectName={getProjectName}
-          />
-        </TabsContent>
+        {/* Section 2: Map View */}
+        <div className={`${isMobile ? '' : 'lg:col-span-2 row-span-2'}`}>
+          <Card className="h-full">
+            <CardHeader className="py-3">
+              <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Map View" />
+            </CardHeader>
+            <CardContent className="p-0 pt-2">
+              <TechDashboardMap 
+                tasks={[...assignedTasks, ...completedTasks]}
+                mapboxToken={mapboxToken}
+                showMapTokenInput={showMapTokenInput}
+                setMapboxToken={setMapboxToken}
+                setShowMapTokenInput={setShowMapTokenInput}
+              />
+            </CardContent>
+          </Card>
+        </div>
         
-        <TabsContent value="map">
-          <TechDashboardMap 
-            tasks={[...assignedTasks, ...completedTasks]}
-            mapboxToken={mapboxToken}
-            showMapTokenInput={showMapTokenInput}
-            setMapboxToken={setMapboxToken}
-            setShowMapTokenInput={setShowMapTokenInput}
-          />
-        </TabsContent>
+        {/* Section 3: Production */}
+        <div className={`${isMobile ? '' : 'col-span-2'}`}>
+          <Card className="h-full">
+            <CardHeader className="py-3">
+              <SectionHeader icon={<CheckCheck className="h-5 w-5" />} title="Production" />
+            </CardHeader>
+            <CardContent>
+              <ProductionOverviewChart completedTasks={completedTasks} />
+            </CardContent>
+          </Card>
+        </div>
         
-        <TabsContent value="production">
-          <ProductionOverviewChart completedTasks={completedTasks} />
-        </TabsContent>
-        
-        <TabsContent value="timesheet">
-          <TimeEntryCard 
-            onOpenWorkEntry={() => handleOpenWorkEntry()}
-            completedTasks={completedTasks}
-            getProjectName={getProjectName}
-          />
-        </TabsContent>
-      </Tabs>
+        {/* Section 4: Timesheet */}
+        <div className={`${isMobile ? '' : 'col-span-2'}`}>
+          <Card className="h-full">
+            <CardHeader className="py-3">
+              <SectionHeader icon={<Clock className="h-5 w-5" />} title="Timesheet" />
+            </CardHeader>
+            <CardContent>
+              <TimeEntryCard 
+                onOpenWorkEntry={() => handleOpenWorkEntry()}
+                completedTasks={completedTasks}
+                getProjectName={getProjectName}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       
       <div className="flex flex-col items-center justify-center mt-4 mb-4 sm:mb-6">
         <img 
