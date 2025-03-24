@@ -1,11 +1,22 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { MapPin, Trash2 } from 'lucide-react';
+import { MapPin, Trash2, Download, FileType } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { MapNote } from './TechnicianLocationMap';
+import { 
+  notesToGeoJSON, 
+  notesToKMZ, 
+  downloadFile 
+} from '@/utils/mapExportUtils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TechnicianNotesTabProps {
   notes: MapNote[];
@@ -22,6 +33,7 @@ export const TechnicianNotesTab: React.FC<TechnicianNotesTabProps> = ({
 }) => {
   const { toast } = useToast();
   const [notesText, setNotesText] = useState<string>(generalNotes || '');
+  const [isExporting, setIsExporting] = useState(false);
   
   const handleSaveNotes = () => {
     saveGeneralNotes(notesText);
@@ -46,6 +58,68 @@ export const TechnicianNotesTab: React.FC<TechnicianNotesTabProps> = ({
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleExportGeoJSON = () => {
+    if (notes.length === 0) {
+      toast({
+        title: "No notes to export",
+        description: "Add some map notes first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      const geoJSON = notesToGeoJSON(notes);
+      downloadFile(geoJSON, 'fieldvision-notes.geojson');
+      
+      toast({
+        title: "Export successful",
+        description: "Map notes exported as GeoJSON",
+      });
+    } catch (error) {
+      console.error('Error exporting GeoJSON:', error);
+      toast({
+        title: "Export failed",
+        description: "There was an error exporting your notes",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+  
+  const handleExportKMZ = async () => {
+    if (notes.length === 0) {
+      toast({
+        title: "No notes to export",
+        description: "Add some map notes first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      const kmzBlob = await notesToKMZ(notes);
+      downloadFile(kmzBlob, 'fieldvision-notes.kmz');
+      
+      toast({
+        title: "Export successful",
+        description: "Map notes exported as KMZ file",
+      });
+    } catch (error) {
+      console.error('Error exporting KMZ:', error);
+      toast({
+        title: "Export failed",
+        description: "There was an error exporting your notes",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -79,8 +153,31 @@ export const TechnicianNotesTab: React.FC<TechnicianNotesTabProps> = ({
       
       {notes.length > 0 && (
         <Card>
-          <CardHeader className="py-2">
+          <CardHeader className="py-2 flex flex-row items-center justify-between">
             <CardTitle className="text-sm">Map Notes</CardTitle>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 px-2"
+                  disabled={isExporting}
+                >
+                  <Download className="h-3.5 w-3.5 mr-1" />
+                  <span>Export</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleExportGeoJSON}>
+                  <FileType className="h-4 w-4 mr-2" />
+                  Export as GeoJSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportKMZ}>
+                  <FileType className="h-4 w-4 mr-2" />
+                  Export as KMZ
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </CardHeader>
           <CardContent className="py-2">
             <div className="space-y-2">
