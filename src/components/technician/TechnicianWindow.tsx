@@ -44,11 +44,12 @@ export const TechnicianWindow: React.FC = () => {
     setShowMapTokenInput(false);
   }, []);
   
-  // Action button for the footer
+  // Action button for the footer - Updated to use Fieldvision blue
   const actionButton = (
     <Button 
       onClick={handleCompleteReview}
-      className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
+      variant="blue"
+      className="text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
     >
       Complete Task
     </Button>
