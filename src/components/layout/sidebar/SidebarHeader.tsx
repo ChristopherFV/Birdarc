@@ -31,7 +31,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
             alt="Fieldvision Logo" 
             className="h-6" 
           />
-          <span className="text-[8px] text-fieldvision-orange mt-0.5">Enterprise Field Solutions</span>
+          <span className="text-[8px] text-fieldvision-orange mt-0.5">Powering Payments and Performance for Contractors</span>
         </div>
         <div className="hidden md:block">
           <Button 
