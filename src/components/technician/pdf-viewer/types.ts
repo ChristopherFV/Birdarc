@@ -20,7 +20,7 @@ export interface ScreenOrientationAPI {
 
 declare global {
   interface Window {
-    screen: Screen & {
+    screen: Omit<Screen, 'orientation'> & {
       orientation?: ScreenOrientationAPI;
     }
   }
