@@ -68,7 +68,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                       asChild 
                       isActive={location.pathname === '/'} 
                       tooltip="Dashboard"
-                      className={location.pathname === '/' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                      className={location.pathname === '/' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                     >
                       <Link to="/">
                         <LayoutDashboard />
@@ -82,7 +82,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                       asChild 
                       isActive={location.pathname === '/work-entries'} 
                       tooltip="Invoices"
-                      className={location.pathname === '/work-entries' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                      className={location.pathname === '/work-entries' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                     >
                       <Link to="/work-entries">
                         <ListTodo />
@@ -96,7 +96,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                       asChild 
                       isActive={location.pathname === '/repository'} 
                       tooltip="FieldVision"
-                      className={location.pathname === '/repository' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                      className={location.pathname === '/repository' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                     >
                       <Link to="/repository">
                         <FileText />
@@ -110,7 +110,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                       asChild 
                       isActive={location.pathname === '/projects'} 
                       tooltip="Projects"
-                      className={location.pathname === '/projects' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                      className={location.pathname === '/projects' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                     >
                       <Link to="/projects">
                         <Building2 />
@@ -131,7 +131,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                       asChild 
                       isActive={location.pathname === '/technician'} 
                       tooltip="Technician"
-                      className={location.pathname === '/technician' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                      className={location.pathname === '/technician' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                     >
                       <Link to="/technician">
                         <HardHat />
@@ -145,7 +145,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                       asChild 
                       isActive={location.pathname === '/technician/dashboard'} 
                       tooltip="Tech Dashboard"
-                      className={location.pathname === '/technician/dashboard' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                      className={location.pathname === '/technician/dashboard' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                     >
                       <Link to="/technician/dashboard">
                         <LayoutDashboard />
@@ -164,7 +164,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                 <SidebarMenuButton 
                   asChild 
                   tooltip="Settings"
-                  className={location.pathname === '#settings' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                  className={location.pathname === '#settings' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                 >
                   <Link to="#">
                     <Settings />
@@ -177,7 +177,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
                 <SidebarMenuButton 
                   asChild 
                   tooltip="Logout"
-                  className={location.pathname === '#logout' ? 'bg-fieldvision-orange/10 text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
+                  className={location.pathname === '#logout' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange' : ''}
                 >
                   <Link to="#">
                     <LogOut />
