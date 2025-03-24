@@ -27,7 +27,7 @@ export const Navbar: React.FC = () => {
   };
   
   return (
-    <div className="h-16 border-b border-border bg-background px-6 md:px-8 flex items-center justify-between z-50">
+    <div className="h-16 border-b border-border bg-background px-6 md:px-8 flex items-center justify-between w-full">
       {/* Left side with toggle button and company name */}
       <div className="flex items-center gap-3">
         <Button 

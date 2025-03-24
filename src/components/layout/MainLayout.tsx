@@ -15,8 +15,10 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col w-full bg-background">
       <SidebarProvider defaultOpen={true}>
-        {/* Navbar now inside SidebarProvider */}
-        <Navbar />
+        {/* Navbar component positioned to span full width */}
+        <div className="w-full sticky top-0 z-50">
+          <Navbar />
+        </div>
         
         <div className="flex flex-1 w-full">
           <AppSidebar />
