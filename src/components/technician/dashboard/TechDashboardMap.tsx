@@ -141,7 +141,6 @@ export const TechDashboardMap: React.FC<TechDashboardMapProps> = ({
             <strong>${task.title}</strong><br>
             <small>${task.location.address || 'No address'}</small><br>
             <small>Status: ${task.status}</small>
-            <small>Priority: ${task.priority}</small>
           `))
           .addTo(map.current!);
         
@@ -207,28 +206,7 @@ export const TechDashboardMap: React.FC<TechDashboardMapProps> = ({
           </p>
         </div>
       ) : (
-        <div>
-          <div ref={mapContainer} className="h-[280px] w-full" />
-          
-          <div className="flex flex-wrap gap-4 p-3 text-xs border-t">
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-blue-500 border border-white"></div>
-              <span>Low</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-amber-500 border border-white"></div>
-              <span>Medium</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-red-500 border border-white"></div>
-              <span>High</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-green-500 border border-white"></div>
-              <span>Completed</span>
-            </div>
-          </div>
-        </div>
+        <div ref={mapContainer} className="h-[280px] w-full" />
       )}
     </>
   );

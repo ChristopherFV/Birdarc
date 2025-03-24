@@ -92,13 +92,8 @@ export const TechnicianDashboard: React.FC = () => {
               </CardContent>
             </Card>
             
-            {/* Map - Now below the chart */}
+            {/* Map - Now below the chart and without title */}
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">
-                  <SectionHeader icon={<MapIcon className="h-5 w-5" />} title="Task Map" />
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-0">
                 <div className="h-[280px]">
                   <TechDashboardMap 
