@@ -1,27 +1,63 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, CheckCheck } from 'lucide-react';
+import { Calendar, CheckCheck, Check } from 'lucide-react';
 import { Task } from '@/context/ScheduleContext';
 import { Button } from '@/components/ui/button';
 import { SectionHeader } from './SectionHeader';
 import { GanttChart } from './GanttChart';
+import { useToast } from '@/hooks/use-toast';
+import { TaskCompletionDialog } from './TaskCompletionDialog';
 
 interface TaskColumnsProps {
   assignedTasks: Task[];
   completedTasks: Task[];
   handleOpenWorkEntry: (projectId: string | null) => void;
   getProjectName: (projectId: string | null) => string;
+  onCompleteTask?: (task: Task) => void;
 }
 
 export const TaskColumns: React.FC<TaskColumnsProps> = ({
   assignedTasks,
   completedTasks,
   handleOpenWorkEntry,
-  getProjectName
+  getProjectName,
+  onCompleteTask
 }) => {
+  const { toast } = useToast();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+  };
+
+  const handleCompleteClick = (task: Task, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent task selection when clicking the complete button
+    setSelectedTask(task);
+    setCompleteDialogOpen(true);
+  };
+
+  const handleConfirmComplete = () => {
+    if (selectedTask && onCompleteTask) {
+      onCompleteTask(selectedTask);
+      toast({
+        title: "Task completed",
+        description: `"${selectedTask.title}" has been marked as complete.`
+      });
+    }
+    setCompleteDialogOpen(false);
+  };
+
   return (
     <>
+      <TaskCompletionDialog 
+        open={completeDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        onConfirm={handleConfirmComplete}
+        taskTitle={selectedTask?.title || ''}
+      />
+
       {/* My Assigned Tasks */}
       <Card>
         <CardHeader className="pb-2">
@@ -37,7 +73,8 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
               assignedTasks.map(task => (
                 <div 
                   key={task.id} 
-                  className="block p-3 border rounded-md hover:bg-secondary transition-colors"
+                  className={`block p-3 border rounded-md hover:bg-secondary transition-colors ${selectedTask?.id === task.id ? 'bg-secondary' : ''}`}
+                  onClick={() => handleTaskClick(task)}
                 >
                   <div className="flex justify-between items-start">
                     <div>
@@ -46,6 +83,15 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
                         Project: {getProjectName(task.projectId)}
                       </p>
                     </div>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-muted-foreground hover:text-primary"
+                      onClick={(e) => handleCompleteClick(task, e)}
+                      title="Mark as completed"
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               ))
@@ -59,6 +105,8 @@ export const TaskColumns: React.FC<TaskColumnsProps> = ({
         tasks={assignedTasks}
         handleOpenWorkEntry={handleOpenWorkEntry}
         getProjectName={getProjectName}
+        selectedTaskId={selectedTask?.id}
+        onTaskSelect={handleTaskClick}
       />
       
       {/* Recently Completed */}

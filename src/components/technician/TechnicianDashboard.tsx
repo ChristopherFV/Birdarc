@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useSchedule, Task } from '@/context/ScheduleContext';
+import { useSchedule, Task, TaskStatus } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { useApp } from '@/context/AppContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 export const TechnicianDashboard: React.FC = () => {
-  const { tasks } = useSchedule();
+  const { tasks, updateTask } = useSchedule();
   const { projects } = useApp();
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
@@ -61,6 +62,26 @@ export const TechnicianDashboard: React.FC = () => {
     if (!projectId) return "No Project";
     const project = projects.find(p => p.id === projectId);
     return project ? project.name : "Unknown Project";
+  };
+
+  // Handle task completion
+  const handleCompleteTask = (task: Task) => {
+    // Update task status
+    const updatedTask = { ...task, status: 'completed' as TaskStatus };
+    
+    try {
+      // Update in main task list
+      updateTask(updatedTask);
+      
+      // Update the completed tasks list
+      const updatedCompletedTasks = [...completedTasks, updatedTask];
+      setCompletedTasks(updatedCompletedTasks);
+      
+      // Update localStorage for persistence
+      localStorage.setItem('technician_completed_tasks', JSON.stringify(updatedCompletedTasks));
+    } catch (error) {
+      console.error('Error completing task:', error);
+    }
   };
 
   // Action button for the footer
@@ -130,6 +151,7 @@ export const TechnicianDashboard: React.FC = () => {
                 completedTasks={completedTasks}
                 handleOpenWorkEntry={handleOpenWorkEntry}
                 getProjectName={getProjectName}
+                onCompleteTask={handleCompleteTask}
               />
             </div>
           </div>

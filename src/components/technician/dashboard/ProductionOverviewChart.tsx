@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { CheckCheck } from 'lucide-react';
+import { CheckCheck, CalendarDays } from 'lucide-react';
 import { 
   ComposedChart, 
   Bar, 
@@ -13,7 +13,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { Task } from '@/context/ScheduleContext';
-import { format } from 'date-fns';
+import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { useApp } from '@/context/AppContext';
 import { formatUnits } from '@/utils/charts';
 
@@ -134,58 +134,52 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
       filteredTasks = filteredTasks.filter(task => task.teamMemberId === selectedTeamMember);
     }
 
-    // Group tasks by time period (day, week, month, year)
-    const groupedData: Record<string, { units: number, tasks: number }> = {};
+    // Get the current date and the date 12 months ago
+    const today = new Date();
+    const twelveMonthsAgo = subMonths(today, 11); // 11 months ago to include current month (total 12)
     
+    // Create an array of all months in the 12-month period
+    const months = Array.from({ length: 12 }, (_, i) => {
+      const monthDate = subMonths(today, i);
+      return {
+        date: monthDate,
+        name: format(monthDate, 'MMM yyyy')
+      };
+    }).reverse(); // To get chronological order
+    
+    // Initialize data structure with all months (ensures we have all 12 months even if some have no data)
+    const groupedData = months.reduce((acc, month) => {
+      acc[month.name] = { units: 0, tasks: 0 };
+      return acc;
+    }, {} as Record<string, { units: number, tasks: number }>);
+    
+    // Group tasks by month
     filteredTasks.forEach(task => {
-      let key: string;
+      // Only include tasks that were completed within the last 12 months
+      const monthStart = startOfMonth(task.endDate);
+      const monthEnd = endOfMonth(task.endDate);
       
-      switch (groupBy) {
-        case 'day':
-          key = format(task.endDate, 'MMM dd');
-          break;
-        case 'week':
-          key = `Week ${format(task.endDate, 'w')} - ${format(task.endDate, 'yyyy')}`;
-          break;
-        case 'month':
-          key = format(task.endDate, 'MMM yyyy');
-          break;
-        case 'year':
-          key = format(task.endDate, 'yyyy');
-          break;
-        default:
-          key = format(task.endDate, 'MMM dd');
+      if (isWithinInterval(task.endDate, { 
+        start: startOfMonth(twelveMonthsAgo), 
+        end: endOfMonth(today) 
+      })) {
+        const key = format(task.endDate, 'MMM yyyy');
+        
+        if (groupedData[key]) {
+          groupedData[key].units += task.quantityEstimate || 0;
+          groupedData[key].tasks += 1;
+        }
       }
-      
-      if (!groupedData[key]) {
-        groupedData[key] = { units: 0, tasks: 0 };
-      }
-      
-      groupedData[key].units += task.quantityEstimate || 0;
-      groupedData[key].tasks += 1;
     });
     
     // Convert to array and add cumulative values
-    const dataArray = Object.entries(groupedData).map(([name, data]) => ({
-      name,
-      units: data.units,
-      tasks: data.tasks
-    }));
-    
-    // Sort by date
-    dataArray.sort((a, b) => {
-      // Handle different date formats based on groupBy
-      if (groupBy === 'week') {
-        const weekA = parseInt(a.name.split(' ')[1]);
-        const weekB = parseInt(b.name.split(' ')[1]);
-        const yearA = parseInt(a.name.split(' - ')[1]);
-        const yearB = parseInt(b.name.split(' - ')[1]);
-        
-        if (yearA !== yearB) return yearA - yearB;
-        return weekA - weekB;
-      }
-      
-      return new Date(a.name).getTime() - new Date(b.name).getTime();
+    const dataArray = months.map(month => {
+      const monthData = groupedData[month.name];
+      return {
+        name: month.name,
+        units: monthData.units,
+        tasks: monthData.tasks
+      };
     });
     
     // Add cumulative values
@@ -197,7 +191,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
         cumulativeUnits
       };
     });
-  }, [completedTasks, groupBy, selectedProject, dateRange, selectedTeamMember]);
+  }, [completedTasks, selectedProject, selectedTeamMember]);
 
   // Calculate max values for scaling
   const maxUnits = Math.max(...chartData.map(item => item.units || 0), 1);
@@ -230,10 +224,16 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
 
   return (
     <div className="h-full w-full">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <CalendarDays className="h-4 w-4 text-muted-foreground mr-1" />
+          <span className="text-xs text-muted-foreground">12-Month Overview</span>
+        </div>
+      </div>
       {chartData.length === 0 ? (
         <p className="text-muted-foreground text-center py-12">No completed tasks to display</p>
       ) : (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="90%">
           <ComposedChart data={chartData}>
             <defs>
               <linearGradient id="colorUnits" x1="0" y1="0" x2="0" y2="1">
@@ -254,7 +254,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
               dy={5}
               height={30}
               // Limit the number of ticks displayed based on container width
-              interval={'preserveStartEnd'}
+              interval="preserveStartEnd"
             />
             <YAxis 
               yAxisId="left"
