@@ -149,7 +149,7 @@ export const RecentInvoices: React.FC = () => {
           Create Invoice
         </Button>
         <Button asChild variant="outline" className="w-full">
-          <Link to="/invoices">
+          <Link to="/invoicing">
             <List className="mr-2" size={16} />
             See All Invoices
           </Link>
