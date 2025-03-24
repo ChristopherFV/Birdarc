@@ -25,6 +25,8 @@ export const MapContent: React.FC<MapContentProps> = ({
   const map = useRef<mapboxgl.Map | null>(null);
   const [usingMapbox, setUsingMapbox] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [hasInitialZoom, setHasInitialZoom] = useState(false);
+  const previousSelectedId = useRef<string | null>(null);
   
   // Initialize and set up Mapbox when API key is provided
   useEffect(() => {
@@ -106,8 +108,8 @@ export const MapContent: React.FC<MapContentProps> = ({
           }
         }
         
-        // Fit bounds to show all markers if tasks exist
-        if (tasks.length > 0) {
+        // Only fit bounds to all markers on initial load if no task is selected
+        if (tasks.length > 0 && !selectedTaskId && !hasInitialZoom) {
           const bounds = new mapboxgl.LngLatBounds();
           
           tasks.forEach(task => {
@@ -121,7 +123,14 @@ export const MapContent: React.FC<MapContentProps> = ({
               padding: { top: 50, bottom: 150, left: 50, right: 50 },
               maxZoom: 12
             });
+            setHasInitialZoom(true);
           }
+        }
+
+        // If a task is already selected during initialization, zoom to it
+        if (selectedTaskId && !previousSelectedId.current) {
+          zoomToSelectedTask(selectedTaskId);
+          previousSelectedId.current = selectedTaskId;
         }
       });
       
@@ -146,23 +155,56 @@ export const MapContent: React.FC<MapContentProps> = ({
       setMapError(error instanceof Error ? error.message : 'Failed to initialize map');
       setUsingMapbox(false);
     }
-  }, [mapboxApiKey, tasks]);
+  }, [mapboxApiKey, tasks, selectedTaskId, hasInitialZoom]);
   
-  // Effect to zoom to selected task when selectedTaskId changes
-  useEffect(() => {
-    if (!map.current || !selectedTaskId) return;
+  // Function to zoom to a selected task
+  const zoomToSelectedTask = (taskId: string) => {
+    if (!map.current) return;
     
-    const selectedTask = tasks.find(task => task.id === selectedTaskId);
+    const selectedTask = tasks.find(task => task.id === taskId);
     if (selectedTask?.location && selectedTask.location.lat && selectedTask.location.lng) {
       console.log('Zooming to selected task:', selectedTask.title, selectedTask.location);
-      // Zoom to the selected task location
+      
+      // Zoom to the selected task location with smoother animation
       map.current.flyTo({
         center: [selectedTask.location.lng, selectedTask.location.lat],
         zoom: 14,
         essential: true,
-        duration: 1500
+        duration: 1500,
+        pitch: 60, // Tilt the view for better 3D perspective
       });
     }
+  };
+  
+  // Effect to zoom to selected task when selectedTaskId changes
+  useEffect(() => {
+    // Only trigger zoom if the selected task actually changed
+    if (!map.current || selectedTaskId === previousSelectedId.current) return;
+    
+    if (selectedTaskId) {
+      zoomToSelectedTask(selectedTaskId);
+    } else if (previousSelectedId.current && !selectedTaskId) {
+      // If a task was selected before but now none is selected, zoom out to show all tasks
+      const bounds = new mapboxgl.LngLatBounds();
+      
+      tasks.forEach(task => {
+        if (task.location && task.location.lat && task.location.lng) {
+          bounds.extend([task.location.lng, task.location.lat]);
+        }
+      });
+      
+      if (!bounds.isEmpty()) {
+        map.current.flyTo({
+          center: [-98.5795, 39.8283], // Center of USA
+          zoom: 3.5,
+          pitch: 0,
+          duration: 1500
+        });
+      }
+    }
+    
+    // Update previous selected ID reference
+    previousSelectedId.current = selectedTaskId;
   }, [selectedTaskId, tasks]);
   
   // Use custom hook to manage markers

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { PlusCircle, FileEdit, Trash2, Search, Filter, MapPin, List, Map as MapIcon, Building2 } from "lucide-react";
@@ -39,25 +38,19 @@ const ProjectsPage = () => {
     (project.location && project.location.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  // Helper function to map project status to TaskStatus
   const mapProjectStatusToTaskStatus = (status: string | undefined): TaskStatus => {
     if (!status) return 'pending';
     
-    // Convert status to lowercase for case-insensitive matching
     const lowercaseStatus = status.toLowerCase();
     
-    // Map status strings to TaskStatus values
     if (lowercaseStatus.includes('complete')) return 'completed';
     if (lowercaseStatus.includes('progress') || lowercaseStatus.includes('active')) return 'in_progress';
     if (lowercaseStatus.includes('cancel')) return 'cancelled';
     
-    // Default to pending for any other status
     return 'pending';
   };
 
-  // Enhanced project locations with proper coordinates for all projects
   const projectLocations = projects.map(project => {
-    // Find matching location in mock data or generate a random one in USA
     const mockLocation = mockProjectLocations.find(loc => loc.projectId === project.id) || 
       mockProjectLocations[Math.floor(Math.random() * mockProjectLocations.length)];
       
@@ -72,7 +65,7 @@ const ProjectsPage = () => {
       projectName: project.name,
       teamMemberId: null,
       priority: 'medium' as const,
-      status: mapProjectStatusToTaskStatus(project.status), // Convert to proper TaskStatus type
+      status: mapProjectStatusToTaskStatus(project.status),
       billingCodeId: null,
       quantityEstimate: 0
     };
@@ -86,7 +79,6 @@ const ProjectsPage = () => {
     setSelectedProjectId(id === selectedProjectId ? null : id);
     console.log('Project clicked:', id);
     
-    // Find the project
     const project = projects.find(p => p.id === id);
     if (project) {
       toast({
@@ -96,21 +88,27 @@ const ProjectsPage = () => {
     }
   };
 
-  // Handle clicking a project in the list view
   const handleProjectClick = (projectId: string) => {
+    if (selectedProjectId === projectId) return;
+    
     setSelectedProjectId(projectId);
     
-    // If not in map view, switch to map view
     if (!showMapView) {
       setShowMapView(true);
     }
+    
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      toast({
+        title: "Project Location",
+        description: `Navigating to ${project.name} location`,
+      });
+    }
   };
 
-  // Toggle between map and list views
   const toggleView = () => {
     setShowMapView(!showMapView);
     if (!showMapView) {
-      // When switching to map view, ensure list overlay is visible
       setShowListOverlay(true);
     }
   };
@@ -150,7 +148,6 @@ const ProjectsPage = () => {
         </div>
       </div>
 
-      {/* Search Input */}
       <div className="w-full max-w-sm mb-4">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -164,7 +161,6 @@ const ProjectsPage = () => {
       </div>
 
       {showMapView ? (
-        // Map View
         <div className="relative">
           <Card className="w-full">
             <CardHeader className="pb-3 flex flex-row justify-between items-center">
@@ -192,7 +188,6 @@ const ProjectsPage = () => {
                   selectedTaskId={selectedProjectId}
                 />
                 
-                {/* List Overlay */}
                 {showListOverlay && (
                   <div className="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm max-h-[300px] overflow-y-auto border-t shadow-lg transition-all duration-300 ease-in-out rounded-t-lg">
                     <div className="p-3">
@@ -259,7 +254,6 @@ const ProjectsPage = () => {
           </Card>
         </div>
       ) : (
-        // List View
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center">
