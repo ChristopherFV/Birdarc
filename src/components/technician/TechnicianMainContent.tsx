@@ -38,20 +38,18 @@ export const TechnicianMainContent: React.FC<TechnicianMainContentProps> = ({
 }) => {
   return (
     <div className="flex-1 overflow-auto p-2 sm:p-4">
-      {mapVisible && (
-        <div className="mb-2 sm:mb-4">
-          <TechnicianLocationMap
-            location={taskData.location}
-            mapboxToken={mapboxToken}
-            showMapTokenInput={showMapTokenInput}
-            setShowMapTokenInput={setShowMapTokenInput}
-            setMapboxToken={setMapboxToken}
-            notes={notes}
-            addNote={addNote}
-            onMapVisibilityChange={onMapVisibilityChange}
-          />
-        </div>
-      )}
+      <div className={mapVisible ? "mb-2 sm:mb-4" : ""}>
+        <TechnicianLocationMap
+          location={taskData.location}
+          mapboxToken={mapboxToken}
+          showMapTokenInput={showMapTokenInput}
+          setShowMapTokenInput={setShowMapTokenInput}
+          setMapboxToken={setMapboxToken}
+          notes={notes}
+          addNote={addNote}
+          onMapVisibilityChange={onMapVisibilityChange}
+        />
+      </div>
       
       <TechnicianPdfViewer
         currentTool={currentTool}
