@@ -30,9 +30,12 @@ type VisibilitySettings = {
 
 type KmzFeatureWithVisibility = any;
 
+// Defining the valid tab values to ensure type safety
+type TabValue = 'all' | 'pending' | 'approved' | 'rejected' | 'schedule';
+
 const RepositoryPage = () => {
   const [showUploader, setShowUploader] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'schedule'>('schedule');
+  const [selectedTab, setSelectedTab] = useState<TabValue>('schedule');
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [showKmzUploader, setShowKmzUploader] = useState(false);
   const [importedKmzFeatures, setImportedKmzFeatures] = useState<KmzFeatureWithVisibility[]>([]);
@@ -49,6 +52,11 @@ const RepositoryPage = () => {
   
   const handleSetPendingTab = () => {
     setSelectedTab('pending');
+  };
+
+  // Type-safe tab change handler
+  const handleTabChange = (value: TabValue) => {
+    setSelectedTab(value);
   };
 
   return (
@@ -75,7 +83,7 @@ const RepositoryPage = () => {
         <>
           <Tabs 
             value={selectedTab}
-            onValueChange={setSelectedTab}
+            onValueChange={handleTabChange}
             className="w-full"
           >
             <TabsList className="w-full grid grid-cols-3 mb-4 bg-muted/70 p-1 rounded-lg sticky top-0 z-20 shadow-sm">
