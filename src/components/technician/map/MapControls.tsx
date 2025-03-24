@@ -37,7 +37,7 @@ export const MapControls: React.FC<MapControlsProps> = ({
           <span className="sm:hidden">{isAddingPin ? 'Cancel' : 'Pin'}</span>
         </Button>
       )}
-      {!showMapTokenInput && (
+      {mapVisible && !showMapTokenInput && (
         <Button 
           variant="ghost" 
           size="sm" 
