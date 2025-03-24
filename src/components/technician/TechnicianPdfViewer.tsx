@@ -1,13 +1,14 @@
 
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, Maximize } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PdfToolbar } from './pdf-viewer/PdfToolbar';
 import { PdfContent } from './pdf-viewer/PdfContent';
 import { MobileDrawingTools } from './pdf-viewer/MobileDrawingTools';
 import { useFullscreenControl } from './pdf-viewer/useFullscreenControl';
 import { PdfViewerProps } from './pdf-viewer/types';
+import { Link } from 'react-router-dom';
 
 export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
   currentTool,
@@ -73,14 +74,30 @@ export const TechnicianPdfViewer: React.FC<PdfViewerProps> = ({
       />
 
       {isMobile && (
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className={`absolute top-2 right-2 h-8 w-8 p-0 flex items-center justify-center ${isFullscreen ? 'z-10' : ''}`}
-          onClick={() => setShowMobileTools(!showMobileTools)}
-        >
-          <Menu className="h-4 w-4" />
-        </Button>
+        <>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={`absolute top-2 right-2 h-8 w-8 p-0 flex items-center justify-center ${isFullscreen ? 'z-10' : ''}`}
+            onClick={() => setShowMobileTools(!showMobileTools)}
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+          
+          <Link 
+            to={`/technician/drawing?pageId=${currentPage}`} 
+            className="absolute bottom-12 right-2 z-10"
+          >
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1"
+            >
+              <Maximize className="h-4 w-4" />
+              <span className="text-xs">Open Editor</span>
+            </Button>
+          </Link>
+        </>
       )}
     </div>
   );

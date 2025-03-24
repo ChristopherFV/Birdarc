@@ -16,6 +16,7 @@ import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
 import { TechnicianDashboard } from "@/components/technician/TechnicianDashboard";
+import TechnicianDrawingPage from "./pages/TechnicianDrawingPage";
 import { MainLayout } from "@/components/layout/MainLayout";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>} />
               <Route path="/technician" element={<TechnicianWindow />} />
               <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
+              <Route path="/technician/drawing" element={<TechnicianDrawingPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
