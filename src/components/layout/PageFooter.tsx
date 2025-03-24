@@ -31,7 +31,11 @@ export const PageFooter: React.FC<PageFooterProps> = ({
       <div className="flex items-center gap-3">
         {backLink && (
           <Link to={backLink}>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-[#CB9D06]/80">
+            <Button 
+              variant="blue" 
+              size="sm" 
+              className="text-white hover:bg-fieldvision-blue/80"
+            >
               <ChevronLeft className="h-4 w-4 mr-1" />
               {backLabel}
             </Button>
@@ -40,7 +44,9 @@ export const PageFooter: React.FC<PageFooterProps> = ({
         
         <Menubar className="bg-transparent border-none">
           <MenubarMenu>
-            <MenubarTrigger className="text-white hover:bg-[#CB9D06]/80 data-[state=open]:bg-[#CB9D06]/80">
+            <MenubarTrigger 
+              className="text-white hover:bg-fieldvision-blue/80 data-[state=open]:bg-fieldvision-blue/80"
+            >
               <LayoutDashboard className="h-4 w-4 mr-1" />
               Menu
             </MenubarTrigger>
@@ -75,4 +81,3 @@ export const PageFooter: React.FC<PageFooterProps> = ({
     </div>
   );
 };
-
