@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { TaskForm } from '@/components/schedule/TaskForm';
 import { KmzUploader } from '@/components/repository/KmzUploader';
 import { KmzFeature } from '@/utils/kmzUtils';
 import { useToast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const projectsWithPendingFiles = [
   { id: '1', name: 'Cedar Heights Fiber', pendingCount: 25, billingCodes: ['FBR-001'] },
@@ -40,6 +42,7 @@ const RepositoryPage = () => {
   const [mapboxApiKey] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
   const { tasks } = useSchedule();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const currentUser = { id: 'user-1', name: 'John Davis', teamId: 'team-1' };
 
@@ -87,8 +90,8 @@ const RepositoryPage = () => {
     <SimplePageLayout 
       subtitle="Upload and manage project files, schedule tasks and monitor field operations"
     >
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-6">
+        <div className="flex items-center gap-2 mb-2 sm:mb-0">
           <Button variant="outline" size="sm" className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
             <span>Filter</span>
@@ -98,20 +101,22 @@ const RepositoryPage = () => {
             <span>Sort</span>
           </Button>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
           {selectedTab === 'schedule' && (
             <>
               <Button 
                 onClick={toggleKmzUploader} 
                 variant="outline"
                 className="flex items-center gap-2"
+                size={isMobile ? "sm" : "default"}
               >
                 <FileType className="h-4 w-4" />
-                <span>Import Map File</span>
+                <span>{isMobile ? "Import Map" : "Import Map File"}</span>
               </Button>
               <Button 
                 onClick={() => setIsTaskFormOpen(true)} 
                 className="flex items-center gap-2 bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+                size={isMobile ? "sm" : "default"}
               >
                 <Plus className="h-4 w-4" />
                 <span>New Task</span>
@@ -123,6 +128,7 @@ const RepositoryPage = () => {
               onClick={() => setShowUploader(true)} 
               className="flex items-center gap-2"
               disabled={showUploader}
+              size={isMobile ? "sm" : "default"}
             >
               <Upload className="h-4 w-4" />
               <span>Upload Files</span>
@@ -151,7 +157,7 @@ const RepositoryPage = () => {
         value={selectedTab}
         onValueChange={(value) => setSelectedTab(value as any)}
       >
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 flex flex-wrap sm:flex-nowrap w-full overflow-x-auto">
           <TabsTrigger value="schedule" className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
             <span>Field Map</span>
@@ -191,12 +197,12 @@ const RepositoryPage = () => {
                       onClick={() => setSelectedTab('pending')}
                     >
                       <div className="flex flex-col">
-                        <span className="font-medium truncate">{project.name}</span>
+                        <span className="font-medium truncate max-w-[150px] sm:max-w-none">{project.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {project.billingCodes.join(', ')}
                         </span>
                       </div>
-                      <Badge variant="secondary" className="ml-2">
+                      <Badge variant="secondary" className="ml-2 whitespace-nowrap">
                         {project.pendingCount} files
                       </Badge>
                     </div>
@@ -217,11 +223,11 @@ const RepositoryPage = () => {
             <CardContent>
               <FileUploader />
             </CardContent>
-            <CardFooter className="justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setShowUploader(false)}>
+            <CardFooter className="justify-end gap-2 pt-2 flex-wrap">
+              <Button variant="outline" onClick={() => setShowUploader(false)} size={isMobile ? "sm" : "default"}>
                 Cancel
               </Button>
-              <Button>
+              <Button size={isMobile ? "sm" : "default"}>
                 Submit Files
               </Button>
             </CardFooter>
@@ -229,21 +235,21 @@ const RepositoryPage = () => {
         )}
         
       <TabsContent value="schedule">
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center">
+              <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center mb-2 sm:mb-0">
                   <MapPin className="mr-2 h-5 w-5" />
                   Fieldmap
                 </div>
                 <div className="flex items-center text-sm">
                   <User className="h-4 w-4 mr-1" />
-                  <span className="text-muted-foreground">Viewing as: {currentUser.name}</span>
+                  <span className="text-muted-foreground text-xs sm:text-sm">Viewing as: {currentUser.name}</span>
                 </div>
               </CardTitle>
               <CardDescription>
-                <span>
+                <span className="text-xs sm:text-sm">
                   View all teams and technicians across locations. Click on markers to assign tasks.
                   {visibleFeatures.length > 0 && (
                     <Badge variant="outline" className="ml-2">
@@ -254,17 +260,17 @@ const RepositoryPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[600px] w-full rounded-md overflow-hidden">
+              <div className="h-[400px] sm:h-[600px] w-full rounded-md overflow-hidden">
                 <ScheduleMap mapboxApiKey={mapboxApiKey} />
               </div>
             </CardContent>
           </Card>
           
-          <div className="flex flex-col items-center justify-center mt-4 mb-6">
+          <div className="flex flex-col items-center justify-center mt-2 sm:mt-4 mb-4 sm:mb-6">
             <img 
               src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
               alt="Fieldvision Logo" 
-              className="h-8 w-auto object-contain" 
+              className="h-6 sm:h-8 w-auto object-contain" 
             />
           </div>
         </div>

@@ -7,6 +7,7 @@ import { AddInvoiceDialog } from '@/components/forms/AddInvoiceDialog';
 import { WorkEntriesHeader } from '@/components/work-entries/WorkEntriesHeader';
 import { WorkEntriesTable } from '@/components/work-entries/WorkEntriesTable';
 import { useWorkEntries } from '@/hooks/useWorkEntries';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const WorkEntriesPage: React.FC = () => {
   const {
@@ -32,12 +33,14 @@ const WorkEntriesPage: React.FC = () => {
     handleCancelInvoice
   } = useWorkEntries();
   
+  const isMobile = useIsMobile();
+  
   return (
     <SimplePageLayout 
       title="Work Entries" 
       subtitle="View and manage all work entries"
     >
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <WorkEntriesHeader 
           search={search}
           setSearch={setSearch}
@@ -50,7 +53,7 @@ const WorkEntriesPage: React.FC = () => {
         />
         
         <Card className="bg-card border-border shadow-sm">
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             <WorkEntriesTable 
               entries={sortedEntries}
               sortColumn={sortColumn}
