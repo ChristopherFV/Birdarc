@@ -40,22 +40,23 @@ const data: InvoicingStatusData[] = [
   { name: 'Jul', wip: 3490, invoiced: 4300, pending: 700, total: 8490 },
 ];
 
+// Updated colors to match the index page theme
 const chartConfig = {
   wip: {
     label: "Work In Progress",
-    color: "#f97316"  // Orange
+    color: "#F18E1D"  // Fieldvision orange
   },
   invoiced: {
     label: "Invoiced",
-    color: "#22c55e"  // Green
+    color: "#00b6cf"  // Fieldvision navy/blue
   },
   pending: {
     label: "Pending Approval",
-    color: "#f59e0b"  // Amber
+    color: "#52461B"  // Fieldvision brown
   },
   total: {
     label: "Total Value",
-    color: "#6366f1"  // Indigo
+    color: "#9b87f5"  // Primary Purple from index
   }
 };
 
@@ -75,21 +76,31 @@ export const InvoicingStatusChart: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Fixed height container to ensure chart stays within card */}
         <div className="h-[300px] w-full">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 data={data}
                 margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
+                  top: 10,
+                  right: 10,
+                  left: 10,
+                  bottom: 15,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis 
+                  dataKey="name"
+                  tick={{ fontSize: 12 }}
+                  tickLine={{ display: 'none' }}
+                />
+                <YAxis 
+                  tickFormatter={(value) => formatCurrency(value)}
+                  tick={{ fontSize: 12 }}
+                  width={70}
+                  tickLine={{ display: 'none' }}
+                />
                 <Tooltip
                   content={
                     <ChartTooltipContent
@@ -98,9 +109,9 @@ export const InvoicingStatusChart: React.FC = () => {
                   }
                 />
                 <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="wip" stackId="a" fill="var(--color-wip)" />
-                <Bar dataKey="invoiced" stackId="a" fill="var(--color-invoiced)" />
-                <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" />
+                <Bar dataKey="wip" stackId="a" fill="var(--color-wip)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="invoiced" stackId="a" fill="var(--color-invoiced)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" radius={[4, 4, 0, 0]} />
                 <Line 
                   type="monotone" 
                   dataKey="total" 
