@@ -19,6 +19,7 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 export const RecentWorkEntries: React.FC = () => {
   const { workEntries, projects, billingCodes, teamMembers } = useApp();
@@ -57,25 +58,30 @@ export const RecentWorkEntries: React.FC = () => {
 
   if (isMobile) {
     return (
-      <div className="space-y-3">
-        <div className="flex justify-between items-center mb-1">
-          <h2 className="text-base font-medium">Recent Work Entries</h2>
-          <Button variant="ghost" size="sm" className="text-xs text-fieldvision-blue flex items-center h-7 px-2">
-            View All <ChevronRight className="h-3 w-3 ml-1" />
-          </Button>
-        </div>
+      <Card className="shadow-sm">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg">Recent Work Entries</CardTitle>
+            <Link to="/work-entries">
+              <Button variant="ghost" size="sm" className="text-xs text-blue-600 flex items-center h-7 px-2">
+                View All <ChevronRight className="h-3 w-3 ml-1" />
+              </Button>
+            </Link>
+          </div>
+          <CardDescription>Latest completed work</CardDescription>
+        </CardHeader>
         
-        {recentEntries.length === 0 ? (
-          <Card className="p-4 text-center text-muted-foreground">
-            <FileText className="h-6 w-6 mx-auto mb-2 opacity-70" />
-            <p className="text-sm">No work entries found</p>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {recentEntries.map((entry) => (
-              <Card key={entry.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-3">
-                  <div className="flex justify-between items-start mb-2">
+        <CardContent className="pt-0">
+          {recentEntries.length === 0 ? (
+            <div className="p-4 text-center text-muted-foreground">
+              <FileText className="h-6 w-6 mx-auto mb-2 opacity-70" />
+              <p className="text-sm">No work entries found</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentEntries.map((entry) => (
+                <div key={entry.id} className="border-b pb-3 last:border-0">
+                  <div className="flex justify-between items-start mb-1">
                     <div className="font-medium text-sm truncate pr-2 max-w-[70%]">
                       {getBillingCodeInfo(entry.billingCodeId)}
                     </div>
@@ -102,52 +108,66 @@ export const RecentWorkEntries: React.FC = () => {
                       <span className="truncate">{entry.feetCompleted} ft</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     );
   }
   
   return (
     <Card className="w-full shadow-sm">
-      <CardHeader>
-        <CardTitle>Recent Work Entries</CardTitle>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <CardTitle>Recent Work Entries</CardTitle>
+          <Link to="/work-entries">
+            <Button variant="ghost" size="sm" className="text-blue-600 flex items-center">
+              View All <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
         <CardDescription>
           The latest work entries added to the system
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Date</th>
-                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Project</th>
-                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Billing Code</th>
-                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Technician</th>
-                <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Feet</th>
-                <th className="text-right font-medium text-muted-foreground text-xs uppercase py-3 px-2">Revenue</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentEntries.map((entry) => (
-                <tr key={entry.id} className="border-b border-border hover:bg-muted/50">
-                  <td className="py-2 px-2 text-sm">{formatDate(new Date(entry.date))}</td>
-                  <td className="py-2 px-2 text-sm">{getProjectName(entry.projectId)}</td>
-                  <td className="py-2 px-2 text-sm">{getBillingCodeInfo(entry.billingCodeId)}</td>
-                  <td className="py-2 px-2 text-sm">{getTeamMemberName(entry.teamMemberId)}</td>
-                  <td className="py-2 px-2 text-sm">{entry.feetCompleted}</td>
-                  <td className="py-2 px-2 text-sm text-right font-medium">
-                    {formatCurrency(calculateRevenue(entry))}
-                  </td>
+        {recentEntries.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <FileText className="h-10 w-10 mx-auto mb-3 opacity-50" />
+            <p>No work entries found</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Date</th>
+                  <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Project</th>
+                  <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Billing Code</th>
+                  <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Technician</th>
+                  <th className="text-left font-medium text-muted-foreground text-xs uppercase py-3 px-2">Feet</th>
+                  <th className="text-right font-medium text-muted-foreground text-xs uppercase py-3 px-2">Revenue</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {recentEntries.map((entry) => (
+                  <tr key={entry.id} className="border-b border-border hover:bg-muted/50">
+                    <td className="py-2 px-2 text-sm">{formatDate(new Date(entry.date))}</td>
+                    <td className="py-2 px-2 text-sm">{getProjectName(entry.projectId)}</td>
+                    <td className="py-2 px-2 text-sm">{getBillingCodeInfo(entry.billingCodeId)}</td>
+                    <td className="py-2 px-2 text-sm">{getTeamMemberName(entry.teamMemberId)}</td>
+                    <td className="py-2 px-2 text-sm">{entry.feetCompleted}</td>
+                    <td className="py-2 px-2 text-sm text-right font-medium text-green-600">
+                      {formatCurrency(calculateRevenue(entry))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
