@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapContent } from '@/components/schedule/map/MapContent';
 import { mockProjectLocations } from '@/utils/mockMapData';
 import { useToast } from "@/hooks/use-toast";
+import { TaskStatus } from "@/context/ScheduleContext";
 
 const ProjectsPage = () => {
   const { projects } = useApp();
@@ -38,6 +39,22 @@ const ProjectsPage = () => {
     (project.location && project.location.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  // Helper function to map project status to TaskStatus
+  const mapProjectStatusToTaskStatus = (status: string | undefined): TaskStatus => {
+    if (!status) return 'pending';
+    
+    // Convert status to lowercase for case-insensitive matching
+    const lowercaseStatus = status.toLowerCase();
+    
+    // Map status strings to TaskStatus values
+    if (lowercaseStatus.includes('complete')) return 'completed';
+    if (lowercaseStatus.includes('progress') || lowercaseStatus.includes('active')) return 'in_progress';
+    if (lowercaseStatus.includes('cancel')) return 'cancelled';
+    
+    // Default to pending for any other status
+    return 'pending';
+  };
+
   // Enhanced project locations with proper coordinates for all projects
   const projectLocations = projects.map(project => {
     // Find matching location in mock data or generate a random one in USA
@@ -55,7 +72,7 @@ const ProjectsPage = () => {
       projectName: project.name,
       teamMemberId: null,
       priority: 'medium' as const,
-      status: project.status || 'pending' as const,
+      status: mapProjectStatusToTaskStatus(project.status), // Convert to proper TaskStatus type
       billingCodeId: null,
       quantityEstimate: 0
     };
