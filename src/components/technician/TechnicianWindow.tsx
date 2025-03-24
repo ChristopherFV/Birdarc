@@ -110,7 +110,7 @@ export const TechnicianWindow: React.FC = () => {
             formatTime={formatTime}
           />
           
-          {/* Use the custom DashboardFooter for mobile */}
+          {/* Use the DashboardFooter without the top logo bar */}
           <DashboardFooter />
         </>
       ) : (

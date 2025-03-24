@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -77,15 +78,6 @@ export const DashboardFooter: React.FC = () => {
           
           {/* Spacer to prevent content from being hidden behind the fixed footer */}
           <div className="h-16"></div>
-          
-          {/* Top logo bar for mobile */}
-          <div className="flex justify-center p-3 bg-[#CB9D06]">
-            <img 
-              src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-              alt="Fieldvision Logo" 
-              className="h-7 w-auto object-contain" 
-            />
-          </div>
         </>
       ) : (
         <>
