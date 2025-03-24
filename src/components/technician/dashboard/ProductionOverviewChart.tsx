@@ -16,13 +16,98 @@ import {
 import { Task } from '@/context/ScheduleContext';
 import { format } from 'date-fns';
 import { useApp } from '@/context/AppContext';
+import { formatUnits } from '@/utils/charts';
 
 interface ProductionOverviewChartProps {
   completedTasks: Task[];
 }
 
+// Sample task data for demonstration
+const sampleCompletedTasks: Task[] = [
+  {
+    id: 'task-1',
+    title: 'Fiber Installation - Downtown',
+    description: 'Install 75 feet of fiber optic cable',
+    location: { address: '123 Main St', lat: 37.7749, lng: -122.4194 },
+    startDate: new Date('2023-06-01'),
+    endDate: new Date('2023-06-01'),
+    projectId: '1',
+    projectName: 'Downtown Fiber Expansion',
+    teamMemberId: '1',
+    teamMemberName: 'Alex Johnson',
+    priority: 'medium',
+    status: 'completed',
+    billingCodeId: 'code-1',
+    quantityEstimate: 75
+  },
+  {
+    id: 'task-2',
+    title: 'Splicing - Business District',
+    description: 'Complete fiber splicing for business district',
+    location: { address: '456 Market St', lat: 37.7899, lng: -122.4014 },
+    startDate: new Date('2023-06-03'),
+    endDate: new Date('2023-06-03'),
+    projectId: '1',
+    projectName: 'Downtown Fiber Expansion',
+    teamMemberId: '1',
+    teamMemberName: 'Alex Johnson',
+    priority: 'high',
+    status: 'completed',
+    billingCodeId: 'code-6',
+    quantityEstimate: 30
+  },
+  {
+    id: 'task-3',
+    title: 'Aerial Installation',
+    description: 'Complete 120 feet of aerial installation',
+    location: { address: '789 Oak St', lat: 37.7691, lng: -122.4449 },
+    startDate: new Date('2023-06-05'),
+    endDate: new Date('2023-06-05'),
+    projectId: '1',
+    projectName: 'Downtown Fiber Expansion',
+    teamMemberId: '1',
+    teamMemberName: 'Alex Johnson',
+    priority: 'medium',
+    status: 'completed',
+    billingCodeId: 'code-3',
+    quantityEstimate: 120
+  },
+  {
+    id: 'task-4',
+    title: 'Underground Installation',
+    description: 'Install 200 feet of underground conduit',
+    location: { address: '101 Pine St', lat: 37.7924, lng: -122.3990 },
+    startDate: new Date('2023-06-10'),
+    endDate: new Date('2023-06-10'),
+    projectId: '2',
+    projectName: 'Westside Business District',
+    teamMemberId: '1',
+    teamMemberName: 'Alex Johnson',
+    priority: 'high',
+    status: 'completed',
+    billingCodeId: 'code-1',
+    quantityEstimate: 200
+  },
+  {
+    id: 'task-5',
+    title: 'Equipment Installation',
+    description: 'Install networking equipment at 3 locations',
+    location: { address: '222 Montgomery St', lat: 37.7904, lng: -122.4024 },
+    startDate: new Date('2023-06-15'),
+    endDate: new Date('2023-06-15'),
+    projectId: '2',
+    projectName: 'Westside Business District',
+    teamMemberId: '1',
+    teamMemberName: 'Alex Johnson',
+    priority: 'medium',
+    status: 'completed',
+    billingCodeId: 'code-5',
+    quantityEstimate: 3
+  }
+];
+
 export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = ({ 
-  completedTasks
+  completedTasks = sampleCompletedTasks // Use sample data as default
 }) => {
   const { 
     dateRange, 
@@ -40,6 +125,11 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
     let filteredTasks = completedTasks;
     if (selectedProject) {
       filteredTasks = filteredTasks.filter(task => task.projectId === selectedProject);
+    }
+
+    // Filter by team member if selected
+    if (selectedTeamMember) {
+      filteredTasks = filteredTasks.filter(task => task.teamMemberId === selectedTeamMember);
     }
 
     // Group tasks by time period (day, week, month, year)
@@ -107,20 +197,6 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
     });
   }, [completedTasks, groupBy, selectedProject, dateRange, selectedTeamMember]);
 
-  // Format units based on billing unit type
-  const formatUnits = (value: number) => {
-    switch (billingUnit) {
-      case 'foot':
-        return `${value} ft`;
-      case 'meter':
-        return `${value} m`;
-      case 'each':
-        return value.toString();
-      default:
-        return `${value} units`;
-    }
-  };
-
   // Calculate max values for scaling
   const maxUnits = Math.max(...chartData.map(item => item.units || 0));
   const maxCumulative = Math.max(...chartData.map(item => item.cumulativeUnits || 0));
@@ -140,7 +216,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
               />
               <span className="mr-2 text-gray-600">{entry.name}:</span>
               <span className="font-medium text-gray-800">
-                {formatUnits(entry.value)}
+                {formatUnits(entry.value, billingUnit)}
               </span>
             </div>
           ))}
@@ -192,7 +268,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
                 />
                 <YAxis 
                   yAxisId="left"
-                  tickFormatter={(value) => formatUnits(value)}
+                  tickFormatter={(value) => formatUnits(value, billingUnit)}
                   tick={{ fontSize: 11, fill: "#64748b" }}
                   tickLine={false}
                   axisLine={false}
@@ -202,7 +278,7 @@ export const ProductionOverviewChart: React.FC<ProductionOverviewChartProps> = (
                   yAxisId="right" 
                   orientation="right" 
                   domain={[0, (maxUnits * dataScale) || 1000]}
-                  tickFormatter={(value) => formatUnits(value)}
+                  tickFormatter={(value) => formatUnits(value, billingUnit)}
                   tick={{ fontSize: 11, fill: "#64748b" }}
                   tickLine={false}
                   axisLine={false}
