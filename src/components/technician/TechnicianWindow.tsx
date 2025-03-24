@@ -2,7 +2,6 @@
 import React, { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { TaskConfirmationDialog } from '../schedule/map/TaskConfirmationDialog';
-import { TechnicianHeader } from './TechnicianHeader';
 import { TechnicianTaskSelector } from './TechnicianTaskSelector';
 import { TechnicianMobileSummary } from './TechnicianMobileSummary';
 import { TechnicianWorkEntryDialog } from './TechnicianWorkEntryDialog';
@@ -74,7 +73,7 @@ export const TechnicianWindow: React.FC = () => {
         hasNotes={mapNotes.length > 0}
       />
       
-      <TechnicianHeader />
+      {/* Top header removed */}
       
       <div className="p-2 bg-background">
         <TechnicianTaskSelector 

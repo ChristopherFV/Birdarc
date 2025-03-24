@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -69,13 +70,13 @@ export default {
 				// Fieldvision custom colors - Updated with provided colors
 				fieldvision: {
 					cream: '#EDE0D0',
-					navy: '#002B3D',
+					navy: '#00b6cf', // Changed from #002B3D to #00b6cf
 					orange: '#F18E1D',
 					brown: '#52461B',
 					// Keep the existing color groups but update the DEFAULT values
 					blue: {
 						light: '#E1F5FE',
-						DEFAULT: '#002B3D', // Changed from 039BE5 to navy
+						DEFAULT: '#00b6cf', // Changed from #002B3D to #00b6cf
 						dark: '#001A25'
 					},
 					gray: {

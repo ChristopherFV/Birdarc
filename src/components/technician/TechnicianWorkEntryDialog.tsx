@@ -13,17 +13,27 @@ import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CircleX, Send, Clock } from "lucide-react";
+import { CircleX, Send, Clock, Plus, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useApp } from '@/context/AppContext';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useSchedule } from '@/context/ScheduleContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface TechnicianWorkEntryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId?: string;
+}
+
+interface TaskEntry {
+  taskId: string;
+  workType: 'unit' | 'hourly';
+  hoursWorked: string;
+  feetCompleted: string;
+  billingCodeId: string;
 }
 
 export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps> = ({
@@ -33,6 +43,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
 }) => {
   const { toast } = useToast();
   const { teamMembers } = useApp();
+  const { tasks } = useSchedule();
   const {
     formData,
     calendarOpen,
@@ -55,16 +66,37 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   const [notifyTaskIssuer, setNotifyTaskIssuer] = useState(true);
   const [workType, setWorkType] = useState<'unit' | 'hourly'>('unit');
   const [hoursWorked, setHoursWorked] = useState('');
+  const [multipleTasksEnabled, setMultipleTasksEnabled] = useState(false);
+  const [taskEntries, setTaskEntries] = useState<TaskEntry[]>([]);
+  const [projectTasks, setProjectTasks] = useState<{ id: string, title: string }[]>([]);
 
-  // Set project ID if provided
+  // Set project ID if provided and get related tasks
   useEffect(() => {
     if (projectId && open) {
       const syntheticEvent = {
         target: { name: 'projectId', value: projectId }
       } as React.ChangeEvent<HTMLSelectElement>;
       handleChange(syntheticEvent);
+
+      // Get tasks related to this project
+      const relatedTasks = tasks.filter(task => task.projectId === projectId)
+        .map(task => ({ id: task.id, title: task.title }));
+      setProjectTasks(relatedTasks);
+
+      // Initialize task entries with the first task if available
+      if (relatedTasks.length > 0 && taskEntries.length === 0) {
+        setTaskEntries([
+          {
+            taskId: relatedTasks[0].id,
+            workType: 'unit',
+            hoursWorked: '',
+            feetCompleted: '',
+            billingCodeId: ''
+          }
+        ]);
+      }
     }
-  }, [projectId, open, handleChange]);
+  }, [projectId, open, handleChange, tasks]);
 
   const handleWorkTypeChange = (value: 'unit' | 'hourly') => {
     setWorkType(value);
@@ -74,33 +106,152 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     setHoursWorked(e.target.value);
   };
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleTaskEntryChange = (index: number, field: keyof TaskEntry, value: string) => {
+    const updatedEntries = [...taskEntries];
+    updatedEntries[index] = { ...updatedEntries[index], [field]: value };
     
-    // Validate hours worked if hourly work is selected
-    if (workType === 'hourly' && (!hoursWorked || Number(hoursWorked) <= 0)) {
+    // If changing workType, reset the relevant fields
+    if (field === 'workType') {
+      if (value === 'unit') {
+        updatedEntries[index].hoursWorked = '';
+      } else {
+        updatedEntries[index].feetCompleted = '';
+        updatedEntries[index].billingCodeId = '';
+      }
+    }
+    
+    setTaskEntries(updatedEntries);
+  };
+
+  const addTaskEntry = () => {
+    if (projectTasks.length === 0) {
       toast({
-        title: "Error",
-        description: "Please enter a valid number of hours worked.",
+        title: "No tasks available",
+        description: "There are no tasks available for this project.",
         variant: "destructive"
       });
       return;
     }
+
+    // Find a task not already in the entries
+    const usedTaskIds = taskEntries.map(entry => entry.taskId);
+    const availableTask = projectTasks.find(task => !usedTaskIds.includes(task.id));
+
+    if (availableTask) {
+      setTaskEntries([
+        ...taskEntries,
+        {
+          taskId: availableTask.id,
+          workType: 'unit',
+          hoursWorked: '',
+          feetCompleted: '',
+          billingCodeId: ''
+        }
+      ]);
+    } else {
+      toast({
+        title: "All tasks included",
+        description: "All available tasks for this project have been added.",
+      });
+    }
+  };
+
+  const removeTaskEntry = (index: number) => {
+    const updatedEntries = taskEntries.filter((_, i) => i !== index);
+    setTaskEntries(updatedEntries);
+  };
+
+  const validateTaskEntries = () => {
+    let isValid = true;
+    for (const entry of taskEntries) {
+      if (!entry.taskId) {
+        toast({
+          title: "Error",
+          description: "Please select a task for each entry.",
+          variant: "destructive"
+        });
+        isValid = false;
+        break;
+      }
+
+      if (entry.workType === 'unit') {
+        if (!entry.billingCodeId) {
+          toast({
+            title: "Error",
+            description: "Please select a billing code for each unit-based entry.",
+            variant: "destructive"
+          });
+          isValid = false;
+          break;
+        }
+        if (!entry.feetCompleted || Number(entry.feetCompleted) <= 0) {
+          toast({
+            title: "Error",
+            description: "Please enter valid units completed for each unit-based entry.",
+            variant: "destructive"
+          });
+          isValid = false;
+          break;
+        }
+      } else {
+        if (!entry.hoursWorked || Number(entry.hoursWorked) <= 0) {
+          toast({
+            title: "Error",
+            description: "Please enter valid hours worked for each hourly entry.",
+            variant: "destructive"
+          });
+          isValid = false;
+          break;
+        }
+      }
+    }
+    return isValid;
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Include the redline revision status and work type in the form data
-    const updatedFormData = {
-      ...formData,
-      isRedlineRevision,
-      isTechnicianSubmission: true, // Flag to identify technician submissions
-      workType,
-      hoursWorked: workType === 'hourly' ? parseFloat(hoursWorked) : undefined
-    };
-    
-    handleSubmit(e);
+    if (multipleTasksEnabled) {
+      // Validate task entries
+      if (!validateTaskEntries()) {
+        return;
+      }
+
+      // Process multiple task entries
+      for (const entry of taskEntries) {
+        const taskInfo = projectTasks.find(t => t.id === entry.taskId);
+        
+        // Here you would submit each entry to your backend
+        toast({
+          title: "Work logged for multiple tasks",
+          description: `Logged work for task: ${taskInfo?.title || entry.taskId}`,
+        });
+      }
+    } else {
+      // Validate single entry
+      if (workType === 'hourly' && (!hoursWorked || Number(hoursWorked) <= 0)) {
+        toast({
+          title: "Error",
+          description: "Please enter a valid number of hours worked.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Process single task entry using existing form data
+      const updatedFormData = {
+        ...formData,
+        isRedlineRevision,
+        isTechnicianSubmission: true,
+        workType,
+        hoursWorked: workType === 'hourly' ? parseFloat(hoursWorked) : undefined
+      };
+      
+      handleSubmit(e);
+    }
     
     // Notification to task issuer
     if (notifyTaskIssuer) {
-      // Find task issuer (for demo purposes, we'll use the first manager role)
       const taskIssuer = teamMembers.find(member => member.role.toLowerCase().includes('manager'));
       
       toast({
@@ -111,7 +262,9 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     
     toast({
       title: "Work entry submitted",
-      description: "Your work entry has been saved to your dashboard and submitted for approval.",
+      description: multipleTasksEnabled ? 
+        "Multiple task work entries have been saved and submitted for approval." :
+        "Your work entry has been saved to your dashboard and submitted for approval.",
     });
     
     onOpenChange(false);
@@ -127,7 +280,6 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
       return;
     }
 
-    // Here you would handle the ticket cancellation
     toast({
       title: "Ticket cancelled",
       description: "The ticket has been cancelled with notes.",
@@ -162,81 +314,243 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
             error={formErrors.projectId}
           />
           
-          {/* Work Type Selection */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium mb-1">
-              Work Type
-            </label>
-            <RadioGroup 
-              value={workType} 
-              onValueChange={(value) => handleWorkTypeChange(value as 'unit' | 'hourly')}
-              className="flex flex-col space-y-2"
+          {/* Multiple Tasks Toggle */}
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="multipleTasksEnabled" 
+              checked={multipleTasksEnabled} 
+              onCheckedChange={(checked) => setMultipleTasksEnabled(checked === true)}
+            />
+            <label 
+              htmlFor="multipleTasksEnabled" 
+              className="text-sm font-medium leading-none cursor-pointer"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="unit" id="unit" />
-                <Label htmlFor="unit">Unit-Based Work</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="hourly" id="hourly" />
-                <Label htmlFor="hourly">Hourly Work</Label>
-              </div>
-            </RadioGroup>
+              Log work for multiple tasks in this project
+            </label>
           </div>
           
-          {workType === 'unit' ? (
-            <>
-              {/* Billing Code Dropdown - Only show for unit-based work */}
-              <BillingCodeSelector
-                billingCodeId={formData.billingCodeId}
-                billingCodes={billingCodes}
-                onChange={handleChange}
-                error={formErrors.billingCodeId}
-              />
-              
-              {/* Feet Completed Input - Only show for unit-based work */}
-              <FeetCompletedInput
-                value={formData.feetCompleted}
-                onChange={handleChange}
-                error={formErrors.feetCompleted}
-              />
-              
-              {/* Revenue Preview - Only show for unit-based work */}
-              {previewRevenue !== null && (
-                <RevenuePreview previewAmount={previewRevenue} />
-              )}
-            </>
-          ) : (
-            /* Hours Worked Input - Only show for hourly work */
-            <div>
-              <label htmlFor="hoursWorked" className="block text-sm font-medium mb-1">
-                Hours Worked
-              </label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  id="hoursWorked"
-                  value={hoursWorked}
-                  onChange={handleHoursWorkedChange}
-                  placeholder="Enter hours worked"
-                  min="0"
-                  step="0.5"
-                  className="w-full"
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                  <Clock className="h-4 w-4 mr-1" />
-                  hrs
+          {multipleTasksEnabled ? (
+            /* Multiple Tasks UI */
+            <div className="space-y-4">
+              {taskEntries.map((entry, index) => (
+                <div key={index} className="p-4 border rounded-md space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-sm font-medium">Task {index + 1}</h4>
+                    {taskEntries.length > 1 && (
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => removeTaskEntry(index)}
+                        className="h-6 w-6 p-0 text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* Task Selector */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Task
+                    </label>
+                    <Select 
+                      value={entry.taskId}
+                      onValueChange={(value) => handleTaskEntryChange(index, 'taskId', value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a task" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {projectTasks.map(task => (
+                          <SelectItem key={task.id} value={task.id}>
+                            {task.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Work Type Selection */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium mb-1">
+                      Work Type
+                    </label>
+                    <RadioGroup 
+                      value={entry.workType} 
+                      onValueChange={(value) => handleTaskEntryChange(index, 'workType', value)}
+                      className="flex flex-col space-y-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="unit" id={`unit-${index}`} />
+                        <Label htmlFor={`unit-${index}`}>Unit-Based Work</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="hourly" id={`hourly-${index}`} />
+                        <Label htmlFor={`hourly-${index}`}>Hourly Work</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  
+                  {entry.workType === 'unit' ? (
+                    <>
+                      {/* Billing Code Dropdown */}
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Billing Code
+                        </label>
+                        <Select 
+                          value={entry.billingCodeId}
+                          onValueChange={(value) => handleTaskEntryChange(index, 'billingCodeId', value)}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a billing code" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {billingCodes.map(code => (
+                              <SelectItem key={code.id} value={code.id}>
+                                {code.name} (${code.ratePerUnit}/unit)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Feet Completed Input */}
+                      <div>
+                        <label htmlFor={`feetCompleted-${index}`} className="block text-sm font-medium mb-1">
+                          Units Completed
+                        </label>
+                        <Input
+                          id={`feetCompleted-${index}`}
+                          type="number"
+                          value={entry.feetCompleted}
+                          onChange={(e) => handleTaskEntryChange(index, 'feetCompleted', e.target.value)}
+                          placeholder="Enter units completed"
+                          min="0"
+                          className="w-full"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    /* Hours Worked Input */
+                    <div>
+                      <label htmlFor={`hoursWorked-${index}`} className="block text-sm font-medium mb-1">
+                        Hours Worked
+                      </label>
+                      <div className="relative">
+                        <Input
+                          id={`hoursWorked-${index}`}
+                          type="number"
+                          value={entry.hoursWorked}
+                          onChange={(e) => handleTaskEntryChange(index, 'hoursWorked', e.target.value)}
+                          placeholder="Enter hours worked"
+                          min="0"
+                          step="0.5"
+                          className="w-full"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
+                          <Clock className="h-4 w-4 mr-1" />
+                          hrs
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
+              
+              {/* Add Task Button */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addTaskEntry}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Another Task
+              </Button>
             </div>
+          ) : (
+            /* Single Task UI */
+            <>
+              {/* Work Type Selection */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium mb-1">
+                  Work Type
+                </label>
+                <RadioGroup 
+                  value={workType} 
+                  onValueChange={(value) => handleWorkTypeChange(value as 'unit' | 'hourly')}
+                  className="flex flex-col space-y-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="unit" id="unit" />
+                    <Label htmlFor="unit">Unit-Based Work</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="hourly" id="hourly" />
+                    <Label htmlFor="hourly">Hourly Work</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
+              {workType === 'unit' ? (
+                <>
+                  {/* Billing Code Dropdown - Only show for unit-based work */}
+                  <BillingCodeSelector
+                    billingCodeId={formData.billingCodeId}
+                    billingCodes={billingCodes}
+                    onChange={handleChange}
+                    error={formErrors.billingCodeId}
+                  />
+                  
+                  {/* Feet Completed Input - Only show for unit-based work */}
+                  <FeetCompletedInput
+                    value={formData.feetCompleted}
+                    onChange={handleChange}
+                    error={formErrors.feetCompleted}
+                  />
+                  
+                  {/* Revenue Preview - Only show for unit-based work */}
+                  {previewRevenue !== null && (
+                    <RevenuePreview previewAmount={previewRevenue} />
+                  )}
+                </>
+              ) : (
+                /* Hours Worked Input - Only show for hourly work */
+                <div>
+                  <label htmlFor="hoursWorked" className="block text-sm font-medium mb-1">
+                    Hours Worked
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      id="hoursWorked"
+                      value={hoursWorked}
+                      onChange={handleHoursWorkedChange}
+                      placeholder="Enter hours worked"
+                      min="0"
+                      step="0.5"
+                      className="w-full"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
+                      <Clock className="h-4 w-4 mr-1" />
+                      hrs
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Team Member Dropdown */}
+              <TeamMemberSelector
+                teamMemberId={formData.teamMemberId}
+                teamMembers={formTeamMembers}
+                onChange={handleChange}
+                error={formErrors.teamMemberId}
+              />
+            </>
           )}
-          
-          {/* Team Member Dropdown */}
-          <TeamMemberSelector
-            teamMemberId={formData.teamMemberId}
-            teamMembers={formTeamMembers}
-            onChange={handleChange}
-            error={formErrors.teamMemberId}
-          />
           
           {/* Redline Revision Checkbox */}
           <div className="flex items-center space-x-2">
