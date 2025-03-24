@@ -1,7 +1,7 @@
 
 export interface ScreenOrientationAPI {
-  lock?: (orientation: 'portrait' | 'landscape') => Promise<void>;
-  unlock?: () => void;
+  lock: (orientation: 'portrait' | 'landscape') => Promise<void>;
+  unlock: () => void;
   type?: string;
   angle?: number;
   onchange?: EventListener;
@@ -18,11 +18,10 @@ export interface ScreenOrientationAPI {
   dispatchEvent?: (event: Event) => boolean;
 }
 
+// Extend the existing Screen interface instead of redefining window.screen
 declare global {
-  interface Window {
-    screen: Omit<Screen, 'orientation'> & {
-      orientation?: ScreenOrientationAPI;
-    }
+  interface Screen {
+    orientation?: ScreenOrientationAPI;
   }
 }
 
