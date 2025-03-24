@@ -247,7 +247,7 @@ export const RecentWorkEntries: React.FC = () => {
         </CardContent>
         <CardFooter className="pt-2 pb-4">
           <Button asChild variant="outline" className="w-full">
-            <Link to="/work-entries">
+            <Link to="/invoicing">
               <List className="mr-2" size={16} />
               View all work entries
             </Link>
@@ -479,7 +479,7 @@ export const RecentWorkEntries: React.FC = () => {
       </CardContent>
       <CardFooter className="pt-2 pb-4">
         <Button asChild variant="outline" className="w-full">
-          <Link to="/work-entries">
+          <Link to="/invoicing">
             <List className="mr-2" size={16} />
             View all work entries
           </Link>
@@ -499,3 +499,4 @@ export const RecentWorkEntries: React.FC = () => {
   );
 };
 
+export default RecentWorkEntries;

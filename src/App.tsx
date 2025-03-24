@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,7 +30,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/invoicing" element={<WorkEntriesPage />} />
-              <Route path="/work-entries" element={<WorkEntriesPage />} />
+              {/* Removed duplicate /work-entries route */}
               <Route path="/repository" element={<RepositoryPage />} />
               <Route path="/technician" element={<TechnicianWindow />} />
               <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
