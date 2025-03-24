@@ -1,17 +1,13 @@
-
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { Upload } from 'lucide-react';
 import { useSchedule } from '@/context/ScheduleContext';
-import { useToast } from '@/components/ui/use-toast';
 
 // Import refactored components
 import { RepositoryHeader } from '@/components/repository/page/RepositoryHeader';
 import { PendingNotification } from '@/components/repository/page/PendingNotification';
 import { MapSection } from '@/components/repository/page/MapSection';
 import { FileSection } from '@/components/repository/page/FileSection';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 
 // Mock data
 const projectsWithPendingFiles = [
@@ -48,18 +44,6 @@ const RepositoryPage = () => {
   const handleSetPendingTab = () => {
     setSelectedTab('pending');
   };
-  
-  const actionButton = (
-    <Button 
-      onClick={() => setShowUploader(true)} 
-      className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
-      size="sm"
-      disabled={showUploader}
-    >
-      <Upload className="h-4 w-4 mr-1" />
-      Upload
-    </Button>
-  );
 
   return (
     <SimplePageLayout 
@@ -67,8 +51,7 @@ const RepositoryPage = () => {
       showFooter={true}
       footerProps={{
         backLink: "/",
-        backLabel: "Dashboard",
-        actionButton: actionButton
+        backLabel: "Dashboard"
       }}
     >
       <RepositoryHeader 
