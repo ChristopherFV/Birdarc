@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAddInvoiceDialog } from '@/hooks/useAddInvoiceDialog';
 import { useApp } from '@/context/AppContext';
@@ -35,7 +34,17 @@ type InvoiceItem = {
 
 export const AddInvoiceDialog = () => {
   const { isOpen, closeAddInvoiceDialog } = useAddInvoiceDialog();
-  const { updateWorkEntry, workEntries, projects, billingCodes, calculateRevenue, startDate, endDate, setCustomDateRange } = useApp();
+  const { 
+    updateWorkEntry, 
+    workEntries, 
+    projects, 
+    billingCodes,
+    teamMembers, 
+    calculateRevenue, 
+    startDate, 
+    endDate, 
+    setCustomDateRange 
+  } = useApp();
   const { toast } = useToast();
   
   const [invoiceNumber, setInvoiceNumber] = useState('');
