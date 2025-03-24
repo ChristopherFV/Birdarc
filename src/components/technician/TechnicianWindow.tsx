@@ -34,7 +34,7 @@ export const TechnicianWindow: React.FC = () => {
   const isMobile = useIsMobile();
   const { tasks } = useSchedule();
   
-  const defaultTaskData = {
+  const defaultTaskData: Task = {
     id: 'task-123',
     title: 'Field Dashboard',
     description: 'Review the construction drawings for the new commercial building project. Check for structural issues and compliance with local building codes.',
@@ -48,7 +48,13 @@ export const TechnicianWindow: React.FC = () => {
     projectId: 'project-1',
     teamMemberId: 'team-1',
     priority: 'high',
-    status: 'in_progress'
+    status: 'in_progress',
+    billingCodeId: 'billing-1',
+    quantityEstimate: 100
+  };
+  
+  const handleTaskSelect = (taskId: string) => {
+    setSelectedTaskId(taskId);
   };
   
   const getSelectedTask = (): Task => {
