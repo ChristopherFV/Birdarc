@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSchedule, Task, TaskStatus } from '@/context/ScheduleContext';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -10,9 +11,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { TechDashboardMap } from './dashboard/TechDashboardMap';
 import { ProductionOverviewChart } from './dashboard/ProductionOverviewChart';
 import { DashboardHeader } from './dashboard/DashboardHeader';
-import { DashboardFooter } from './dashboard/DashboardFooter';
 import { TaskColumns } from './dashboard/TaskColumns';
-import { CheckCheck, Map as MapIcon, BarChart } from 'lucide-react';
+import { CheckCheck, Map as MapIcon, BarChart, Layers, ListChecks } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SectionHeader } from './dashboard/SectionHeader';
 import { PageFooter } from '@/components/layout/PageFooter';
@@ -99,28 +99,111 @@ export const TechnicianDashboard: React.FC = () => {
               projectId={selectedProjectId || "project-1"}
             />
             
-            <DashboardHeader />
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-xl font-bold">Technician Dashboard</h1>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleOpenWorkEntry()}
+                className="text-xs shadow-sm"
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" />
+                Log Work
+              </Button>
+            </div>
             
             <Tabs 
               value={activeTab} 
               onValueChange={setActiveTab} 
-              className="w-full mt-4"
+              className="w-full mt-2"
             >
-              <TabsList className="w-full grid grid-cols-3 mb-4 bg-muted/70 p-1 rounded-lg sticky top-0 z-20 shadow-sm">
-                <TabsTrigger value="overview" className="text-sm py-1.5">
+              <TabsList className="w-full grid grid-cols-4 mb-4 bg-muted/70 p-1 rounded-lg sticky top-0 z-20 shadow-sm">
+                <TabsTrigger value="overview" className="text-xs py-1.5">
+                  <Layers className="h-3.5 w-3.5 mr-1" />
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="map" className="text-sm py-1.5">
+                <TabsTrigger value="tasks" className="text-xs py-1.5">
+                  <ListChecks className="h-3.5 w-3.5 mr-1" />
+                  Tasks
+                </TabsTrigger>
+                <TabsTrigger value="map" className="text-xs py-1.5">
                   <MapIcon className="h-3.5 w-3.5 mr-1" />
                   Map
                 </TabsTrigger>
-                <TabsTrigger value="stats" className="text-sm py-1.5">
+                <TabsTrigger value="stats" className="text-xs py-1.5">
                   <BarChart className="h-3.5 w-3.5 mr-1" />
                   Stats
                 </TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview" className="space-y-4 pb-20 animate-fade-in">
+                <Card className="shadow-sm p-3 mb-4">
+                  <CardHeader className="p-0 pb-2">
+                    <CardTitle className="text-base flex items-center">
+                      <CheckCheck className="h-4 w-4 mr-1.5" />
+                      Quick Stats
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-blue-50 p-2 rounded-lg">
+                        <div className="text-blue-600 text-sm font-medium">Pending</div>
+                        <div className="text-2xl font-bold">{assignedTasks.length}</div>
+                      </div>
+                      <div className="bg-green-50 p-2 rounded-lg">
+                        <div className="text-green-600 text-sm font-medium">Completed</div>
+                        <div className="text-2xl font-bold">{completedTasks.length}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Mini charts */}
+                <Card className="shadow-sm overflow-hidden">
+                  <CardHeader className="py-2 px-3">
+                    <CardTitle className="text-base flex items-center">
+                      <BarChart className="h-4 w-4 mr-1.5" />
+                      Production
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="h-[180px]">
+                      <ProductionOverviewChart completedTasks={completedTasks} />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Recent tasks */}
+                <Card className="shadow-sm">
+                  <CardHeader className="py-2 px-3">
+                    <CardTitle className="text-base flex items-center">
+                      <ListChecks className="h-4 w-4 mr-1.5" />
+                      Today's Tasks
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="py-0 px-3 max-h-[200px] overflow-auto">
+                    {assignedTasks.length === 0 ? (
+                      <p className="text-sm text-muted-foreground py-2">No tasks scheduled for today.</p>
+                    ) : (
+                      <div className="space-y-2 py-2">
+                        {assignedTasks.slice(0, 3).map((task) => (
+                          <div key={task.id} className="flex items-center justify-between p-2 bg-muted/40 rounded-lg">
+                            <div className="truncate flex-1">
+                              <div className="font-medium text-sm truncate">{task.title}</div>
+                              <div className="text-xs text-muted-foreground truncate">{getProjectName(task.projectId)}</div>
+                            </div>
+                            <Button variant="ghost" size="sm" className="h-7 text-xs">
+                              View
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="tasks" className="space-y-4 pb-20 animate-fade-in">
                 <FilterBar technicianView={true} />
                 
                 <TaskColumns 
@@ -170,12 +253,22 @@ export const TechnicianDashboard: React.FC = () => {
           backLink="/technician"
           backLabel="My Tasks"
           actionButton={
-            <Link to="/technician">
-              <Button variant="blue" size="sm" className="text-white">
-                <Plus className="h-4 w-4 mr-1" />
-                Add Task
+            <div className="flex gap-2">
+              <Link to="/technician">
+                <Button variant="outline" size="sm" className="text-xs">
+                  View Tasks
+                </Button>
+              </Link>
+              <Button 
+                variant="blue" 
+                size="sm" 
+                className="text-white text-xs"
+                onClick={() => handleOpenWorkEntry()}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" />
+                Log Work
               </Button>
-            </Link>
+            </div>
           }
         />
       </div>
