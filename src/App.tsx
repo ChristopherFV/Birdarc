@@ -19,7 +19,6 @@ import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
 import { TechnicianDashboard } from "@/components/technician/TechnicianDashboard";
 import TechnicianDrawingPage from "./pages/TechnicianDrawingPage";
-import { MainLayout } from "@/components/layout/MainLayout";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 // Create a new query client instance

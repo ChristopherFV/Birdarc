@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
@@ -112,13 +113,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               href="/technician" 
               collapsed={collapsed}
               active={location.pathname.startsWith('/technician')} 
-            />
-            <NavItem 
-              icon={<LayoutDashboard size={20} />} 
-              label="Tech Dashboard" 
-              href="/technician/dashboard" 
-              collapsed={collapsed}
-              active={location.pathname === '/technician/dashboard'} 
             />
             <NavItem 
               icon={<Settings size={20} />} 
