@@ -133,7 +133,7 @@ export const WorkEntriesTable: React.FC<WorkEntriesTableProps> = ({
                       entry.invoiceStatus === 'paid' ? 'success' : 'secondary'
                     }
                   >
-                    {entry.invoiceStatus.charAt(0).toUpperCase() + entry.invoiceStatus.slice(1)}
+                    {entry.invoiceStatus ? entry.invoiceStatus.charAt(0).toUpperCase() + entry.invoiceStatus.slice(1) : 'Not Invoiced'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
@@ -166,7 +166,8 @@ export const WorkEntriesTable: React.FC<WorkEntriesTableProps> = ({
               />
             </PaginationItem>
             
-            {Array.from({ length: Math.min(5, Math.ceil(entries.length / 10)) }, (_, i) => i + 1).map((page) => (
+            {/* Add null check for entries.length to prevent potential errors */}
+            {entries.length > 0 && Array.from({ length: Math.min(5, Math.ceil(entries.length / 10)) }, (_, i) => i + 1).map((page) => (
               <PaginationItem key={page}>
                 <PaginationLink 
                   isActive={currentPage === page}
