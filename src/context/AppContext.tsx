@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useState,
@@ -23,6 +22,7 @@ import {
   BillingUnitType,
   InvoiceStatus
 } from '@/types/app-types';
+import { calculateRevenue, calculateContractorCost } from '@/utils/app-utils';
 
 // Create the context with the imported type
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -53,7 +53,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     { id: 'project-4', name: 'Westside Network', client: 'Westside Communities', status: 'completed', progress: 100, location: 'Westside' },
   ]);
   
-  // Mock data for the extended app context
   const [workEntries, setWorkEntries] = useState<WorkEntry[]>([]);
   const [billingCodes, setBillingCodes] = useState<BillingCode[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -104,7 +103,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     });
   };
 
-  // Extended functionality for the app context
   const addWorkEntry = (entry: Omit<WorkEntry, 'id'>) => {
     const newEntry: WorkEntry = { id: uuidv4(), ...entry };
     setWorkEntries([...workEntries, newEntry]);
@@ -174,34 +172,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
   
   const getFilteredEntries = () => {
-    // Implement filtering logic based on selected filters
     return workEntries;
   };
   
-  const calculateRevenue = (entry: WorkEntry, codes: BillingCode[]) => {
-    const billingCode = codes.find(code => code.id === entry.billingCodeId);
-    return billingCode ? entry.feetCompleted * billingCode.ratePerFoot : 0;
-  };
-  
-  const calculateContractorCost = (entry: WorkEntry, codes: BillingCode[], projs: Project[]) => {
-    // Placeholder implementation
-    return 0;
-  };
-
   const exportData = (type: 'raw' | 'summary' | 'files-by-project') => {
-    // Dummy data for demonstration
     const data = [
       { name: 'John', age: 30, city: 'New York' },
       { name: 'Jane', age: 28, city: 'Los Angeles' },
     ];
 
-    // Convert data to CSV format
     const csv = convertToCSV(data);
 
-    // Create a Blob from the CSV data
     const blob = new Blob([csv], { type: 'text/csv' });
 
-    // Create a temporary link element
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -209,7 +192,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     document.body.appendChild(a);
     a.click();
 
-    // Clean up
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 
@@ -219,7 +201,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     });
   };
 
-  // Function to convert data to CSV format
   const convertToCSV = (data: any[]) => {
     const csvRows = [];
     const headers = Object.keys(data[0]);
@@ -239,7 +220,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
-        // Original context values
         tasks,
         addTask,
         updateTask,
@@ -251,7 +231,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setSelectedProject,
         exportData,
         
-        // Extended context values
         workEntries,
         billingCodes,
         teamMembers,
@@ -265,7 +244,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         billingUnit,
         selectedBillingCodeId,
         
-        // Extended functions
         addWorkEntry,
         updateWorkEntry,
         deleteWorkEntry,
@@ -298,7 +276,6 @@ export const useApp = () => {
   return context;
 };
 
-// Export all the types so they can be imported from this file
 export type {
   Project,
   Task,

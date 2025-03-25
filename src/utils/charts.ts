@@ -1,6 +1,7 @@
 
 import { format, parseISO, startOfWeek, startOfMonth, startOfYear, startOfDay, addDays, addWeeks, addMonths } from 'date-fns';
-import { WorkEntry, BillingCode, Project, GroupByType, calculateRevenue, BillingUnitType } from '@/context/AppContext';
+import { WorkEntry, BillingCode, Project, GroupByType, BillingUnitType } from '@/types/app-types';
+import { calculateRevenue } from '@/utils/app-utils';
 
 // Type for revenue data
 export type RevenueData = {
