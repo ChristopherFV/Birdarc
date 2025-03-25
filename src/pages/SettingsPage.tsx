@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -172,7 +173,7 @@ const SettingsPage: React.FC = () => {
     <SimplePageLayout
       title="Settings"
       subtitle="Manage your account and application settings"
-      showFooter={true}
+      showFooter={false} // Changed to false to remove the footer
       footerProps={{
         backLink: "/",
         backLabel: "Dashboard"
