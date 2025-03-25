@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Github, LucideIcon } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,10 +8,10 @@ import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { useToast } from '@/hooks/use-toast';
 
 const LoginPage = () => {
+  const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isRegister, setIsRegister] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -79,11 +79,11 @@ const LoginPage = () => {
     <SimplePageLayout showFooter={false}>
       <div className="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-md mx-auto px-4">
         {/* Logo */}
-        <div className="mb-8">
+        <div className="mb-8 w-full flex justify-center">
           <img 
             src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
             alt="Fieldvision Logo" 
-            className="h-16 mx-auto" 
+            className="h-20 object-contain" 
           />
         </div>
         
@@ -93,23 +93,14 @@ const LoginPage = () => {
           </h1>
           
           {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-4">
-            <Button 
-              variant="outline"
-              className="w-full" 
-              onClick={() => handleSocialLogin('GitHub')}
-              disabled={isLoading}
-            >
-              <Github className="mr-2 h-4 w-4" />
-              GitHub
-            </Button>
+          <div className="w-full">
             <Button 
               variant="outline" 
               className="w-full"
               onClick={() => handleSocialLogin('Google')}
               disabled={isLoading}
             >
-              {/* Replaced with an SVG for Google */}
+              {/* Google SVG icon */}
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
