@@ -74,15 +74,10 @@ export const useTaskActions = (
         }
       }
     }
-    
-    // Close the dialog
-    setIsConfirmationDialogOpen(false);
   };
   
   const openWorkEntryForm = () => {
     setIsWorkEntryDialogOpen(true);
-    // Close the confirmation dialog first
-    setIsConfirmationDialogOpen(false);
   };
   
   return {
