@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +22,8 @@ import {
   UserPlus,
   X,
   Edit,
-  Trash2
+  Trash2,
+  Zap
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { TeamMember } from '@/types/app-types';
@@ -47,7 +47,6 @@ const SettingsPage: React.FC = () => {
   const [company, setCompany] = useState({
     name: selectedCompany?.name || "FieldVision",
     address: "123 Construction Ave, Seattle, WA 98101",
-    taxId: "12-3456789",
     email: "info@fieldvision.com",
     phone: "(206) 555-9876"
   });
@@ -68,8 +67,31 @@ const SettingsPage: React.FC = () => {
     cardExpiry: "06/25",
     billingAddress: "123 Construction Ave, Seattle, WA 98101",
     invoicePrefix: "INV-",
-    defaultPaymentTerms: "Net 30"
+    defaultPaymentTerms: "Net 30",
+    currentPlan: "Basic"
   });
+
+  // Subscription plans
+  const subscriptionPlans = [
+    {
+      name: "Basic",
+      price: "$29",
+      period: "monthly",
+      features: ["5 team members", "10 projects", "Basic reporting", "Email support"]
+    },
+    {
+      name: "Professional",
+      price: "$79",
+      period: "monthly",
+      features: ["Unlimited team members", "Unlimited projects", "Advanced reporting", "Priority support", "Custom exports"]
+    },
+    {
+      name: "Enterprise",
+      price: "$199",
+      period: "monthly",
+      features: ["Everything in Professional", "Dedicated account manager", "Custom integrations", "On-site training", "24/7 phone support"]
+    }
+  ];
 
   // Team member state
   const [isAddingTeamMember, setIsAddingTeamMember] = useState(false);
@@ -110,6 +132,14 @@ const SettingsPage: React.FC = () => {
       title: "Billing Information Updated",
       description: "Your billing details have been saved.",
     });
+  };
+
+  const handleUpgradeSubscription = (planName: string) => {
+    toast({
+      title: "Subscription Updated",
+      description: `Your subscription has been upgraded to ${planName}.`,
+    });
+    setBilling({...billing, currentPlan: planName});
   };
 
   const handleAddTeamMember = (e: React.FormEvent) => {
@@ -173,7 +203,7 @@ const SettingsPage: React.FC = () => {
     <SimplePageLayout
       title="Settings"
       subtitle="Manage your account and application settings"
-      showFooter={false} // Changed to false to remove the footer
+      showFooter={false}
       footerProps={{
         backLink: "/",
         backLabel: "Dashboard"
@@ -288,15 +318,6 @@ const SettingsPage: React.FC = () => {
                       id="companyAddress" 
                       value={company.address} 
                       onChange={(e) => setCompany({...company, address: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="grid gap-3">
-                    <Label htmlFor="taxId">Tax ID / EIN</Label>
-                    <Input 
-                      id="taxId" 
-                      value={company.taxId} 
-                      onChange={(e) => setCompany({...company, taxId: e.target.value})}
                     />
                   </div>
                   
@@ -599,70 +620,139 @@ const SettingsPage: React.FC = () => {
 
         {/* Billing Settings */}
         <TabsContent value="billing">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment & Billing</CardTitle>
-              <CardDescription>
-                Manage your payment methods and billing preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleBillingUpdate} className="space-y-6">
-                <div className="space-y-4">
-                  <div className="p-4 border rounded-md bg-muted/50">
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="h-5 w-5 text-primary" />
-                        <h3 className="font-medium">Current Payment Method</h3>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment & Billing</CardTitle>
+                <CardDescription>
+                  Manage your payment methods and billing preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleBillingUpdate} className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-md bg-muted/50">
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-5 w-5 text-primary" />
+                          <h3 className="font-medium">Current Payment Method</h3>
+                        </div>
+                        <Button variant="outline" size="sm">Change</Button>
                       </div>
-                      <Button variant="outline" size="sm">Change</Button>
+                      
+                      <div className="grid gap-1 text-sm">
+                        <p><span className="text-muted-foreground">Card:</span> {billing.cardNumber}</p>
+                        <p><span className="text-muted-foreground">Name:</span> {billing.cardName}</p>
+                        <p><span className="text-muted-foreground">Expires:</span> {billing.cardExpiry}</p>
+                      </div>
                     </div>
                     
-                    <div className="grid gap-1 text-sm">
-                      <p><span className="text-muted-foreground">Card:</span> {billing.cardNumber}</p>
-                      <p><span className="text-muted-foreground">Name:</span> {billing.cardName}</p>
-                      <p><span className="text-muted-foreground">Expires:</span> {billing.cardExpiry}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-5">
-                    <div className="grid gap-3">
-                      <Label htmlFor="billingAddress">Billing Address</Label>
-                      <Input 
-                        id="billingAddress" 
-                        value={billing.billingAddress} 
-                        onChange={(e) => setBilling({...billing, billingAddress: e.target.value})}
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="grid gap-5">
                       <div className="grid gap-3">
-                        <Label htmlFor="invoicePrefix">Invoice Prefix</Label>
+                        <Label htmlFor="billingAddress">Billing Address</Label>
                         <Input 
-                          id="invoicePrefix" 
-                          value={billing.invoicePrefix} 
-                          onChange={(e) => setBilling({...billing, invoicePrefix: e.target.value})}
+                          id="billingAddress" 
+                          value={billing.billingAddress} 
+                          onChange={(e) => setBilling({...billing, billingAddress: e.target.value})}
                         />
                       </div>
                       
-                      <div className="grid gap-3">
-                        <Label htmlFor="paymentTerms">Default Payment Terms</Label>
-                        <Input 
-                          id="paymentTerms" 
-                          value={billing.defaultPaymentTerms} 
-                          onChange={(e) => setBilling({...billing, defaultPaymentTerms: e.target.value})}
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="grid gap-3">
+                          <Label htmlFor="invoicePrefix">Invoice Prefix</Label>
+                          <Input 
+                            id="invoicePrefix" 
+                            value={billing.invoicePrefix} 
+                            onChange={(e) => setBilling({...billing, invoicePrefix: e.target.value})}
+                          />
+                        </div>
+                        
+                        <div className="grid gap-3">
+                          <Label htmlFor="paymentTerms">Default Payment Terms</Label>
+                          <Input 
+                            id="paymentTerms" 
+                            value={billing.defaultPaymentTerms} 
+                            onChange={(e) => setBilling({...billing, defaultPaymentTerms: e.target.value})}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
+                  
+                  <div className="flex justify-end">
+                    <Button type="submit">Save Changes</Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+            
+            {/* Subscription Plans */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Subscription Plan</CardTitle>
+                <CardDescription>
+                  View and manage your current subscription
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6 p-4 border rounded-md bg-muted/50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-base">Current Plan: {billing.currentPlan}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Your billing cycle renews on the 1st of each month
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm">View Invoice History</Button>
+                  </div>
                 </div>
                 
-                <div className="flex justify-end">
-                  <Button type="submit">Save Changes</Button>
+                <h3 className="text-lg font-medium mb-4">Available Plans</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {subscriptionPlans.map((plan) => (
+                    <div 
+                      key={plan.name} 
+                      className={`border rounded-lg p-5 ${plan.name === billing.currentPlan ? 'border-primary bg-primary/5' : ''}`}
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <h4 className="font-semibold text-lg">{plan.name}</h4>
+                        {plan.name === billing.currentPlan && (
+                          <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">Current</span>
+                        )}
+                      </div>
+                      
+                      <div className="mb-4">
+                        <span className="text-2xl font-bold">{plan.price}</span>
+                        <span className="text-muted-foreground">/{plan.period}</span>
+                      </div>
+                      
+                      <ul className="space-y-2 mb-6">
+                        {plan.features.map((feature, index) => (
+                          <li key={index} className="flex items-center gap-2 text-sm">
+                            <span className="h-5 w-5 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </span>
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      <Button 
+                        variant={plan.name === billing.currentPlan ? "secondary" : "default"}
+                        className="w-full"
+                        disabled={plan.name === billing.currentPlan}
+                        onClick={() => handleUpgradeSubscription(plan.name)}
+                      >
+                        {plan.name === billing.currentPlan ? 'Current Plan' : 'Upgrade'}
+                        {plan.name !== billing.currentPlan && <Zap size={16} className="ml-1" />}
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              </form>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </SimplePageLayout>
