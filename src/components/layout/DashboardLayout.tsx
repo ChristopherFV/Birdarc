@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -25,6 +25,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const { companies, selectedCompany, setSelectedCompany } = useApp();
   const [collapsed, setCollapsed] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   const handleLogout = (e: React.MouseEvent) => {
@@ -87,9 +88,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             <NavItem 
               icon={<LayoutDashboard size={20} />} 
               label="Dashboard" 
-              href="/" 
+              href="/dashboard" 
               collapsed={collapsed} 
-              active={location.pathname === '/'}
+              active={location.pathname === '/dashboard'}
             />
             <NavItem 
               icon={<ListTodo size={20} />} 

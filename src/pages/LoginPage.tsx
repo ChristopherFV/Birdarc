@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
@@ -55,6 +54,7 @@ const LoginPage = () => {
           title: "Login successful",
           description: "Welcome back!",
         });
+        // Ensure we navigate to /dashboard after login
         navigate('/dashboard');
       }
     }, 1000);
@@ -75,6 +75,7 @@ const LoginPage = () => {
       if (isRegister) {
         navigate('/subscription');
       } else {
+        // Ensure we navigate to /dashboard after login
         navigate('/dashboard');
       }
     }, 1000);
