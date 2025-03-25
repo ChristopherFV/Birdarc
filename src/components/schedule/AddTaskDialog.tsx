@@ -28,8 +28,7 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         </DialogHeader>
         <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
           <TaskForm 
-            open={open} 
-            onOpenChange={onOpenChange} 
+            onOpenChange={onOpenChange}
           />
         </ScrollArea>
       </DialogContent>

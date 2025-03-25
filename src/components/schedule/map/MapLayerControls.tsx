@@ -20,6 +20,13 @@ export const MapLayerControls: React.FC<MapLayerControlsProps> = ({
   onEditTask,
   selectedTaskId
 }) => {
+  const handleAddTaskClick = () => {
+    console.log("Add task button clicked");
+    if (onAddTask) {
+      onAddTask();
+    }
+  };
+
   return (
     <div className="absolute left-4 top-4 z-10">
       <div className="bg-white p-2 rounded-md shadow-md space-y-2 border border-fieldvision-blue/20">
@@ -45,7 +52,7 @@ export const MapLayerControls: React.FC<MapLayerControlsProps> = ({
               variant="outline"
               size="sm"
               className="text-xs h-7 px-2 flex items-center justify-start border-fieldvision-blue/30"
-              onClick={onAddTask}
+              onClick={handleAddTaskClick}
             >
               <Plus className="h-3 w-3 mr-1 text-fieldvision-blue" /> New Task
             </Button>

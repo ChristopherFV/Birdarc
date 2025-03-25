@@ -27,6 +27,11 @@ export const RepositoryHeader: React.FC<RepositoryHeaderProps> = ({
 }) => {
   const isMobile = useIsMobile();
 
+  const handleAddTaskClick = () => {
+    console.log("Add Task button clicked in header");
+    onAddTaskClick();
+  };
+
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-6">
@@ -53,7 +58,7 @@ export const RepositoryHeader: React.FC<RepositoryHeaderProps> = ({
                 <span>{isMobile ? "Import Map" : "Import Map File"}</span>
               </Button>
               <Button 
-                onClick={onAddTaskClick} 
+                onClick={handleAddTaskClick} 
                 className="flex items-center gap-2 bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
                 size={isMobile ? "sm" : "default"}
               >

@@ -64,6 +64,14 @@ export const useTaskActions = (
             title: confirmationAction === 'complete' ? "Task completed" : "Task cancelled",
             description: `Task "${task.title}" has been ${confirmationAction === 'complete' ? 'marked as completed' : 'cancelled'}.`,
           });
+          
+          // Close the confirmation dialog
+          setIsConfirmationDialogOpen(false);
+          
+          // If completing a task, open the work entry form
+          if (confirmationAction === 'complete') {
+            openWorkEntryForm();
+          }
         } catch (error) {
           console.error(`Error ${confirmationAction}ing task:`, error);
           toast({
