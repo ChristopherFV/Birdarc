@@ -5,9 +5,6 @@ import { TaskForm } from './TaskForm';
 import { useSchedule } from '@/context/ScheduleContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-// Import types from ScheduleContext
-import { TaskPriority, BillingCodeEntry } from '@/context/ScheduleContext';
-
 interface AddTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
