@@ -37,8 +37,8 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
-              <Route path="/" element={<MainLayout><Index /></MainLayout>} />
-              <Route path="/dashboard" element={<Navigate to="/" replace />} />
+              <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
               <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />
               <Route path="/projects" element={<MainLayout><ProjectsPage /></MainLayout>} />

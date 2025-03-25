@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from '@/components/ui/card';
 import { useApp } from '@/context/AppContext';
 
+// Dashboard component (formerly Index)
 const Index = () => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<string>("dashboard");
