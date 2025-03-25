@@ -13,6 +13,7 @@ import RepositoryPage from "./pages/RepositoryPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
+import SubscriptionPage from "./pages/SubscriptionPage";
 import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
@@ -34,6 +35,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/subscription" element={<SubscriptionPage />} />
               <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
               <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
               <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />

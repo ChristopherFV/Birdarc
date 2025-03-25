@@ -47,6 +47,8 @@ const LoginPage = () => {
           title: "Registration successful",
           description: "Your account has been created",
         });
+        // Direct new users to subscription page
+        navigate('/subscription');
       } else {
         toast({
           title: "Login successful",
