@@ -1,12 +1,8 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TaskForm } from './TaskForm';
-import { useSchedule } from '@/context/ScheduleContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-// Import types from ScheduleContext
-import { TaskPriority, BillingCodeEntry } from '@/context/ScheduleContext';
 
 interface AddTaskDialogProps {
   open: boolean;
@@ -17,9 +13,6 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   open,
   onOpenChange
 }) => {
-  const { addTask } = useSchedule();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh]">

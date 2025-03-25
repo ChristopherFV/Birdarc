@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ScheduleMap } from '@/components/schedule/ScheduleMap';
 import { KmzUploader } from '@/components/repository/KmzUploader';
 import { KmzFeature } from '@/utils/kmzUtils';
-import { TaskForm } from '@/components/schedule/TaskForm';
+import { AddTaskDialog } from '@/components/schedule/AddTaskDialog'; // Updated import
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -115,7 +115,10 @@ export const MapSection: React.FC<MapSectionProps> = ({
         </CardContent>
       </Card>
       
-      <TaskForm open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen} />
+      <AddTaskDialog 
+        open={isTaskFormOpen} 
+        onOpenChange={setIsTaskFormOpen} 
+      />
     </div>
   );
 };

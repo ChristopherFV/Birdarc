@@ -13,11 +13,11 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
 import { Switch } from '@/components/ui/switch';
-import { BillingCodeSelector } from '@/components/forms/work-entry/BillingCodeSelector';
 import { DialogFooter } from '@/components/ui/dialog';
 
 interface TaskFormProps {
   onOpenChange: (open: boolean) => void;
+  open?: boolean;
 }
 
 interface BillingCodeEntry {
@@ -27,12 +27,11 @@ interface BillingCodeEntry {
   hideRateFromTeamMember: boolean;
 }
 
-export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
+export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
   const { addTask } = useSchedule();
   const { projects, teamMembers, billingCodes } = useApp();
   const { toast } = useToast();
 
-  // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('medium');
@@ -45,16 +44,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
-  // Multiple billing codes state
   const [selectedBillingCodes, setSelectedBillingCodes] = useState<BillingCodeEntry[]>([]);
   
-  // Contractor specific state
   const [isContractor, setIsContractor] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     const errors: Record<string, string> = {};
     if (!title) errors.title = "Title is required";
     if (!projectId) errors.projectId = "Project is required";
@@ -79,7 +75,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
       description,
       location: {
         address,
-        lat: 37.7749, // Default to San Francisco coordinates for now
+        lat: 37.7749,
         lng: -122.4194,
       },
       startDate,
@@ -88,7 +84,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
       teamMemberId: teamMemberId || null,
       priority,
       status: 'pending' as const,
-      billingCodeId: null, // Since we're using the array of billing codes now
+      billingCodeId: null,
       quantityEstimate,
       attachments,
       isContractor,
@@ -118,7 +114,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
       ...selectedBillingCodes, 
       { 
         billingCodeId: '', 
-        percentage: 100, // Default to 100%
+        percentage: 100,
         ratePerUnit: 0,
         hideRateFromTeamMember: false
       }
@@ -137,7 +133,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
     if (field === 'billingCodeId') {
       updatedCodes[index].billingCodeId = value as string;
       
-      // Calculate rate based on selected billing code and percentage
       const selectedCode = billingCodes.find(code => code.id === value);
       if (selectedCode) {
         const percentage = updatedCodes[index].percentage;
@@ -147,7 +142,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
       const percentage = Number(value);
       updatedCodes[index].percentage = percentage;
       
-      // Recalculate rate based on new percentage
       const selectedCode = billingCodes.find(code => code.id === updatedCodes[index].billingCodeId);
       if (selectedCode) {
         updatedCodes[index].ratePerUnit = (selectedCode.ratePerFoot * percentage) / 100;
@@ -160,7 +154,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange }) => {
   };
   
   const handleClose = () => {
-    // Reset form
     setTitle('');
     setDescription('');
     setPriority('medium');

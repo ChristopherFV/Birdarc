@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScheduleMap } from '@/components/schedule/ScheduleMap';
 import { ScheduleCalendar } from '@/components/schedule/ScheduleCalendar';
 import { TaskList } from '@/components/schedule/TaskList';
-import { TaskForm } from '@/components/schedule/TaskForm';
+import { AddTaskDialog } from '@/components/schedule/AddTaskDialog';
 import { MapPin, Calendar as CalendarIcon, ListTodo } from 'lucide-react';
 import { AppProvider } from '@/context/AppContext';
 import { FilterBar } from '@/components/ui/FilterBar';
@@ -79,7 +78,10 @@ const SchedulePage: React.FC = () => {
           </Card>
         </div>
         
-        <TaskForm open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen} />
+        <AddTaskDialog 
+          open={isTaskFormOpen} 
+          onOpenChange={setIsTaskFormOpen} 
+        />
       </main>
     </div>
   );
