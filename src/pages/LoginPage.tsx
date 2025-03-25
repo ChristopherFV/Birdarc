@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isRegister, setIsRegister] = useState(isRegister);
+  const [isRegister, setIsRegister] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   
