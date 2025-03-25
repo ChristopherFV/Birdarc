@@ -16,6 +16,7 @@ export interface BillingCodeEntry {
   billingCodeId: string;
   percentage: number;
   ratePerUnit: number;
+  quantityEstimate: number;
   hideRateFromTeamMember?: boolean;
 }
 
