@@ -53,9 +53,93 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     { id: 'project-4', name: 'Westside Network', client: 'Westside Communities', status: 'completed', progress: 100, location: 'Westside' },
   ]);
   
-  const [workEntries, setWorkEntries] = useState<WorkEntry[]>([]);
-  const [billingCodes, setBillingCodes] = useState<BillingCode[]>([]);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [workEntries, setWorkEntries] = useState<WorkEntry[]>(() => {
+    const storedEntries = localStorage.getItem('work_entries');
+    if (storedEntries) {
+      return JSON.parse(storedEntries);
+    }
+    
+    return [
+      { 
+        id: 'entry-1', 
+        projectId: 'project-1', 
+        teamMemberId: 'team-member-1',
+        date: new Date().toISOString(),
+        billingCodeId: 'billing-1',
+        feetCompleted: 120,
+        notes: 'Installed fiber lines along Main Street'
+      },
+      { 
+        id: 'entry-2', 
+        projectId: 'project-2', 
+        teamMemberId: 'team-member-2',
+        date: new Date(Date.now() - 86400000).toISOString(),
+        billingCodeId: 'billing-2',
+        feetCompleted: 85,
+        notes: 'Conducted site survey for new installation'
+      },
+      { 
+        id: 'entry-3', 
+        projectId: 'project-3', 
+        teamMemberId: 'team-member-1',
+        date: new Date(Date.now() - 172800000).toISOString(),
+        billingCodeId: 'billing-1',
+        feetCompleted: 200,
+        notes: 'Completed downtown section of fiber network'
+      }
+    ];
+  });
+  
+  const [billingCodes, setBillingCodes] = useState<BillingCode[]>(() => {
+    const storedCodes = localStorage.getItem('billing_codes');
+    if (storedCodes) {
+      return JSON.parse(storedCodes);
+    }
+    
+    return [
+      { 
+        id: 'billing-1', 
+        code: 'FO-INSTALL', 
+        description: 'Fiber Optic Installation',
+        ratePerFoot: 15.75,
+        contractorRatePerFoot: 12.50,
+        type: 'installation'
+      },
+      { 
+        id: 'billing-2', 
+        code: 'SURVEY', 
+        description: 'Site Survey',
+        ratePerFoot: 8.50,
+        contractorRatePerFoot: 6.75,
+        type: 'survey'
+      }
+    ];
+  });
+  
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
+    const storedMembers = localStorage.getItem('team_members');
+    if (storedMembers) {
+      return JSON.parse(storedMembers);
+    }
+    
+    return [
+      { 
+        id: 'team-member-1', 
+        name: 'John Smith', 
+        email: 'john.smith@example.com',
+        role: 'technician',
+        teamId: 'team-1'
+      },
+      { 
+        id: 'team-member-2', 
+        name: 'Sarah Johnson', 
+        email: 'sarah.johnson@example.com',
+        role: 'engineer',
+        teamId: 'team-2'
+      }
+    ];
+  });
+  
   const [companies, setCompanies] = useState<Company[]>([
     { id: 'company-1', name: 'FieldVision Networks' }
   ]);
@@ -71,8 +155,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   useEffect(() => {
+    localStorage.setItem('work_entries', JSON.stringify(workEntries));
+    localStorage.setItem('billing_codes', JSON.stringify(billingCodes));
+    localStorage.setItem('team_members', JSON.stringify(teamMembers));
     localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    
+    console.log('AppContext Data Updated:', {
+      workEntriesCount: workEntries.length,
+      billingCodesCount: billingCodes.length,
+      teamMembersCount: teamMembers.length,
+      tasksCount: tasks.length
+    });
+  }, [workEntries, billingCodes, teamMembers, tasks]);
 
   const addTask = (task: Omit<Task, 'id'>) => {
     const newTask: Task = { id: uuidv4(), ...task };

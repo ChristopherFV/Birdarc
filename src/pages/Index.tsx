@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { ProductionChart } from '@/components/dashboard/ProductionChart';
@@ -8,10 +9,22 @@ import { RecentInvoices } from '@/components/dashboard/RecentInvoices';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from '@/components/ui/card';
+import { useApp } from '@/context/AppContext';
 
 const Index = () => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const { workEntries, projects, billingCodes, teamMembers } = useApp();
+  
+  // Debug log to check if data is available
+  useEffect(() => {
+    console.log('Dashboard Data Check:', {
+      workEntriesCount: workEntries?.length || 0,
+      projectsCount: projects?.length || 0,
+      billingCodesCount: billingCodes?.length || 0,
+      teamMembersCount: teamMembers?.length || 0
+    });
+  }, [workEntries, projects, billingCodes, teamMembers]);
   
   return (
     <div className="min-h-screen bg-background px-2 md:px-0">
