@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,7 @@ interface BillingCodeEntry {
   billingCodeId: string;
   percentage: number;
   ratePerUnit: number;
+  quantityEstimate: number;
   hideRateFromTeamMember: boolean;
 }
 
@@ -40,7 +42,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [address, setAddress] = useState('');
-  const [quantityEstimate, setQuantityEstimate] = useState<number>(0);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
@@ -60,6 +61,21 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       errors.billingCodes = "At least one billing code is required";
     }
     
+    // Validate each billing code entry
+    selectedBillingCodes.forEach((entry, index) => {
+      if (!entry.billingCodeId) {
+        errors[`billingCode_${index}`] = "Billing code selection is required";
+      }
+      
+      if (isContractor && (entry.percentage <= 0 || entry.percentage > 100)) {
+        errors[`percentage_${index}`] = "Percentage must be between 1-100";
+      }
+      
+      if (entry.quantityEstimate <= 0) {
+        errors[`quantityEstimate_${index}`] = "Quantity must be greater than 0";
+      }
+    });
+    
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       toast({
@@ -69,6 +85,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       });
       return;
     }
+    
+    const totalQuantity = selectedBillingCodes.reduce((sum, entry) => sum + entry.quantityEstimate, 0);
     
     const newTask = {
       title,
@@ -85,7 +103,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       priority,
       status: 'pending' as const,
       billingCodeId: null,
-      quantityEstimate,
+      quantityEstimate: totalQuantity,
       attachments,
       isContractor,
       contractorBillingCodes: isContractor ? selectedBillingCodes : [],
@@ -114,8 +132,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       ...selectedBillingCodes, 
       { 
         billingCodeId: '', 
-        percentage: 100,
+        percentage: isContractor ? 100 : 0,
         ratePerUnit: 0,
+        quantityEstimate: 0,
         hideRateFromTeamMember: false
       }
     ]);
@@ -134,20 +153,24 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       updatedCodes[index].billingCodeId = value as string;
       
       const selectedCode = billingCodes.find(code => code.id === value);
-      if (selectedCode) {
+      if (selectedCode && isContractor) {
         const percentage = updatedCodes[index].percentage;
         updatedCodes[index].ratePerUnit = (selectedCode.ratePerFoot * percentage) / 100;
+      } else if (selectedCode) {
+        updatedCodes[index].ratePerUnit = selectedCode.ratePerFoot;
       }
     } else if (field === 'percentage') {
       const percentage = Number(value);
       updatedCodes[index].percentage = percentage;
       
       const selectedCode = billingCodes.find(code => code.id === updatedCodes[index].billingCodeId);
-      if (selectedCode) {
+      if (selectedCode && isContractor) {
         updatedCodes[index].ratePerUnit = (selectedCode.ratePerFoot * percentage) / 100;
       }
     } else if (field === 'hideRateFromTeamMember') {
       updatedCodes[index].hideRateFromTeamMember = value as boolean;
+    } else if (field === 'quantityEstimate') {
+      updatedCodes[index].quantityEstimate = Number(value);
     }
     
     setSelectedBillingCodes(updatedCodes);
@@ -162,7 +185,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     setStartDate(new Date());
     setEndDate(new Date());
     setAddress('');
-    setQuantityEstimate(0);
     setAttachments([]);
     setFormErrors({});
     setIsContractor(false);
@@ -310,31 +332,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
         {formErrors.address && <p className="text-destructive text-sm">{formErrors.address}</p>}
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="priority">Priority</Label>
-          <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select priority" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="quantity">Quantity Estimate (units)</Label>
-          <Input
-            id="quantity"
-            type="number"
-            min="0"
-            value={quantityEstimate.toString()}
-            onChange={(e) => setQuantityEstimate(Number(e.target.value))}
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="priority">Priority</Label>
+        <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">Low</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="high">High</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       
       <div className="space-y-3">
@@ -378,7 +387,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
                 value={item.billingCodeId}
                 onValueChange={(value) => handleBillingCodeChange(index, 'billingCodeId', value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className={formErrors[`billingCode_${index}`] ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select billing code" />
                 </SelectTrigger>
                 <SelectContent>
@@ -389,23 +398,45 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
                   ))}
                 </SelectContent>
               </Select>
+              {formErrors[`billingCode_${index}`] && (
+                <p className="text-destructive text-sm">{formErrors[`billingCode_${index}`]}</p>
+              )}
             </div>
             
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Percentage</Label>
-                <div className="flex items-center">
-                  <Input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={item.percentage.toString()}
-                    onChange={(e) => handleBillingCodeChange(index, 'percentage', Number(e.target.value))}
-                    className="text-right pr-0"
-                  />
-                  <span className="ml-2">%</span>
-                </div>
+                <Label className="text-xs">Quantity Estimate</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={item.quantityEstimate.toString()}
+                  onChange={(e) => handleBillingCodeChange(index, 'quantityEstimate', Number(e.target.value))}
+                  className={formErrors[`quantityEstimate_${index}`] ? "border-destructive" : ""}
+                />
+                {formErrors[`quantityEstimate_${index}`] && (
+                  <p className="text-destructive text-sm">{formErrors[`quantityEstimate_${index}`]}</p>
+                )}
               </div>
+              
+              {isContractor && (
+                <div className="space-y-1">
+                  <Label className="text-xs">Percentage</Label>
+                  <div className="flex items-center">
+                    <Input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={item.percentage.toString()}
+                      onChange={(e) => handleBillingCodeChange(index, 'percentage', Number(e.target.value))}
+                      className={`text-right pr-0 ${formErrors[`percentage_${index}`] ? "border-destructive" : ""}`}
+                    />
+                    <span className="ml-2">%</span>
+                  </div>
+                  {formErrors[`percentage_${index}`] && (
+                    <p className="text-destructive text-sm">{formErrors[`percentage_${index}`]}</p>
+                  )}
+                </div>
+              )}
               
               <div className="space-y-1">
                 <Label className="text-xs">Rate per Unit</Label>
