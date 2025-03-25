@@ -62,25 +62,28 @@ const RepositoryPage = () => {
   return (
     <SimplePageLayout 
       subtitle="Upload and manage project files, schedule tasks and monitor field operations"
-      showFooter={true}
+      showFooter={false} // Changed to false to remove the footer on mobile
       footerProps={{
         backLink: "/",
         backLabel: "Home",
-        actionButton: isMobile ? (
-          <Button 
-            variant="blue"
-            size="sm"
-            className="text-white"
-            onClick={() => setShowUploader(true)}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Upload
-          </Button>
-        ) : undefined
+        actionButton: undefined // Removed footer action button
       }}
     >
       {isMobile ? (
         <>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-lg font-semibold">Repository</h1>
+            <Button 
+              variant="blue"
+              size="sm"
+              className="text-white"
+              onClick={() => setIsTaskFormOpen(true)}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              New Task
+            </Button>
+          </div>
+          
           <Tabs 
             value={selectedTab}
             onValueChange={handleTabChange}
