@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, XCircle, FileText, Image, File, MoreVertical, Clock, Tag } from 'lucide-react';
+import { Check, XCircle, FileText, Image, File, MoreVertical, Clock, Tag, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -17,6 +17,7 @@ interface RepositoryFile {
   status: 'pending' | 'approved' | 'rejected';
   project: string;
   billingCode: string;
+  isFromCompletedTask?: boolean;
 }
 
 interface FileRepositoryProps {
@@ -35,7 +36,8 @@ const mockFiles: RepositoryFile[] = [
     uploadDate: '2023-09-15',
     status: 'pending',
     project: 'Cedar Heights Fiber',
-    billingCode: 'FBR-001'
+    billingCode: 'FBR-001',
+    isFromCompletedTask: true
   },
   {
     id: '2',
@@ -46,7 +48,8 @@ const mockFiles: RepositoryFile[] = [
     uploadDate: '2023-09-14',
     status: 'approved',
     project: 'Oakridge Expansion',
-    billingCode: 'UND-025'
+    billingCode: 'UND-025',
+    isFromCompletedTask: false
   },
   {
     id: '3',
@@ -57,7 +60,8 @@ const mockFiles: RepositoryFile[] = [
     uploadDate: '2023-09-13',
     status: 'rejected',
     project: 'Downtown Connection',
-    billingCode: 'PMT-103'
+    billingCode: 'PMT-103',
+    isFromCompletedTask: true
   },
   {
     id: '4',
@@ -68,7 +72,8 @@ const mockFiles: RepositoryFile[] = [
     uploadDate: '2023-09-12',
     status: 'pending',
     project: 'Westside Network',
-    billingCode: 'SPL-072'
+    billingCode: 'SPL-072',
+    isFromCompletedTask: true
   }
 ];
 
@@ -158,6 +163,12 @@ export const FileRepository: React.FC<FileRepositoryProps> = ({ status, compact 
                         <Badge variant="soft-green" className="text-xs">
                           {file.count} files
                         </Badge>
+                        {file.isFromCompletedTask && (
+                          <Badge variant="outline" className="bg-green-50 text-green-600 hover:bg-green-50 flex items-center gap-1 text-xs">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Completed Task
+                          </Badge>
+                        )}
                         {!compact && (
                           <span className="text-sm text-muted-foreground">
                             {file.uploadDate}

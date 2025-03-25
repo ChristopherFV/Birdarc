@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { FileUploader } from '@/components/repository/FileUploader';
 import { FileRepository } from '@/components/repository/FileRepository';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ExportButton } from '@/components/ui/filters/ExportButton';
 
 interface FileSectionProps {
   selectedTab: 'all' | 'pending' | 'approved' | 'rejected';
@@ -44,6 +45,12 @@ export const FileSection: React.FC<FileSectionProps> = ({
             </Button>
           </CardFooter>
         </Card>
+      )}
+      
+      {!showUploader && (
+        <div className="flex justify-end mb-4">
+          <ExportButton filesView={true} />
+        </div>
       )}
       
       <FileRepository status={selectedTab} />
