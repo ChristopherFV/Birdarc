@@ -1,6 +1,8 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
+import { useToast } from '@/hooks/use-toast';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -22,6 +24,19 @@ interface DashboardLayoutProps {
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { companies, selectedCompany, setSelectedCompany } = useApp();
   const [collapsed, setCollapsed] = React.useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -93,8 +108,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             <NavItem 
               icon={<Building2 size={20} />} 
               label="Projects" 
-              href="#" 
-              collapsed={collapsed} 
+              href="/projects" 
+              collapsed={collapsed}
+              active={location.pathname === '/projects'} 
             />
             <NavItem 
               icon={<HardHat size={20} />} 
@@ -113,8 +129,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             <NavItem 
               icon={<Settings size={20} />} 
               label="Settings" 
-              href="#" 
-              collapsed={collapsed} 
+              href="/settings" 
+              collapsed={collapsed}
+              active={location.pathname === '/settings'} 
             />
           </ul>
         </nav>
@@ -125,7 +142,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             icon={<LogOut size={20} />} 
             label="Logout" 
             href="#" 
-            collapsed={collapsed} 
+            collapsed={collapsed}
+            onClick={handleLogout}
           />
         </div>
       </div>
@@ -144,13 +162,15 @@ interface NavItemProps {
   href: string;
   collapsed: boolean;
   active?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ icon, label, href, collapsed, active }) => {
+const NavItem: React.FC<NavItemProps> = ({ icon, label, href, collapsed, active, onClick }) => {
   return (
     <li>
       <Link 
         to={href}
+        onClick={onClick}
         className={`
           flex items-center ${collapsed ? 'justify-center' : 'justify-start'} px-3 py-2.5 
           rounded-md transition-colors duration-200

@@ -1,10 +1,12 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Bell, LogOut, Settings, User, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +19,8 @@ import {
 export const Navbar: React.FC = () => {
   const { selectedCompany } = useApp();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
   // Using American user data
   const user = {
@@ -24,6 +28,15 @@ export const Navbar: React.FC = () => {
     location: "Seattle, WA",
     email: "michael.johnson@example.com",
     avatarUrl: undefined
+  };
+  
+  const handleLogout = () => {
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    
+    navigate('/login');
   };
   
   return (
@@ -73,12 +86,12 @@ export const Navbar: React.FC = () => {
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </DropdownMenuItem>

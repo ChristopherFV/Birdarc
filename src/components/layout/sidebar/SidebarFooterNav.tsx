@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   SidebarFooter,
   SidebarMenu,
@@ -9,11 +9,27 @@ import {
   useSidebar
 } from "@/components/ui/sidebar";
 import { Settings, LogOut } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export const SidebarFooterNav: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Show toast notification
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    
+    // Redirect to login page
+    navigate('/login');
+  };
   
   return (
     <SidebarFooter>
@@ -24,7 +40,7 @@ export const SidebarFooterNav: React.FC = () => {
             tooltip="Settings"
             className={location.pathname === '/settings' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
           >
-            <Link to="#">
+            <Link to="/settings">
               <Settings />
               <span>Settings</span>
             </Link>
@@ -35,9 +51,9 @@ export const SidebarFooterNav: React.FC = () => {
           <SidebarMenuButton 
             asChild 
             tooltip="Logout"
-            className={location.pathname === '/logout' ? 'text-fieldvision-orange font-medium border-l-2 border-fieldvision-orange !bg-transparent' : ''}
+            className="hover:text-destructive"
           >
-            <Link to="#">
+            <Link to="#" onClick={handleLogout}>
               <LogOut />
               <span>Logout</span>
             </Link>
