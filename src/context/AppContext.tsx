@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useState,
@@ -53,7 +54,7 @@ export interface AppContextType {
   deleteTask: (id: string) => void;
   users: User[];
   teams: Team[];
-  projects: { id: string; name: string }[];
+  projects: Project[];
   selectedProject: string | null;
   setSelectedProject: (projectId: string | null) => void;
   exportData: (type: 'raw' | 'summary' | 'files-by-project') => void;
