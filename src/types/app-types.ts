@@ -27,6 +27,38 @@ export type Project = {
   description?: string;
 };
 
+export type Task = {
+  id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  priority: 'high' | 'medium' | 'low';
+  status: 'open' | 'in progress' | 'completed' | 'on hold';
+  projectId: string | null;
+  assignedTo: string | null;
+  location: {
+    latitude: number | null;
+    longitude: number | null;
+  };
+  visibility: {
+    type: 'all' | 'team' | 'specific';
+    teamId?: string;
+    userId?: string;
+  };
+};
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  teamId: string;
+};
+
+export type Team = {
+  id: string;
+  name: string;
+};
+
 export type BillingCode = {
   id: string;
   code: string;
@@ -102,8 +134,14 @@ export type GeoJsonFeatureProperties = {
 // Context type
 export type AppContextType = {
   // Data
-  workEntries: WorkEntry[];
+  tasks: Task[];
+  addTask: (task: Omit<Task, 'id'>) => void;
+  updateTask: (id: string, updates: Partial<Task>) => void;
+  deleteTask: (id: string) => void;
+  users: User[];
+  teams: Team[];
   projects: Project[];
+  workEntries: WorkEntry[];
   billingCodes: BillingCode[];
   teamMembers: TeamMember[];
   companies: Company[];
@@ -123,7 +161,7 @@ export type AppContextType = {
   addWorkEntry: (entry: Omit<WorkEntry, 'id'>) => void;
   updateWorkEntry: (entry: WorkEntry) => void;
   deleteWorkEntry: (id: string) => void;
-  addProject: (project: NewProject) => void;
+  addProject: (project: Omit<Project, 'id'>) => void;
   addTeamMember: (member: Omit<TeamMember, 'id'>) => void;
   updateTeamMember: (member: TeamMember) => void;
   deleteTeamMember: (id: string) => void;
@@ -140,7 +178,7 @@ export type AppContextType = {
   
   // Utilities
   getFilteredEntries: () => WorkEntry[];
-  exportData: (type: 'raw' | 'summary') => void;
+  exportData: (type: 'raw' | 'summary' | 'files-by-project') => void;
   
   calculateRevenue: (entry: WorkEntry, billingCodes: BillingCode[]) => number;
   calculateContractorCost: (entry: WorkEntry, billingCodes: BillingCode[], projects: Project[]) => number;
