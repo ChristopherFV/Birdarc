@@ -12,10 +12,11 @@ export interface TaskLocation {
   lng: number;
 }
 
-export interface ContractorBillingCode {
+export interface BillingCodeEntry {
   billingCodeId: string;
   percentage: number;
   ratePerUnit: number;
+  hideRateFromTeamMember?: boolean;
 }
 
 export interface Task {
@@ -35,7 +36,8 @@ export interface Task {
   quantityEstimate: number;
   attachments?: File[];
   isContractor?: boolean;
-  contractorBillingCodes?: ContractorBillingCode[];
+  contractorBillingCodes?: BillingCodeEntry[];
+  teamMemberBillingCodes?: BillingCodeEntry[];
 }
 
 interface ScheduleContextType {

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, MapPin, Plus, Trash2 } from 'lucide-react';
+import { CalendarIcon, MapPin, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useSchedule, TaskPriority } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
@@ -22,10 +22,11 @@ interface TaskFormProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface ContractorBillingCode {
+interface BillingCodeEntry {
   billingCodeId: string;
   percentage: number;
   ratePerUnit: number;
+  hideRateFromTeamMember: boolean;
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
@@ -42,14 +43,15 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [address, setAddress] = useState('');
-  const [billingCodeId, setBillingCodeId] = useState('');
   const [quantityEstimate, setQuantityEstimate] = useState<number>(0);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
+  // Multiple billing codes state
+  const [selectedBillingCodes, setSelectedBillingCodes] = useState<BillingCodeEntry[]>([]);
+  
   // Contractor specific state
   const [isContractor, setIsContractor] = useState(false);
-  const [contractorBillingCodes, setContractorBillingCodes] = useState<ContractorBillingCode[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,12 +62,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
     if (!projectId) errors.projectId = "Project is required";
     if (!address) errors.address = "Location is required";
     
-    if (!isContractor && !billingCodeId) {
-      errors.billingCodeId = "Billing code is required";
-    }
-    
-    if (isContractor && contractorBillingCodes.length === 0) {
-      errors.contractorBillingCodes = "At least one billing code is required for contractor";
+    if (selectedBillingCodes.length === 0) {
+      errors.billingCodes = "At least one billing code is required";
     }
     
     if (Object.keys(errors).length > 0) {
@@ -92,11 +90,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
       teamMemberId: teamMemberId || null,
       priority,
       status: 'pending' as const,
-      billingCodeId: isContractor ? null : billingCodeId,
+      billingCodeId: null, // Since we're using the array of billing codes now
       quantityEstimate,
       attachments,
       isContractor,
-      contractorBillingCodes: isContractor ? contractorBillingCodes : [],
+      contractorBillingCodes: isContractor ? selectedBillingCodes : [],
+      teamMemberBillingCodes: !isContractor ? selectedBillingCodes : [],
     };
     
     addTask(newTask);
@@ -116,30 +115,31 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
     }
   };
   
-  const handleAddContractorBillingCode = () => {
-    setContractorBillingCodes([
-      ...contractorBillingCodes, 
+  const handleAddBillingCode = () => {
+    setSelectedBillingCodes([
+      ...selectedBillingCodes, 
       { 
         billingCodeId: '', 
-        percentage: 75, // Default to 75%
-        ratePerUnit: 0 
+        percentage: 100, // Default to 100%
+        ratePerUnit: 0,
+        hideRateFromTeamMember: false
       }
     ]);
   };
   
-  const handleRemoveContractorBillingCode = (index: number) => {
-    const updatedCodes = [...contractorBillingCodes];
+  const handleRemoveBillingCode = (index: number) => {
+    const updatedCodes = [...selectedBillingCodes];
     updatedCodes.splice(index, 1);
-    setContractorBillingCodes(updatedCodes);
+    setSelectedBillingCodes(updatedCodes);
   };
   
-  const handleContractorBillingCodeChange = (index: number, field: keyof ContractorBillingCode, value: string | number) => {
-    const updatedCodes = [...contractorBillingCodes];
+  const handleBillingCodeChange = (index: number, field: keyof BillingCodeEntry, value: string | number | boolean) => {
+    const updatedCodes = [...selectedBillingCodes];
     
     if (field === 'billingCodeId') {
       updatedCodes[index].billingCodeId = value as string;
       
-      // Calculate contractor rate based on selected billing code and percentage
+      // Calculate rate based on selected billing code and percentage
       const selectedCode = billingCodes.find(code => code.id === value);
       if (selectedCode) {
         const percentage = updatedCodes[index].percentage;
@@ -154,9 +154,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
       if (selectedCode) {
         updatedCodes[index].ratePerUnit = (selectedCode.ratePerFoot * percentage) / 100;
       }
+    } else if (field === 'hideRateFromTeamMember') {
+      updatedCodes[index].hideRateFromTeamMember = value as boolean;
     }
     
-    setContractorBillingCodes(updatedCodes);
+    setSelectedBillingCodes(updatedCodes);
   };
   
   const handleClose = () => {
@@ -169,12 +171,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
     setStartDate(new Date());
     setEndDate(new Date());
     setAddress('');
-    setBillingCodeId('');
     setQuantityEstimate(0);
     setAttachments([]);
     setFormErrors({});
     setIsContractor(false);
-    setContractorBillingCodes([]);
+    setSelectedBillingCodes([]);
     onOpenChange(false);
   };
 
@@ -351,114 +352,115 @@ export const TaskForm: React.FC<TaskFormProps> = ({ open, onOpenChange }) => {
             </div>
           </div>
           
-          {!isContractor && (
-            <div className="space-y-2">
-              <Label htmlFor="billingCode">Billing Code *</Label>
-              <Select 
-                value={billingCodeId} 
-                onValueChange={setBillingCodeId}
-                disabled={isContractor}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label>Billing Codes *</Label>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={handleAddBillingCode}
+                className="flex items-center gap-1"
               >
-                <SelectTrigger className={formErrors.billingCodeId ? "border-destructive" : ""}>
-                  <SelectValue placeholder="Select code" />
-                </SelectTrigger>
-                <SelectContent>
-                  {billingCodes.map((code) => (
-                    <SelectItem key={code.id} value={code.id}>
-                      {code.code} (${code.ratePerFoot}/unit)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formErrors.billingCodeId && <p className="text-destructive text-sm">{formErrors.billingCodeId}</p>}
+                <Plus className="h-4 w-4" />
+                Add Code
+              </Button>
             </div>
-          )}
-          
-          {isContractor && (
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <Label>Contractor Billing Codes</Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleAddContractorBillingCode}
-                  className="flex items-center gap-1"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Code
-                </Button>
+            
+            {selectedBillingCodes.length === 0 && (
+              <div className={`p-4 border ${formErrors.billingCodes ? "border-destructive" : "border-border"} rounded-md text-sm text-muted-foreground text-center`}>
+                No billing codes added. Click "Add Code" to add a billing code.
+                {formErrors.billingCodes && <p className="text-destructive text-sm mt-1">{formErrors.billingCodes}</p>}
               </div>
-              
-              {contractorBillingCodes.length === 0 && formErrors.contractorBillingCodes && (
-                <p className="text-destructive text-sm">{formErrors.contractorBillingCodes}</p>
-              )}
-              
-              {contractorBillingCodes.map((item, index) => (
-                <div key={index} className="space-y-2 p-3 border rounded-md">
-                  <div className="flex justify-between items-center">
-                    <Label className="text-sm font-medium">Billing Code {index + 1}</Label>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => handleRemoveContractorBillingCode(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Select
-                      value={item.billingCodeId}
-                      onValueChange={(value) => handleContractorBillingCodeChange(index, 'billingCodeId', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select billing code" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {billingCodes.map((code) => (
-                          <SelectItem key={code.id} value={code.id}>
-                            {code.code} (${code.ratePerFoot}/unit)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <Label className="text-xs">Percentage</Label>
-                      <div className="flex items-center">
-                        <Input
-                          type="number"
-                          min="1"
-                          max="100"
-                          value={item.percentage.toString()}
-                          onChange={(e) => handleContractorBillingCodeChange(index, 'percentage', Number(e.target.value))}
-                          className="text-right pr-0"
-                        />
-                        <span className="ml-2">%</span>
-                      </div>
+            )}
+            
+            {selectedBillingCodes.map((item, index) => (
+              <div key={index} className="space-y-2 p-3 border rounded-md">
+                <div className="flex justify-between items-center">
+                  <Label className="text-sm font-medium">Billing Code {index + 1}</Label>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleRemoveBillingCode(index)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  <Select
+                    value={item.billingCodeId}
+                    onValueChange={(value) => handleBillingCodeChange(index, 'billingCodeId', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select billing code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {billingCodes.map((code) => (
+                        <SelectItem key={code.id} value={code.id}>
+                          {code.code} (${code.ratePerFoot}/unit)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Percentage</Label>
+                    <div className="flex items-center">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={item.percentage.toString()}
+                        onChange={(e) => handleBillingCodeChange(index, 'percentage', Number(e.target.value))}
+                        className="text-right pr-0"
+                      />
+                      <span className="ml-2">%</span>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <Label className="text-xs">Contractor Rate</Label>
-                      <div className="flex items-center">
-                        <span className="mr-1">$</span>
-                        <Input
-                          type="number"
-                          value={item.ratePerUnit.toFixed(2)}
-                          readOnly
-                          className="bg-muted"
-                        />
-                      </div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs">Rate per Unit</Label>
+                    <div className="flex items-center">
+                      <span className="mr-1">$</span>
+                      <Input
+                        type="number"
+                        value={item.ratePerUnit.toFixed(2)}
+                        readOnly
+                        className="bg-muted"
+                      />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+                
+                {!isContractor && (
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Switch
+                      id={`hideRate-${index}`}
+                      checked={item.hideRateFromTeamMember}
+                      onCheckedChange={(checked) => handleBillingCodeChange(index, 'hideRateFromTeamMember', checked)}
+                    />
+                    <Label htmlFor={`hideRate-${index}`} className="text-xs cursor-pointer flex items-center">
+                      {item.hideRateFromTeamMember ? (
+                        <>
+                          <EyeOff className="h-3 w-3 mr-1" />
+                          Hide rate from team member
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3 w-3 mr-1" />
+                          Show rate to team member
+                        </>
+                      )}
+                    </Label>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
           
           <AttachmentButton
             attachments={attachments}
