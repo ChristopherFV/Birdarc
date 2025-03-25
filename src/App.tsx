@@ -19,7 +19,7 @@ import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
 import { TechnicianDashboard } from "@/components/technician/TechnicianDashboard";
 import TechnicianDrawingPage from "./pages/TechnicianDrawingPage";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { MainLayout } from "@/components/layout/MainLayout";
 
 // Create a new query client instance
 const queryClient = new QueryClient();
@@ -37,12 +37,12 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
-              <Route path="/dashboard" element={<DashboardLayout><Index /></DashboardLayout>} />
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/work-entries" element={<DashboardLayout><WorkEntriesPage /></DashboardLayout>} />
-              <Route path="/repository" element={<DashboardLayout><RepositoryPage /></DashboardLayout>} />
-              <Route path="/projects" element={<DashboardLayout><ProjectsPage /></DashboardLayout>} />
-              <Route path="/settings" element={<DashboardLayout><SettingsPage /></DashboardLayout>} />
+              <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
+              <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />
+              <Route path="/projects" element={<MainLayout><ProjectsPage /></MainLayout>} />
+              <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>} />
               <Route path="/technician" element={<TechnicianWindow />} />
               <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
               <Route path="/technician/drawing" element={<TechnicianDrawingPage />} />
