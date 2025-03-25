@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -16,6 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { BillingCodeImporter } from './BillingCodeImporter';
+import { ProjectSelector } from '@/components/forms/work-entry/ProjectSelector';
 
 interface TaskFormProps {
   onOpenChange: (open: boolean) => void;
@@ -47,15 +49,30 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
   const [bulkQuantityEstimate, setBulkQuantityEstimate] = useState(0);
   const [selectedBillingCodeIds, setSelectedBillingCodeIds] = useState<string[]>([]);
   
-  const filteredBillingCodes = billingCodes.filter(code => 
-    code.code.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    code.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Get billing codes specific to the selected project (in a real app, this would filter by project)
+  const projectBillingCodes = projectId 
+    ? billingCodes 
+    : [];
 
   useEffect(() => {
     setSelectedBillingCodes([]);
     setSelectedBillingCodeIds([]);
   }, [isContractor]);
+
+  // Handle project change
+  const handleProjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setProjectId(value);
+    setSelectedBillingCodes([]);
+    setSelectedBillingCodeIds([]);
+    
+    // Clear project error if it exists
+    if (formErrors.projectId) {
+      const newErrors = { ...formErrors };
+      delete newErrors.projectId;
+      setFormErrors(newErrors);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,16 +232,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     setSelectedBillingCodes(updatedCodes);
   };
 
-  const toggleBillingCodeSelection = (billingCodeId: string) => {
-    setSelectedBillingCodeIds(prev => {
-      if (prev.includes(billingCodeId)) {
-        return prev.filter(id => id !== billingCodeId);
-      } else {
-        return [...prev, billingCodeId];
-      }
-    });
-  };
-
   const handleBillingCodesImported = (importedEntries: BillingCodeEntry[]) => {
     if (isContractor) {
       const importedIds = importedEntries.map(entry => entry.billingCodeId);
@@ -284,20 +291,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="project">Project *</Label>
-          <Select value={projectId} onValueChange={setProjectId}>
-            <SelectTrigger className={formErrors.projectId ? "border-destructive" : ""}>
-              <SelectValue placeholder="Select project" />
-            </SelectTrigger>
-            <SelectContent>
-              {projects.map((project) => (
-                <SelectItem key={project.id} value={project.id}>
-                  {project.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {formErrors.projectId && <p className="text-destructive text-sm">{formErrors.projectId}</p>}
+          <ProjectSelector
+            projectId={projectId}
+            projects={projects}
+            onChange={handleProjectChange}
+            error={formErrors.projectId}
+          />
         </div>
         
         <div className="space-y-2">
@@ -413,7 +412,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <Label>Billing Codes *</Label>
-          {!isContractor && (
+          {!isContractor && projectId && (
             <Button 
               type="button" 
               variant="outline" 
@@ -427,13 +426,18 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
           )}
         </div>
         
+        {formErrors.billingCodes && (
+          <p className="text-destructive text-sm">{formErrors.billingCodes}</p>
+        )}
+        
         <BillingCodeImporter 
-          billingCodes={billingCodes}
+          billingCodes={projectBillingCodes}
           onImport={handleBillingCodesImported}
           isContractor={isContractor}
+          projectId={projectId}
         />
         
-        {isContractor ? (
+        {isContractor && projectId && (
           <div className="space-y-4 border rounded-md p-4">
             <div className="space-y-2">
               <Label htmlFor="contractorPercentage">Contractor Percentage</Label>
@@ -468,71 +472,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
                 <p className="text-destructive text-sm">{formErrors.bulkQuantity}</p>
               )}
             </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Select Billing Codes</Label>
-                <div className="text-xs text-muted-foreground">
-                  {selectedBillingCodeIds.length} selected
-                </div>
-              </div>
-              
-              <div className="relative mb-2">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search billing codes..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-              
-              {formErrors.bulkBillingCodes && (
-                <p className="text-destructive text-sm">{formErrors.bulkBillingCodes}</p>
-              )}
-              
-              <ScrollArea className="h-60 border rounded-md">
-                <div className="p-2 space-y-1">
-                  {filteredBillingCodes.length === 0 ? (
-                    <div className="p-2 text-sm text-center text-muted-foreground">
-                      No billing codes match your search
-                    </div>
-                  ) : (
-                    filteredBillingCodes.map((code) => {
-                      const isSelected = selectedBillingCodeIds.includes(code.id);
-                      const calculatedRate = (code.ratePerFoot * contractorPercentage) / 100;
-                      
-                      return (
-                        <div 
-                          key={code.id}
-                          className={`p-2 rounded-md border cursor-pointer transition-colors ${
-                            isSelected ? 'bg-secondary border-primary' : 'hover:bg-secondary/50'
-                          }`}
-                          onClick={() => toggleBillingCodeSelection(code.id)}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <div className="font-medium">{code.code}</div>
-                              <div className="text-sm text-muted-foreground">{code.description}</div>
-                            </div>
-                            <div className="text-sm font-medium">
-                              ${calculatedRate.toFixed(2)}/unit
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </ScrollArea>
-            </div>
           </div>
-        ) : (
+        )}
+        
+        {!isContractor && (
           <>
-            {selectedBillingCodes.length === 0 && (
+            {selectedBillingCodes.length === 0 && projectId && (
               <div className={`p-4 border ${formErrors.billingCodes ? "border-destructive" : "border-border"} rounded-md text-sm text-muted-foreground text-center`}>
-                No billing codes added. Click "Add Code" to add a billing code.
-                {formErrors.billingCodes && <p className="text-destructive text-sm mt-1">{formErrors.billingCodes}</p>}
+                Select billing codes above or click "Add Code" to add a billing code manually.
               </div>
             )}
             
@@ -559,7 +506,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
                       <SelectValue placeholder="Select billing code" />
                     </SelectTrigger>
                     <SelectContent>
-                      {billingCodes.map((code) => (
+                      {projectBillingCodes.map((code) => (
                         <SelectItem key={code.id} value={code.id}>
                           {code.code} (${code.ratePerFoot}/unit)
                         </SelectItem>
