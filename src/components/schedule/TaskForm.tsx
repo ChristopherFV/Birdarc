@@ -230,8 +230,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       const importedIds = importedEntries.map(entry => entry.billingCodeId);
       setSelectedBillingCodeIds(importedIds);
       
-      const totalQuantity = importedEntries.reduce((sum, entry) => sum + entry.quantityEstimate, 0);
-      setBulkQuantityEstimate(totalQuantity);
+      setBulkQuantityEstimate(importedEntries.length * 10);
     } else {
       setSelectedBillingCodes(importedEntries);
     }
