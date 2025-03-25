@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
@@ -69,7 +70,13 @@ const LoginPage = () => {
         title: "Login successful",
         description: `Signed in with ${provider}`,
       });
-      navigate('/dashboard');
+      
+      // For new social sign-ups, redirect to subscription page
+      if (isRegister) {
+        navigate('/subscription');
+      } else {
+        navigate('/dashboard');
+      }
     }, 1000);
   };
 
