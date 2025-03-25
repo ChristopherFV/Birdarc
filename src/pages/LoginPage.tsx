@@ -1,13 +1,11 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { Mail, Github, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -78,35 +76,40 @@ const LoginPage = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B2838] text-white">
-      {/* Golden accent lines */}
-      <div className="absolute right-0 top-1/4 w-[40%] h-[3px] bg-fieldvision-footer"></div>
-      <div className="absolute right-0 bottom-1/4 w-[40%] h-[3px] bg-fieldvision-footer"></div>
-      
-      {/* Main content */}
-      <div className="flex flex-1 items-center justify-center w-full p-4">
-        <div className="w-full max-w-md">
-          <div className="mb-12 text-left">
-            <img 
-              src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
-              alt="Fieldvision Logo" 
-              className="h-12 mb-4" 
-            />
-          </div>
+    <SimplePageLayout showFooter={false}>
+      <div className="flex flex-col items-center justify-center min-h-[80vh] w-full max-w-md mx-auto px-4">
+        {/* Logo */}
+        <div className="mb-8">
+          <img 
+            src="/lovable-uploads/4a7fa1f1-9138-41e0-a593-01d098a4d5f9.png" 
+            alt="Fieldvision Logo" 
+            className="h-16 mx-auto" 
+          />
+        </div>
+        
+        <div className="w-full space-y-6 bg-card p-8 rounded-lg shadow-sm border border-border">
+          <h1 className="text-2xl font-semibold text-center">
+            {isRegister ? "Create Account" : "Sign In"}
+          </h1>
           
-          <Card className="shadow-lg border-0 bg-[#133244]/40 backdrop-blur-sm rounded-lg p-8">
-            <h1 className="text-2xl font-bold mb-6 text-left">
-              {isRegister ? "Create Account" : "Sign In"}
-            </h1>
-            
-            {/* Google Sign In Button */}
+          {/* Social Login Buttons */}
+          <div className="grid grid-cols-2 gap-4">
+            <Button 
+              variant="outline"
+              className="w-full" 
+              onClick={() => handleSocialLogin('GitHub')}
+              disabled={isLoading}
+            >
+              <Github className="mr-2 h-4 w-4" />
+              GitHub
+            </Button>
             <Button 
               variant="outline" 
-              className="w-full mb-6 border-gray-600 text-white hover:bg-white/10 bg-transparent" 
+              className="w-full"
               onClick={() => handleSocialLogin('Google')}
               disabled={isLoading}
             >
-              {/* Google SVG */}
+              {/* Replaced with an SVG for Google */}
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -114,24 +117,26 @@ const LoginPage = () => {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 <path d="M1 1h22v22H1z" fill="none" />
               </svg>
-              Sign in with Google
+              Google
             </Button>
-            
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-600" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#133244] px-2 text-gray-400">
-                  Or continue with
-                </span>
-              </div>
+          </div>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
             </div>
-            
-            {/* Email Form */}
-            <form onSubmit={handleEmailSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300">Email</Label>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+          
+          {/* Email Form */}
+          <form onSubmit={handleEmailSubmit}>
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   placeholder="name@example.com"
@@ -142,12 +147,11 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="bg-[#0B2838]/50 border-gray-600 text-white placeholder:text-gray-500"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300">Password</Label>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   placeholder="••••••••"
@@ -157,18 +161,13 @@ const LoginPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className="bg-[#0B2838]/50 border-gray-600 text-white placeholder:text-gray-500"
                 />
               </div>
               
-              <Button 
-                type="submit" 
-                disabled={isLoading} 
-                className="w-full bg-fieldvision-footer hover:bg-fieldvision-footer/90 text-black font-semibold"
-              >
+              <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -185,30 +184,30 @@ const LoginPage = () => {
               <Button
                 type="button"
                 variant="link"
-                className="font-normal text-sm w-full mt-2 text-fieldvision-footer hover:text-fieldvision-footer/80"
+                className="font-normal text-sm mt-2 mx-auto"
                 onClick={toggleAuthMode}
               >
                 {isRegister
                   ? "Already have an account? Sign in"
                   : "Don't have an account? Create one"}
               </Button>
-            </form>
-          </Card>
-          
-          <p className="mt-8 text-center text-sm text-gray-400">
-            By clicking continue, you agree to our{" "}
-            <Link to="#" className="underline underline-offset-4 hover:text-fieldvision-footer">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="#" className="underline underline-offset-4 hover:text-fieldvision-footer">
-              Privacy Policy
-            </Link>
-            .
-          </p>
+            </div>
+          </form>
         </div>
+        
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          By clicking continue, you agree to our{" "}
+          <Link to="#" className="underline underline-offset-4 hover:text-primary">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link to="#" className="underline underline-offset-4 hover:text-primary">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
-    </div>
+    </SimplePageLayout>
   );
 };
 
