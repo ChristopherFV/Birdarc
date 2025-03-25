@@ -7,6 +7,7 @@ import { FileUploader } from '@/components/repository/FileUploader';
 import { FileRepository } from '@/components/repository/FileRepository';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ExportButton } from '@/components/ui/filters/ExportButton';
+import { ProjectFilter } from '@/components/ui/filters/ProjectFilter';
 
 interface FileSectionProps {
   selectedTab: 'all' | 'pending' | 'approved' | 'rejected';
@@ -48,7 +49,10 @@ export const FileSection: React.FC<FileSectionProps> = ({
       )}
       
       {!showUploader && (
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <ProjectFilter />
+          </div>
           <ExportButton filesView={true} />
         </div>
       )}

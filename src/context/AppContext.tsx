@@ -1,219 +1,194 @@
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+} from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { v4 as uuidv4 } from 'uuid';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { format, subDays, subMonths } from 'date-fns';
-import { mockProjects, mockBillingCodes, mockTeamMembers, mockWorkEntries, mockCompanies } from '@/utils/mockData';
-import { calculateRevenue, calculateContractorCost, exportDataToCSV } from '@/utils/app-utils';
+interface Project {
+  id: string;
+  name: string;
+}
 
-// Import the types
-import {
-  DateRangeType,
-  GroupByType,
-  Project,
-  BillingCode,
-  TeamMember,
-  InvoiceStatus,
-  WorkEntry,
-  Company,
-  AppContextType,
-  NewProject,
-  BillingUnitType
-} from '@/types/app-types';
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  priority: 'high' | 'medium' | 'low';
+  status: 'open' | 'in progress' | 'completed' | 'on hold';
+  projectId: string | null;
+  assignedTo: string | null;
+  location: {
+    latitude: number | null;
+    longitude: number | null;
+  };
+  visibility: {
+    type: 'all' | 'team' | 'specific';
+    teamId?: string;
+    userId?: string;
+  };
+}
 
-// Re-export the types for backward compatibility
-export type {
-  DateRangeType,
-  GroupByType,
-  Project,
-  BillingCode,
-  TeamMember,
-  InvoiceStatus,
-  WorkEntry,
-  Company,
-  BillingUnitType
-};
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  teamId: string;
+}
 
-// Re-export the utility functions for backward compatibility
-export { calculateRevenue, calculateContractorCost };
+interface Team {
+  id: string;
+  name: string;
+}
 
-// Create context
+// Make sure the context includes the projects array
+export interface AppContextType {
+  tasks: Task[];
+  addTask: (task: Omit<Task, 'id'>) => void;
+  updateTask: (id: string, updates: Partial<Task>) => void;
+  deleteTask: (id: string) => void;
+  users: User[];
+  teams: Team[];
+  projects: { id: string; name: string }[];
+  selectedProject: string | null;
+  setSelectedProject: (projectId: string | null) => void;
+  exportData: (type: 'raw' | 'summary' | 'files-by-project') => void;
+}
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Provider component
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // State for data
-  const [workEntries, setWorkEntries] = useState<WorkEntry[]>(mockWorkEntries);
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
-  const [billingCodes, setBillingCodes] = useState<BillingCode[]>(mockBillingCodes);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(mockTeamMembers);
-  const [companies] = useState<Company[]>(mockCompanies);
-  const [selectedCompany, setSelectedCompany] = useState<Company>(mockCompanies[0]);
-  
-  // State for filters
-  const [dateRange, setDateRange] = useState<DateRangeType>('month');
-  const [startDate, setStartDate] = useState<Date>(subMonths(new Date(), 1));
-  const [endDate, setEndDate] = useState<Date>(new Date());
-  const [groupBy, setGroupBy] = useState<GroupByType>('week');
+interface AppProviderProps {
+  children: ReactNode;
+}
+
+export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  const { toast } = useToast();
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const storedTasks = localStorage.getItem('tasks');
+    return storedTasks ? JSON.parse(storedTasks) : [];
+  });
+  const [users, setUsers] = useState<User[]>([
+    { id: 'user-1', name: 'John Davis', email: 'john.davis@example.com', teamId: 'team-1' },
+    { id: 'user-2', name: 'Alice Smith', email: 'alice.smith@example.com', teamId: 'team-2' },
+    { id: 'user-3', name: 'Bob Williams', email: 'bob.williams@example.com', teamId: 'team-1' },
+  ]);
+  const [teams, setTeams] = useState<Team[]>([
+    { id: 'team-1', name: 'Fiber Optics Team' },
+    { id: 'team-2', name: 'Underground Cabling Team' },
+  ]);
+  const [projects, setProjects] = useState<Project[]>([
+    { id: 'project-1', name: 'Cedar Heights Fiber' },
+    { id: 'project-2', name: 'Oakridge Expansion' },
+    { id: 'project-3', name: 'Downtown Connection' },
+    { id: 'project-4', name: 'Westside Network' },
+  ]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  const [selectedTeamMember, setSelectedTeamMember] = useState<string | null>(null);
-  const [billingUnit, setBillingUnit] = useState<BillingUnitType>('foot');
-  const [selectedBillingCodeId, setSelectedBillingCodeId] = useState<string | null>(null);
-  
-  // Update date range when the dateRange type changes
+
   useEffect(() => {
-    const now = new Date();
-    switch (dateRange) {
-      case 'day':
-        setStartDate(new Date(now.setHours(0, 0, 0, 0)));
-        setEndDate(new Date(now.setHours(23, 59, 59, 999)));
-        break;
-      case 'week':
-        setStartDate(subDays(now, 7));
-        setEndDate(now);
-        break;
-      case 'month':
-        setStartDate(subMonths(now, 1));
-        setEndDate(now);
-        break;
-      // For 'custom', don't change dates as they are set manually
-    }
-  }, [dateRange]);
-  
-  // CRUD operations for work entries
-  const addWorkEntry = (entry: Omit<WorkEntry, 'id'>) => {
-    const newEntry: WorkEntry = {
-      ...entry,
-      id: crypto.randomUUID(),
-      companyId: selectedCompany.id,
-    };
-    setWorkEntries([...workEntries, newEntry]);
-  };
-  
-  const updateWorkEntry = (updatedEntry: WorkEntry) => {
-    setWorkEntries(workEntries.map(entry => 
-      entry.id === updatedEntry.id ? updatedEntry : entry
-    ));
-  };
-  
-  const deleteWorkEntry = (id: string) => {
-    setWorkEntries(workEntries.filter(entry => entry.id !== id));
-  };
-  
-  // CRUD operations for team members
-  const addTeamMember = (member: Omit<TeamMember, 'id'>) => {
-    const newMember: TeamMember = {
-      ...member,
-      id: crypto.randomUUID()
-    };
-    setTeamMembers([...teamMembers, newMember]);
-  };
-  
-  const updateTeamMember = (updatedMember: TeamMember) => {
-    setTeamMembers(teamMembers.map(member => 
-      member.id === updatedMember.id ? updatedMember : member
-    ));
-  };
-  
-  const deleteTeamMember = (id: string) => {
-    setTeamMembers(teamMembers.filter(member => member.id !== id));
-  };
-  
-  // Add a new project with billing codes
-  const addProject = (newProject: NewProject) => {
-    // Create new project
-    const projectId = crypto.randomUUID();
-    const project: Project = {
-      id: projectId,
-      name: newProject.name,
-      client: newProject.client
-    };
-    
-    // Create new billing codes for the project
-    const newBillingCodes: BillingCode[] = newProject.billingCodes.map(code => ({
-      id: crypto.randomUUID(),
-      code: code.code,
-      description: code.description,
-      ratePerFoot: code.ratePerFoot
-    }));
-    
-    // Update state
-    setProjects([...projects, project]);
-    setBillingCodes([...billingCodes, ...newBillingCodes]);
-    
-    return projectId;
-  };
-  
-  // Filter entries based on current filters
-  const getFilteredEntries = (): WorkEntry[] => {
-    return workEntries.filter(entry => {
-      const entryDate = new Date(entry.date);
-      const inDateRange = entryDate >= startDate && entryDate <= endDate;
-      const matchesProject = selectedProject ? entry.projectId === selectedProject : true;
-      const matchesTeamMember = selectedTeamMember ? entry.teamMemberId === selectedTeamMember : true;
-      const matchesBillingCode = selectedBillingCodeId ? entry.billingCodeId === selectedBillingCodeId : true;
-      const matchesCompany = entry.companyId === selectedCompany.id;
-      
-      return inDateRange && matchesProject && matchesTeamMember && matchesBillingCode && matchesCompany;
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  const addTask = (task: Omit<Task, 'id'>) => {
+    const newTask: Task = { id: uuidv4(), ...task };
+    setTasks([...tasks, newTask]);
+    toast({
+      title: 'Task Created',
+      description: 'Your task has been successfully created.',
     });
   };
-  
-  // Custom date range setter
-  const setCustomDateRange = (start: Date, end: Date) => {
-    setDateRange('custom');
-    setStartDate(start);
-    setEndDate(end);
+
+  const updateTask = (id: string, updates: Partial<Task>) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, ...updates } : task
+      )
+    );
+    toast({
+      title: 'Task Updated',
+      description: 'Your task has been successfully updated.',
+    });
   };
-  
-  // Export data functionality
-  const exportData = (type: 'raw' | 'summary') => {
-    const filteredEntries = getFilteredEntries();
-    exportDataToCSV(filteredEntries, type, projects, billingCodes, teamMembers);
+
+  const deleteTask = (id: string) => {
+    setTasks(tasks.filter((task) => task.id !== id));
+    toast({
+      title: 'Task Deleted',
+      description: 'Your task has been successfully deleted.',
+    });
   };
-  
-  // Provide all values
-  const value: AppContextType = {
-    workEntries,
-    projects,
-    billingCodes,
-    teamMembers,
-    companies,
-    selectedCompany,
-    
-    dateRange,
-    startDate,
-    endDate,
-    groupBy,
-    selectedProject,
-    selectedTeamMember,
-    billingUnit,
-    selectedBillingCodeId,
-    
-    addWorkEntry,
-    updateWorkEntry,
-    deleteWorkEntry,
-    addProject,
-    addTeamMember,
-    updateTeamMember,
-    deleteTeamMember,
-    
-    setDateRange,
-    setCustomDateRange,
-    setGroupBy,
-    setSelectedProject,
-    setSelectedTeamMember,
-    setSelectedCompany,
-    setBillingUnit,
-    setSelectedBillingCodeId,
-    
-    getFilteredEntries,
-    exportData,
-    calculateRevenue,
-    calculateContractorCost,
+
+  const exportData = (type: 'raw' | 'summary' | 'files-by-project') => {
+    // Dummy data for demonstration
+    const data = [
+      { name: 'John', age: 30, city: 'New York' },
+      { name: 'Jane', age: 28, city: 'Los Angeles' },
+    ];
+
+    // Convert data to CSV format
+    const csv = convertToCSV(data);
+
+    // Create a Blob from the CSV data
+    const blob = new Blob([csv], { type: 'text/csv' });
+
+    // Create a temporary link element
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `data.${type}.csv`;
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    toast({
+      title: 'Exported',
+      description: `Data exported as ${type}.csv`,
+    });
   };
-  
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+
+  // Function to convert data to CSV format
+  const convertToCSV = (data: any[]) => {
+    const csvRows = [];
+    const headers = Object.keys(data[0]);
+    csvRows.push(headers.join(','));
+
+    for (const row of data) {
+      const values = headers.map((header) => {
+        const escaped = ('' + row[header]).replace(/"/g, '""');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+
+    return csvRows.join('\n');
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        tasks,
+        addTask,
+        updateTask,
+        deleteTask,
+        users,
+        teams,
+        projects,
+        selectedProject,
+        setSelectedProject,
+        exportData,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 };
 
-// Hook for using the context
 export const useApp = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
