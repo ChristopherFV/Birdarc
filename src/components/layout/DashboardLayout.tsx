@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
@@ -41,13 +40,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Sidebar */}
       <div 
         className={`${
           collapsed ? 'w-16' : 'w-64'
         } flex flex-col bg-card border-r border-border fixed h-full transition-all duration-300 ease-in-out z-10`}
       >
-        {/* Logo */}
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} px-4 h-16 border-b border-border`}>
           {!collapsed && (
             <div className="flex items-center">
@@ -71,18 +68,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           </button>
         </div>
 
-        {/* Company selector */}
-        {!collapsed && (
-          <div className="px-4 pt-4 pb-2">
-            <CompanySelector 
-              companies={companies}
-              selectedCompany={selectedCompany}
-              onChange={setSelectedCompany}
-            />
-          </div>
-        )}
+        <div className="px-4 pt-4 pb-2">
+          <CompanySelector 
+            companies={companies}
+            selectedCompany={selectedCompany}
+            onChange={setSelectedCompany}
+          />
+        </div>
 
-        {/* Nav links */}
         <nav className="flex-1 pt-4">
           <ul className="space-y-1 px-2">
             <NavItem 
@@ -90,7 +83,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               label="Dashboard" 
               href="/dashboard" 
               collapsed={collapsed} 
-              active={location.pathname === '/dashboard'}
+              active={location.pathname === '/dashboard' || location.pathname === '/'}
             />
             <NavItem 
               icon={<ListTodo size={20} />} 
@@ -137,7 +130,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
           </ul>
         </nav>
 
-        {/* Footer */}
         <div className="mt-auto border-t border-border py-4 px-2">
           <NavItem 
             icon={<LogOut size={20} />} 
@@ -149,7 +141,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         </div>
       </div>
 
-      {/* Main content */}
       <div className={`flex-1 ${collapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}>
         <main className="p-6 md:p-8 max-w-7xl mx-auto">{children}</main>
       </div>
