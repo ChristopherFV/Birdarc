@@ -37,7 +37,8 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
-              <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
+              <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+              <Route path="/dashboard" element={<Navigate to="/" replace />} />
               <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
               <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />
               <Route path="/projects" element={<MainLayout><ProjectsPage /></MainLayout>} />
@@ -45,7 +46,6 @@ const App = () => (
               <Route path="/technician" element={<TechnicianWindow />} />
               <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
               <Route path="/technician/drawing" element={<TechnicianDrawingPage />} />
-              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
