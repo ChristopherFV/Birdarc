@@ -21,6 +21,7 @@ import { TechnicianDashboard } from "@/components/technician/TechnicianDashboard
 import TechnicianDrawingPage from "./pages/TechnicianDrawingPage";
 import { MainLayout } from "@/components/layout/MainLayout";
 
+// Create a new query client instance
 const queryClient = new QueryClient();
 
 const App = () => (
