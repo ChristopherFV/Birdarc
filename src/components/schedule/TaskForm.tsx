@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, MapPin, Plus, Trash2, Eye, EyeOff, Search } from 'lucide-react';
-import { useSchedule, TaskPriority } from '@/context/ScheduleContext';
+import { useSchedule, TaskPriority, BillingCodeEntry } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -16,18 +15,11 @@ import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton
 import { Switch } from '@/components/ui/switch';
 import { DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { BillingCodeImporter } from './BillingCodeImporter';
 
 interface TaskFormProps {
   onOpenChange: (open: boolean) => void;
   open?: boolean;
-}
-
-interface BillingCodeEntry {
-  billingCodeId: string;
-  percentage: number;
-  ratePerUnit: number;
-  quantityEstimate: number;
-  hideRateFromTeamMember: boolean;
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
@@ -50,19 +42,16 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
   
   const [isContractor, setIsContractor] = useState(false);
   
-  // Simplified contractor mode states
   const [searchTerm, setSearchTerm] = useState('');
   const [contractorPercentage, setContractorPercentage] = useState(100);
   const [bulkQuantityEstimate, setBulkQuantityEstimate] = useState(0);
   const [selectedBillingCodeIds, setSelectedBillingCodeIds] = useState<string[]>([]);
   
-  // Filter billing codes based on search term
   const filteredBillingCodes = billingCodes.filter(code => 
     code.code.toLowerCase().includes(searchTerm.toLowerCase()) || 
     code.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // When contractor status changes, reset selected billing codes
   useEffect(() => {
     setSelectedBillingCodes([]);
     setSelectedBillingCodeIds([]);
@@ -80,7 +69,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       errors.billingCodes = "At least one billing code is required";
     }
     
-    // Validate each billing code entry if not using simplified mode
     if (!isContractor) {
       selectedBillingCodes.forEach((entry, index) => {
         if (!entry.billingCodeId) {
@@ -92,7 +80,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
         }
       });
     } else {
-      // Validate bulk entries for contractor mode
       if (selectedBillingCodeIds.length === 0) {
         errors.bulkBillingCodes = "At least one billing code must be selected";
       }
@@ -119,11 +106,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     let billingCodeEntries: BillingCodeEntry[] = [];
     
     if (isContractor) {
-      // Create billing code entries from the selected IDs for contractor mode
       billingCodeEntries = selectedBillingCodeIds.map(id => {
         const billingCode = billingCodes.find(code => code.id === id);
         const ratePerUnit = billingCode ? (billingCode.ratePerFoot * contractorPercentage) / 100 : 0;
-        // Distribute the quantity estimate evenly among selected billing codes
         const individualQuantity = Math.round((bulkQuantityEstimate / selectedBillingCodeIds.length) * 100) / 100;
         
         return {
@@ -171,7 +156,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     });
     handleClose();
   };
-  
+
   const handleFileAttachment = (files: File[]) => {
     setAttachments(files);
     if (formErrors.attachments) {
@@ -180,7 +165,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       setFormErrors(newErrors);
     }
   };
-  
+
   const handleAddBillingCode = () => {
     setSelectedBillingCodes([
       ...selectedBillingCodes, 
@@ -193,13 +178,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       }
     ]);
   };
-  
+
   const handleRemoveBillingCode = (index: number) => {
     const updatedCodes = [...selectedBillingCodes];
     updatedCodes.splice(index, 1);
     setSelectedBillingCodes(updatedCodes);
   };
-  
+
   const handleBillingCodeChange = (index: number, field: keyof BillingCodeEntry, value: string | number | boolean) => {
     const updatedCodes = [...selectedBillingCodes];
     
@@ -229,7 +214,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     
     setSelectedBillingCodes(updatedCodes);
   };
-  
+
   const toggleBillingCodeSelection = (billingCodeId: string) => {
     setSelectedBillingCodeIds(prev => {
       if (prev.includes(billingCodeId)) {
@@ -239,7 +224,19 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       }
     });
   };
-  
+
+  const handleBillingCodesImported = (importedEntries: BillingCodeEntry[]) => {
+    if (isContractor) {
+      const importedIds = importedEntries.map(entry => entry.billingCodeId);
+      setSelectedBillingCodeIds(importedIds);
+      
+      const totalQuantity = importedEntries.reduce((sum, entry) => sum + entry.quantityEstimate, 0);
+      setBulkQuantityEstimate(totalQuantity);
+    } else {
+      setSelectedBillingCodes(importedEntries);
+    }
+  };
+
   const handleClose = () => {
     setTitle('');
     setDescription('');
@@ -431,8 +428,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
           )}
         </div>
         
+        <BillingCodeImporter 
+          billingCodes={billingCodes}
+          onImport={handleBillingCodesImported}
+          isContractor={isContractor}
+        />
+        
         {isContractor ? (
-          // Simplified contractor billing code selection
           <div className="space-y-4 border rounded-md p-4">
             <div className="space-y-2">
               <Label htmlFor="contractorPercentage">Contractor Percentage</Label>
@@ -527,7 +529,6 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
             </div>
           </div>
         ) : (
-          // Regular team member billing code selection
           <>
             {selectedBillingCodes.length === 0 && (
               <div className={`p-4 border ${formErrors.billingCodes ? "border-destructive" : "border-border"} rounded-md text-sm text-muted-foreground text-center`}>
