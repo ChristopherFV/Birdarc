@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, MapPin, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
+import { CalendarIcon, MapPin, Plus, Trash2, Eye, EyeOff, Search } from 'lucide-react';
 import { useSchedule, TaskPriority } from '@/context/ScheduleContext';
 import { useApp } from '@/context/AppContext';
 import { format } from 'date-fns';
@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton';
 import { Switch } from '@/components/ui/switch';
 import { DialogFooter } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface TaskFormProps {
   onOpenChange: (open: boolean) => void;
@@ -48,6 +49,24 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
   const [selectedBillingCodes, setSelectedBillingCodes] = useState<BillingCodeEntry[]>([]);
   
   const [isContractor, setIsContractor] = useState(false);
+  
+  // Simplified contractor mode states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [contractorPercentage, setContractorPercentage] = useState(100);
+  const [bulkQuantityEstimate, setBulkQuantityEstimate] = useState(0);
+  const [selectedBillingCodeIds, setSelectedBillingCodeIds] = useState<string[]>([]);
+  
+  // Filter billing codes based on search term
+  const filteredBillingCodes = billingCodes.filter(code => 
+    code.code.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    code.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // When contractor status changes, reset selected billing codes
+  useEffect(() => {
+    setSelectedBillingCodes([]);
+    setSelectedBillingCodeIds([]);
+  }, [isContractor]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,24 +76,35 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     if (!projectId) errors.projectId = "Project is required";
     if (!address) errors.address = "Location is required";
     
-    if (selectedBillingCodes.length === 0) {
+    if (selectedBillingCodes.length === 0 && selectedBillingCodeIds.length === 0) {
       errors.billingCodes = "At least one billing code is required";
     }
     
-    // Validate each billing code entry
-    selectedBillingCodes.forEach((entry, index) => {
-      if (!entry.billingCodeId) {
-        errors[`billingCode_${index}`] = "Billing code selection is required";
+    // Validate each billing code entry if not using simplified mode
+    if (!isContractor) {
+      selectedBillingCodes.forEach((entry, index) => {
+        if (!entry.billingCodeId) {
+          errors[`billingCode_${index}`] = "Billing code selection is required";
+        }
+        
+        if (entry.quantityEstimate <= 0) {
+          errors[`quantityEstimate_${index}`] = "Quantity must be greater than 0";
+        }
+      });
+    } else {
+      // Validate bulk entries for contractor mode
+      if (selectedBillingCodeIds.length === 0) {
+        errors.bulkBillingCodes = "At least one billing code must be selected";
       }
       
-      if (isContractor && (entry.percentage <= 0 || entry.percentage > 100)) {
-        errors[`percentage_${index}`] = "Percentage must be between 1-100";
+      if (contractorPercentage <= 0 || contractorPercentage > 100) {
+        errors.contractorPercentage = "Percentage must be between 1-100";
       }
       
-      if (entry.quantityEstimate <= 0) {
-        errors[`quantityEstimate_${index}`] = "Quantity must be greater than 0";
+      if (bulkQuantityEstimate <= 0) {
+        errors.bulkQuantity = "Total quantity must be greater than 0";
       }
-    });
+    }
     
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -86,7 +116,31 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       return;
     }
     
-    const totalQuantity = selectedBillingCodes.reduce((sum, entry) => sum + entry.quantityEstimate, 0);
+    let billingCodeEntries: BillingCodeEntry[] = [];
+    
+    if (isContractor) {
+      // Create billing code entries from the selected IDs for contractor mode
+      billingCodeEntries = selectedBillingCodeIds.map(id => {
+        const billingCode = billingCodes.find(code => code.id === id);
+        const ratePerUnit = billingCode ? (billingCode.ratePerFoot * contractorPercentage) / 100 : 0;
+        // Distribute the quantity estimate evenly among selected billing codes
+        const individualQuantity = Math.round((bulkQuantityEstimate / selectedBillingCodeIds.length) * 100) / 100;
+        
+        return {
+          billingCodeId: id,
+          percentage: contractorPercentage,
+          ratePerUnit,
+          quantityEstimate: individualQuantity,
+          hideRateFromTeamMember: false
+        };
+      });
+    } else {
+      billingCodeEntries = selectedBillingCodes;
+    }
+    
+    const totalQuantity = isContractor 
+      ? bulkQuantityEstimate 
+      : selectedBillingCodes.reduce((sum, entry) => sum + entry.quantityEstimate, 0);
     
     const newTask = {
       title,
@@ -106,8 +160,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       quantityEstimate: totalQuantity,
       attachments,
       isContractor,
-      contractorBillingCodes: isContractor ? selectedBillingCodes : [],
-      teamMemberBillingCodes: !isContractor ? selectedBillingCodes : [],
+      contractorBillingCodes: isContractor ? billingCodeEntries : [],
+      teamMemberBillingCodes: !isContractor ? billingCodeEntries : [],
     };
     
     addTask(newTask);
@@ -176,6 +230,16 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     setSelectedBillingCodes(updatedCodes);
   };
   
+  const toggleBillingCodeSelection = (billingCodeId: string) => {
+    setSelectedBillingCodeIds(prev => {
+      if (prev.includes(billingCodeId)) {
+        return prev.filter(id => id !== billingCodeId);
+      } else {
+        return [...prev, billingCodeId];
+      }
+    });
+  };
+  
   const handleClose = () => {
     setTitle('');
     setDescription('');
@@ -189,6 +253,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
     setFormErrors({});
     setIsContractor(false);
     setSelectedBillingCodes([]);
+    setSelectedBillingCodeIds([]);
+    setSearchTerm('');
+    setContractorPercentage(100);
+    setBulkQuantityEstimate(0);
     onOpenChange(false);
   };
 
@@ -349,133 +417,213 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onOpenChange, open }) => {
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <Label>Billing Codes *</Label>
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="sm" 
-            onClick={handleAddBillingCode}
-            className="flex items-center gap-1"
-          >
-            <Plus className="h-4 w-4" />
-            Add Code
-          </Button>
+          {!isContractor && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={handleAddBillingCode}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add Code
+            </Button>
+          )}
         </div>
         
-        {selectedBillingCodes.length === 0 && (
-          <div className={`p-4 border ${formErrors.billingCodes ? "border-destructive" : "border-border"} rounded-md text-sm text-muted-foreground text-center`}>
-            No billing codes added. Click "Add Code" to add a billing code.
-            {formErrors.billingCodes && <p className="text-destructive text-sm mt-1">{formErrors.billingCodes}</p>}
-          </div>
-        )}
-        
-        {selectedBillingCodes.map((item, index) => (
-          <div key={index} className="space-y-2 p-3 border rounded-md">
-            <div className="flex justify-between items-center">
-              <Label className="text-sm font-medium">Billing Code {index + 1}</Label>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => handleRemoveBillingCode(index)}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+        {isContractor ? (
+          // Simplified contractor billing code selection
+          <div className="space-y-4 border rounded-md p-4">
+            <div className="space-y-2">
+              <Label htmlFor="contractorPercentage">Contractor Percentage</Label>
+              <div className="flex items-center">
+                <Input
+                  id="contractorPercentage"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={contractorPercentage.toString()}
+                  onChange={(e) => setContractorPercentage(Number(e.target.value))}
+                  className={`text-right pr-0 ${formErrors.contractorPercentage ? "border-destructive" : ""}`}
+                />
+                <span className="ml-2">%</span>
+              </div>
+              {formErrors.contractorPercentage && (
+                <p className="text-destructive text-sm">{formErrors.contractorPercentage}</p>
+              )}
             </div>
             
             <div className="space-y-2">
-              <Select
-                value={item.billingCodeId}
-                onValueChange={(value) => handleBillingCodeChange(index, 'billingCodeId', value)}
-              >
-                <SelectTrigger className={formErrors[`billingCode_${index}`] ? "border-destructive" : ""}>
-                  <SelectValue placeholder="Select billing code" />
-                </SelectTrigger>
-                <SelectContent>
-                  {billingCodes.map((code) => (
-                    <SelectItem key={code.id} value={code.id}>
-                      {code.code} (${code.ratePerFoot}/unit)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formErrors[`billingCode_${index}`] && (
-                <p className="text-destructive text-sm">{formErrors[`billingCode_${index}`]}</p>
+              <Label htmlFor="bulkQuantity">Total Quantity Estimate</Label>
+              <Input
+                id="bulkQuantity"
+                type="number"
+                min="0"
+                value={bulkQuantityEstimate.toString()}
+                onChange={(e) => setBulkQuantityEstimate(Number(e.target.value))}
+                className={formErrors.bulkQuantity ? "border-destructive" : ""}
+              />
+              {formErrors.bulkQuantity && (
+                <p className="text-destructive text-sm">{formErrors.bulkQuantity}</p>
               )}
             </div>
             
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">Quantity Estimate</Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Select Billing Codes</Label>
+                <div className="text-xs text-muted-foreground">
+                  {selectedBillingCodeIds.length} selected
+                </div>
+              </div>
+              
+              <div className="relative mb-2">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  type="number"
-                  min="0"
-                  value={item.quantityEstimate.toString()}
-                  onChange={(e) => handleBillingCodeChange(index, 'quantityEstimate', Number(e.target.value))}
-                  className={formErrors[`quantityEstimate_${index}`] ? "border-destructive" : ""}
+                  placeholder="Search billing codes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
                 />
-                {formErrors[`quantityEstimate_${index}`] && (
-                  <p className="text-destructive text-sm">{formErrors[`quantityEstimate_${index}`]}</p>
-                )}
               </div>
               
-              {isContractor && (
-                <div className="space-y-1">
-                  <Label className="text-xs">Percentage</Label>
-                  <div className="flex items-center">
-                    <Input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={item.percentage.toString()}
-                      onChange={(e) => handleBillingCodeChange(index, 'percentage', Number(e.target.value))}
-                      className={`text-right pr-0 ${formErrors[`percentage_${index}`] ? "border-destructive" : ""}`}
-                    />
-                    <span className="ml-2">%</span>
-                  </div>
-                  {formErrors[`percentage_${index}`] && (
-                    <p className="text-destructive text-sm">{formErrors[`percentage_${index}`]}</p>
-                  )}
-                </div>
+              {formErrors.bulkBillingCodes && (
+                <p className="text-destructive text-sm">{formErrors.bulkBillingCodes}</p>
               )}
               
-              <div className="space-y-1">
-                <Label className="text-xs">Rate per Unit</Label>
-                <div className="flex items-center">
-                  <span className="mr-1">$</span>
-                  <Input
-                    type="number"
-                    value={item.ratePerUnit.toFixed(2)}
-                    readOnly
-                    className="bg-muted"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {!isContractor && (
-              <div className="flex items-center space-x-2 mt-2">
-                <Switch
-                  id={`hideRate-${index}`}
-                  checked={item.hideRateFromTeamMember}
-                  onCheckedChange={(checked) => handleBillingCodeChange(index, 'hideRateFromTeamMember', checked)}
-                />
-                <Label htmlFor={`hideRate-${index}`} className="text-xs cursor-pointer flex items-center">
-                  {item.hideRateFromTeamMember ? (
-                    <>
-                      <EyeOff className="h-3 w-3 mr-1" />
-                      Hide rate from team member
-                    </>
+              <ScrollArea className="h-60 border rounded-md">
+                <div className="p-2 space-y-1">
+                  {filteredBillingCodes.length === 0 ? (
+                    <div className="p-2 text-sm text-center text-muted-foreground">
+                      No billing codes match your search
+                    </div>
                   ) : (
-                    <>
-                      <Eye className="h-3 w-3 mr-1" />
-                      Show rate to team member
-                    </>
+                    filteredBillingCodes.map((code) => {
+                      const isSelected = selectedBillingCodeIds.includes(code.id);
+                      const calculatedRate = (code.ratePerFoot * contractorPercentage) / 100;
+                      
+                      return (
+                        <div 
+                          key={code.id}
+                          className={`p-2 rounded-md border cursor-pointer transition-colors ${
+                            isSelected ? 'bg-secondary border-primary' : 'hover:bg-secondary/50'
+                          }`}
+                          onClick={() => toggleBillingCodeSelection(code.id)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="font-medium">{code.code}</div>
+                              <div className="text-sm text-muted-foreground">{code.description}</div>
+                            </div>
+                            <div className="text-sm font-medium">
+                              ${calculatedRate.toFixed(2)}/unit
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
-                </Label>
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
+        ) : (
+          // Regular team member billing code selection
+          <>
+            {selectedBillingCodes.length === 0 && (
+              <div className={`p-4 border ${formErrors.billingCodes ? "border-destructive" : "border-border"} rounded-md text-sm text-muted-foreground text-center`}>
+                No billing codes added. Click "Add Code" to add a billing code.
+                {formErrors.billingCodes && <p className="text-destructive text-sm mt-1">{formErrors.billingCodes}</p>}
               </div>
             )}
-          </div>
-        ))}
+            
+            {selectedBillingCodes.map((item, index) => (
+              <div key={index} className="space-y-2 p-3 border rounded-md">
+                <div className="flex justify-between items-center">
+                  <Label className="text-sm font-medium">Billing Code {index + 1}</Label>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleRemoveBillingCode(index)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  <Select
+                    value={item.billingCodeId}
+                    onValueChange={(value) => handleBillingCodeChange(index, 'billingCodeId', value)}
+                  >
+                    <SelectTrigger className={formErrors[`billingCode_${index}`] ? "border-destructive" : ""}>
+                      <SelectValue placeholder="Select billing code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {billingCodes.map((code) => (
+                        <SelectItem key={code.id} value={code.id}>
+                          {code.code} (${code.ratePerFoot}/unit)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formErrors[`billingCode_${index}`] && (
+                    <p className="text-destructive text-sm">{formErrors[`billingCode_${index}`]}</p>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Quantity Estimate</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={item.quantityEstimate.toString()}
+                      onChange={(e) => handleBillingCodeChange(index, 'quantityEstimate', Number(e.target.value))}
+                      className={formErrors[`quantityEstimate_${index}`] ? "border-destructive" : ""}
+                    />
+                    {formErrors[`quantityEstimate_${index}`] && (
+                      <p className="text-destructive text-sm">{formErrors[`quantityEstimate_${index}`]}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label className="text-xs">Rate per Unit</Label>
+                    <div className="flex items-center">
+                      <span className="mr-1">$</span>
+                      <Input
+                        type="number"
+                        value={item.ratePerUnit.toFixed(2)}
+                        readOnly
+                        className="bg-muted"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2 mt-2">
+                  <Switch
+                    id={`hideRate-${index}`}
+                    checked={item.hideRateFromTeamMember}
+                    onCheckedChange={(checked) => handleBillingCodeChange(index, 'hideRateFromTeamMember', checked)}
+                  />
+                  <Label htmlFor={`hideRate-${index}`} className="text-xs cursor-pointer flex items-center">
+                    {item.hideRateFromTeamMember ? (
+                      <>
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        Hide rate from team member
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-3 w-3 mr-1" />
+                        Show rate to team member
+                      </>
+                    )}
+                  </Label>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
       
       <AttachmentButton
