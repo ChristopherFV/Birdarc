@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -26,6 +26,8 @@ export const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
   footerProps
 }) => {
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
   
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -33,17 +35,19 @@ export const SimplePageLayout: React.FC<SimplePageLayoutProps> = ({
         <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
           <div className="mb-4 sm:mb-6 flex justify-between items-start">
             <div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                asChild 
-                className="mb-3 sm:mb-4"
-              >
-                <Link to="/" className="inline-flex items-center">
-                  <ArrowLeft size={16} className="mr-2" />
-                  Back to Dashboard
-                </Link>
-              </Button>
+              {!isLoginPage && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  asChild 
+                  className="mb-3 sm:mb-4"
+                >
+                  <Link to="/" className="inline-flex items-center">
+                    <ArrowLeft size={16} className="mr-2" />
+                    Back to Dashboard
+                  </Link>
+                </Button>
+              )}
               
               {title && <h1 className="text-xl sm:text-2xl font-semibold mb-1">{title}</h1>}
               {subtitle && <p className="text-muted-foreground text-sm">{subtitle}</p>}
