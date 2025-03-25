@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FileEdit, Trash2, Search, MapPin, List, Map as MapIcon, Building2, ArrowLeft } from "lucide-react";
+import { PlusCircle, FileEdit, Trash2, Search, MapPin, List, Map as MapIcon, Building2, ArrowLeft, Info, ChevronRight } from "lucide-react";
 import { useAddProjectDialog } from "@/hooks/useAddProjectDialog";
 import { useApp } from '@/context/AppContext';
 import { 
@@ -175,6 +175,142 @@ const ProjectsPage = () => {
           selectedTaskId={selectedProjectId}
           fullScreen={true}
         />
+      </div>
+    );
+  }
+
+  if (isMobile && !showMapView) {
+    return (
+      <div className="container px-2 py-4 space-y-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold tracking-tight">Projects</h1>
+            <Button onClick={openAddProjectDialog} size="sm" className="shrink-0">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground mt-[-4px]">
+            Manage your fiber installation projects
+          </p>
+        </div>
+        
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 h-9"
+          />
+        </div>
+        
+        <div className="flex justify-between items-center my-2">
+          <span className="text-sm font-medium">{filteredProjects.length} Projects</span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={toggleView} 
+            className="flex items-center"
+          >
+            <MapIcon className="mr-2 h-4 w-4" />
+            Map View
+          </Button>
+        </div>
+        
+        <div className="space-y-3">
+          {filteredProjects.length === 0 ? (
+            <div className="text-center py-8 bg-muted/30 rounded-lg">
+              <Info className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+              <p className="text-muted-foreground">No projects found</p>
+              <Button 
+                variant="link" 
+                onClick={openAddProjectDialog} 
+                className="mt-2"
+              >
+                Add your first project
+              </Button>
+            </div>
+          ) : (
+            filteredProjects.map((project) => (
+              <Card 
+                key={project.id}
+                className={`overflow-hidden transition-all ${selectedProjectId === project.id ? "border-primary" : ""}`}
+              >
+                <CardContent className="p-0">
+                  <div 
+                    className="p-3 cursor-pointer" 
+                    onClick={() => handleProjectClick(project.id)}
+                  >
+                    <div className="flex justify-between">
+                      <div>
+                        <div className="font-medium">{project.name}</div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Client: {project.client}
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground self-center" />
+                    </div>
+                    
+                    <div className="flex items-center gap-2 mt-2 text-xs">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        project.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                        project.status === 'Planning' ? 'bg-blue-100 text-blue-800' :
+                        project.status === 'On Hold' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {project.status || "Active"}
+                      </span>
+                      
+                      <div className="flex items-center text-muted-foreground">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {project.location || "No location"}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 pt-2 border-t">
+                      <div className="text-xs text-muted-foreground mb-1">Progress: {project.progress || 0}%</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                        <div 
+                          className="bg-primary h-2 rounded-full" 
+                          style={{ width: `${project.progress || 0}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex border-t divide-x">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1 rounded-none h-9"
+                    >
+                      <FileEdit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1 rounded-none h-9"
+                      onClick={() => handleProjectClick(project.id)}
+                    >
+                      <MapPin className="h-4 w-4 mr-1" />
+                      Map
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1 rounded-none h-9 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
     );
   }
