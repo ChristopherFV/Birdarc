@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Github, Twitter } from 'lucide-react';
+import { Mail, Github, Google } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -25,16 +27,34 @@ const LoginPage = () => {
       });
       return;
     }
+
+    if (!password) {
+      toast({
+        title: "Error",
+        description: "Please enter your password",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsLoading(true);
     
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      toast({
-        title: "Magic link sent",
-        description: "Check your email for a sign-in link",
-      });
+      
+      if (isRegister) {
+        toast({
+          title: "Registration successful",
+          description: "Your account has been created",
+        });
+      } else {
+        toast({
+          title: "Login successful",
+          description: "Welcome back!",
+        });
+        navigate('/');
+      }
     }, 1000);
   };
   
@@ -51,6 +71,10 @@ const LoginPage = () => {
       navigate('/');
     }, 1000);
   };
+
+  const toggleAuthMode = () => {
+    setIsRegister(!isRegister);
+  };
   
   return (
     <SimplePageLayout showFooter={false}>
@@ -65,7 +89,9 @@ const LoginPage = () => {
         </div>
         
         <div className="w-full space-y-6 bg-card p-8 rounded-lg shadow-sm border border-border">
-          <h1 className="text-2xl font-semibold text-center">Sign In</h1>
+          <h1 className="text-2xl font-semibold text-center">
+            {isRegister ? "Create Account" : "Sign In"}
+          </h1>
           
           {/* Social Login Buttons */}
           <div className="grid grid-cols-2 gap-4">
@@ -81,11 +107,11 @@ const LoginPage = () => {
             <Button 
               variant="outline" 
               className="w-full"
-              onClick={() => handleSocialLogin('Twitter')}
+              onClick={() => handleSocialLogin('Google')}
               disabled={isLoading}
             >
-              <Twitter className="mr-2 h-4 w-4" />
-              Twitter
+              <Google className="mr-2 h-4 w-4" />
+              Google
             </Button>
           </div>
           
@@ -117,6 +143,21 @@ const LoginPage = () => {
                   disabled={isLoading}
                 />
               </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  placeholder="••••••••"
+                  type="password"
+                  autoCapitalize="none"
+                  autoComplete={isRegister ? "new-password" : "current-password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              
               <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? (
                   <span className="flex items-center justify-center">
@@ -129,9 +170,20 @@ const LoginPage = () => {
                 ) : (
                   <span className="flex items-center justify-center">
                     <Mail className="mr-2 h-4 w-4" />
-                    Continue with Email
+                    {isRegister ? "Create Account" : "Sign In"}
                   </span>
                 )}
+              </Button>
+
+              <Button
+                type="button"
+                variant="link"
+                className="font-normal text-sm mt-2 mx-auto"
+                onClick={toggleAuthMode}
+              >
+                {isRegister
+                  ? "Already have an account? Sign in"
+                  : "Don't have an account? Create one"}
               </Button>
             </div>
           </form>
