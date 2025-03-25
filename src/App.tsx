@@ -20,6 +20,7 @@ import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
 import { TechnicianDashboard } from "@/components/technician/TechnicianDashboard";
 import TechnicianDrawingPage from "./pages/TechnicianDrawingPage";
 import { MainLayout } from "@/components/layout/MainLayout";
+import { TechnicianLayout } from "@/components/layout/TechnicianLayout";
 
 // Create a new query client instance
 const queryClient = new QueryClient();
@@ -38,14 +39,17 @@ const App = () => (
               <Route path="/login" element={<LoginPage />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
               <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
               <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />
               <Route path="/projects" element={<MainLayout><ProjectsPage /></MainLayout>} />
               <Route path="/settings" element={<MainLayout><SettingsPage /></MainLayout>} />
-              <Route path="/technician" element={<TechnicianWindow />} />
-              <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
-              <Route path="/technician/drawing" element={<TechnicianDrawingPage />} />
+              
+              {/* Technician routes with consistent layout */}
+              <Route path="/technician" element={<TechnicianLayout><TechnicianWindow /></TechnicianLayout>} />
+              <Route path="/technician/dashboard" element={<TechnicianLayout><TechnicianDashboard /></TechnicianLayout>} />
+              <Route path="/technician/drawing" element={<TechnicianLayout><TechnicianDrawingPage /></TechnicianLayout>} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

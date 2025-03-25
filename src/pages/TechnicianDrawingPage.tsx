@@ -32,7 +32,7 @@ const TechnicianDrawingPage: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-background flex flex-col">
+    <div className="h-full w-full bg-background flex flex-col">
       <div className="flex items-center justify-between p-2 border-b">
         <Button variant="ghost" size="sm" onClick={handleGoBack}>
           <ArrowLeft className="h-4 w-4 mr-1" />

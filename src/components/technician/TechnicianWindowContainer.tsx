@@ -6,8 +6,6 @@ import { TechnicianDesktopHeader } from './desktop/TechnicianDesktopHeader';
 import { TechnicianMobileTabs } from './mobile/TechnicianMobileTabs';
 import { TechnicianDesktopContent } from './desktop/TechnicianDesktopContent';
 import { TechnicianDialogs } from './dialogs/TechnicianDialogs';
-import { DashboardFooter } from './dashboard/DashboardFooter';
-import { PageFooter } from '@/components/layout/PageFooter';
 import { Button } from '@/components/ui/button';
 
 interface TechnicianWindowContainerProps {
@@ -85,19 +83,8 @@ export const TechnicianWindowContainer: React.FC<TechnicianWindowContainerProps>
 }) => {
   const isMobile = useIsMobile();
   
-  // Action button for the footer - Updated to use Fieldvision blue
-  const actionButton = (
-    <Button 
-      onClick={handleCompleteReview}
-      variant="blue"
-      className="text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded"
-    >
-      Complete Task
-    </Button>
-  );
-  
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-full bg-background">
       <TechnicianDialogs 
         workEntryDialogOpen={workEntryDialogOpen}
         setWorkEntryDialogOpen={setWorkEntryDialogOpen}
@@ -146,7 +133,16 @@ export const TechnicianWindowContainer: React.FC<TechnicianWindowContainerProps>
             formatTime={formatTime}
           />
           
-          <DashboardFooter />
+          {/* Complete task button */}
+          <div className="fixed bottom-20 right-4 z-50">
+            <Button 
+              onClick={handleCompleteReview}
+              variant="blue"
+              className="text-white shadow-lg rounded-full px-4"
+            >
+              Complete Task
+            </Button>
+          </div>
         </>
       ) : (
         <>
@@ -174,11 +170,16 @@ export const TechnicianWindowContainer: React.FC<TechnicianWindowContainerProps>
             saveGeneralNotes={saveGeneralNotes}
           />
           
-          <PageFooter
-            backLink="/technician/dashboard"
-            backLabel="Back"
-            actionButton={actionButton}
-          />
+          {/* Complete task button */}
+          <div className="fixed bottom-8 right-8 z-50">
+            <Button 
+              onClick={handleCompleteReview}
+              variant="blue"
+              className="text-white shadow-lg"
+            >
+              Complete Task
+            </Button>
+          </div>
         </>
       )}
     </div>
