@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "@/context/AppContext";
 import { ScheduleProvider } from "@/context/ScheduleContext";
 import Index from "./pages/Index";
@@ -33,8 +33,8 @@ const App = () => (
           <AddInvoiceDialog />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<MainLayout><Index /></MainLayout>} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
               <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />
               <Route path="/repository" element={<MainLayout><RepositoryPage /></MainLayout>} />
               <Route path="/projects" element={<MainLayout><ProjectsPage /></MainLayout>} />
@@ -42,6 +42,7 @@ const App = () => (
               <Route path="/technician" element={<TechnicianWindow />} />
               <Route path="/technician/dashboard" element={<TechnicianDashboard />} />
               <Route path="/technician/drawing" element={<TechnicianDrawingPage />} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
