@@ -30,12 +30,9 @@ interface TechnicianWorkEntryDialogProps {
   taskData?: any;
 }
 
-interface TaskEntry {
-  taskId: string;
-  workType: 'unit' | 'hourly';
-  hoursWorked: string;
-  feetCompleted: string;
+interface BillingCodeEntry {
   billingCodeId: string;
+  feetCompleted: string;
 }
 
 export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps> = ({
@@ -46,7 +43,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   taskData
 }) => {
   const { toast } = useToast();
-  const { teamMembers } = useApp();
+  const { teamMembers, billingCodes } = useApp();
   const { tasks } = useSchedule();
   const {
     formData,
@@ -56,7 +53,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     isSubmitting,
     previewRevenue,
     projects,
-    billingCodes,
+    billingCodes: formBillingCodes,
     teamMembers: formTeamMembers,
     handleChange,
     handleDateSelect,
@@ -70,9 +67,9 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   const [notifyTaskIssuer, setNotifyTaskIssuer] = useState(true);
   const [workType, setWorkType] = useState<'unit' | 'hourly'>('unit');
   const [hoursWorked, setHoursWorked] = useState('');
-  const [multipleTasksEnabled, setMultipleTasksEnabled] = useState(false);
-  const [taskEntries, setTaskEntries] = useState<TaskEntry[]>([]);
-  const [projectTasks, setProjectTasks] = useState<{ id: string, title: string }[]>([]);
+  const [multipleBillingCodesEnabled, setMultipleBillingCodesEnabled] = useState(false);
+  const [billingCodeEntries, setBillingCodeEntries] = useState<BillingCodeEntry[]>([]);
+  const [projectBillingCodes, setProjectBillingCodes] = useState<any[]>([]);
 
   useEffect(() => {
     if (projectId && open) {
@@ -81,23 +78,20 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
       } as React.ChangeEvent<HTMLSelectElement>;
       handleChange(syntheticEvent);
 
-      const relatedTasks = tasks.filter(task => task.projectId === projectId)
-        .map(task => ({ id: task.id, title: task.title }));
-      setProjectTasks(relatedTasks);
+      // Filter billing codes for this project (in a real app, this would be filtered by project)
+      const filteredBillingCodes = billingCodes;
+      setProjectBillingCodes(filteredBillingCodes);
 
-      if (relatedTasks.length > 0 && taskEntries.length === 0) {
-        setTaskEntries([
+      if (filteredBillingCodes.length > 0 && billingCodeEntries.length === 0) {
+        setBillingCodeEntries([
           {
-            taskId: relatedTasks[0].id,
-            workType: 'unit',
-            hoursWorked: '',
-            feetCompleted: '',
-            billingCodeId: ''
+            billingCodeId: '',
+            feetCompleted: ''
           }
         ]);
       }
     }
-  }, [projectId, open, handleChange, tasks]);
+  }, [projectId, open, handleChange, billingCodes]);
 
   const handleWorkTypeChange = (value: 'unit' | 'hourly') => {
     setWorkType(value);
@@ -107,101 +101,57 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     setHoursWorked(e.target.value);
   };
 
-  const handleTaskEntryChange = (index: number, field: keyof TaskEntry, value: string) => {
-    const updatedEntries = [...taskEntries];
+  const handleBillingCodeEntryChange = (index: number, field: keyof BillingCodeEntry, value: string) => {
+    const updatedEntries = [...billingCodeEntries];
     updatedEntries[index] = { ...updatedEntries[index], [field]: value };
-    
-    if (field === 'workType') {
-      if (value === 'unit') {
-        updatedEntries[index].hoursWorked = '';
-      } else {
-        updatedEntries[index].feetCompleted = '';
-        updatedEntries[index].billingCodeId = '';
-      }
-    }
-    
-    setTaskEntries(updatedEntries);
+    setBillingCodeEntries(updatedEntries);
   };
 
-  const addTaskEntry = () => {
-    if (projectTasks.length === 0) {
+  const addBillingCodeEntry = () => {
+    if (projectBillingCodes.length === 0) {
       toast({
-        title: "No tasks available",
-        description: "There are no tasks available for this project.",
+        title: "No billing codes available",
+        description: "There are no billing codes available for this project.",
         variant: "destructive"
       });
       return;
     }
 
-    const usedTaskIds = taskEntries.map(entry => entry.taskId);
-    const availableTask = projectTasks.find(task => !usedTaskIds.includes(task.id));
-
-    if (availableTask) {
-      setTaskEntries([
-        ...taskEntries,
-        {
-          taskId: availableTask.id,
-          workType: 'unit',
-          hoursWorked: '',
-          feetCompleted: '',
-          billingCodeId: ''
-        }
-      ]);
-    } else {
-      toast({
-        title: "All tasks included",
-        description: "All available tasks for this project have been added.",
-      });
-    }
+    setBillingCodeEntries([
+      ...billingCodeEntries,
+      {
+        billingCodeId: '',
+        feetCompleted: ''
+      }
+    ]);
   };
 
-  const removeTaskEntry = (index: number) => {
-    const updatedEntries = taskEntries.filter((_, i) => i !== index);
-    setTaskEntries(updatedEntries);
+  const removeBillingCodeEntry = (index: number) => {
+    const updatedEntries = billingCodeEntries.filter((_, i) => i !== index);
+    setBillingCodeEntries(updatedEntries);
   };
 
-  const validateTaskEntries = () => {
+  const validateBillingCodeEntries = () => {
     let isValid = true;
-    for (const entry of taskEntries) {
-      if (!entry.taskId) {
+    for (const entry of billingCodeEntries) {
+      if (!entry.billingCodeId) {
         toast({
           title: "Error",
-          description: "Please select a task for each entry.",
+          description: "Please select a billing code for each entry.",
           variant: "destructive"
         });
         isValid = false;
         break;
       }
 
-      if (entry.workType === 'unit') {
-        if (!entry.billingCodeId) {
-          toast({
-            title: "Error",
-            description: "Please select a billing code for each unit-based entry.",
-            variant: "destructive"
-          });
-          isValid = false;
-          break;
-        }
-        if (!entry.feetCompleted || Number(entry.feetCompleted) <= 0) {
-          toast({
-            title: "Error",
-            description: "Please enter valid units completed for each unit-based entry.",
-            variant: "destructive"
-          });
-          isValid = false;
-          break;
-        }
-      } else {
-        if (!entry.hoursWorked || Number(entry.hoursWorked) <= 0) {
-          toast({
-            title: "Error",
-            description: "Please enter valid hours worked for each hourly entry.",
-            variant: "destructive"
-          });
-          isValid = false;
-          break;
-        }
+      if (!entry.feetCompleted || Number(entry.feetCompleted) <= 0) {
+        toast({
+          title: "Error",
+          description: "Please enter valid units completed for each entry.",
+          variant: "destructive"
+        });
+        isValid = false;
+        break;
       }
     }
     return isValid;
@@ -210,19 +160,27 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (multipleTasksEnabled) {
-      if (!validateTaskEntries()) {
+    if (multipleBillingCodesEnabled) {
+      if (!validateBillingCodeEntries()) {
         return;
       }
 
-      for (const entry of taskEntries) {
-        const taskInfo = projectTasks.find(t => t.id === entry.taskId);
+      for (const entry of billingCodeEntries) {
+        const billingCodeInfo = projectBillingCodes.find(bc => bc.id === entry.billingCodeId);
         
-        toast({
-          title: "Work logged for multiple tasks",
-          description: `Logged work for task: ${taskInfo?.title || entry.taskId}`,
+        // In a real application, you would submit each entry to the server
+        console.log('Logging work entry:', {
+          billingCode: billingCodeInfo?.code,
+          feetCompleted: entry.feetCompleted,
+          projectId: formData.projectId,
+          date: formData.date
         });
       }
+      
+      toast({
+        title: "Work logged for multiple billing codes",
+        description: `Logged work for ${billingCodeEntries.length} billing codes`,
+      });
     } else {
       if (workType === 'hourly' && (!hoursWorked || Number(hoursWorked) <= 0)) {
         toast({
@@ -320,30 +278,30 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
           
           <div className="flex items-center space-x-2">
             <Checkbox 
-              id="multipleTasksEnabled" 
-              checked={multipleTasksEnabled} 
-              onCheckedChange={(checked) => setMultipleTasksEnabled(checked === true)}
+              id="multipleBillingCodesEnabled" 
+              checked={multipleBillingCodesEnabled} 
+              onCheckedChange={(checked) => setMultipleBillingCodesEnabled(checked === true)}
             />
             <label 
-              htmlFor="multipleTasksEnabled" 
+              htmlFor="multipleBillingCodesEnabled" 
               className="text-sm font-medium leading-none cursor-pointer"
             >
-              Log work for multiple tasks in this project
+              Log work for multiple billing codes in this project
             </label>
           </div>
           
-          {multipleTasksEnabled ? (
+          {multipleBillingCodesEnabled ? (
             <div className="space-y-4">
-              {taskEntries.map((entry, index) => (
+              {billingCodeEntries.map((entry, index) => (
                 <div key={index} className="p-4 border rounded-md space-y-3">
                   <div className="flex justify-between items-center">
-                    <h4 className="text-sm font-medium">Task {index + 1}</h4>
-                    {taskEntries.length > 1 && (
+                    <h4 className="text-sm font-medium">Billing Code {index + 1}</h4>
+                    {billingCodeEntries.length > 1 && (
                       <Button 
                         type="button" 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => removeTaskEntry(index)}
+                        onClick={() => removeBillingCodeEntry(index)}
                         className="h-6 w-6 p-0 text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -353,106 +311,39 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                   
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Task
+                      Billing Code
                     </label>
                     <Select 
-                      value={entry.taskId}
-                      onValueChange={(value) => handleTaskEntryChange(index, 'taskId', value)}
+                      value={entry.billingCodeId}
+                      onValueChange={(value) => handleBillingCodeEntryChange(index, 'billingCodeId', value)}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a task" />
+                        <SelectValue placeholder="Select a billing code" />
                       </SelectTrigger>
                       <SelectContent>
-                        {projectTasks.map(task => (
-                          <SelectItem key={task.id} value={task.id}>
-                            {task.title}
+                        {projectBillingCodes.map(code => (
+                          <SelectItem key={code.id} value={code.id}>
+                            {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/unit)
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium mb-1">
-                      Work Type
+                  <div>
+                    <label htmlFor={`feetCompleted-${index}`} className="block text-sm font-medium mb-1">
+                      Units Completed
                     </label>
-                    <RadioGroup 
-                      value={entry.workType} 
-                      onValueChange={(value) => handleTaskEntryChange(index, 'workType', value)}
-                      className="flex flex-col space-y-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="unit" id={`unit-${index}`} />
-                        <Label htmlFor={`unit-${index}`}>Unit-Based Work</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="hourly" id={`hourly-${index}`} />
-                        <Label htmlFor={`hourly-${index}`}>Hourly Work</Label>
-                      </div>
-                    </RadioGroup>
+                    <Input
+                      id={`feetCompleted-${index}`}
+                      type="number"
+                      value={entry.feetCompleted}
+                      onChange={(e) => handleBillingCodeEntryChange(index, 'feetCompleted', e.target.value)}
+                      placeholder="Enter units completed"
+                      min="0"
+                      className="w-full"
+                    />
                   </div>
-                  
-                  {entry.workType === 'unit' ? (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Billing Code
-                        </label>
-                        <Select 
-                          value={entry.billingCodeId}
-                          onValueChange={(value) => handleTaskEntryChange(index, 'billingCodeId', value)}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a billing code" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {billingCodes.map(code => (
-                              <SelectItem key={code.id} value={code.id}>
-                                {code.code} - {code.description} (${code.ratePerFoot.toFixed(2)}/unit)
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <label htmlFor={`feetCompleted-${index}`} className="block text-sm font-medium mb-1">
-                          Units Completed
-                        </label>
-                        <Input
-                          id={`feetCompleted-${index}`}
-                          type="number"
-                          value={entry.feetCompleted}
-                          onChange={(e) => handleTaskEntryChange(index, 'feetCompleted', e.target.value)}
-                          placeholder="Enter units completed"
-                          min="0"
-                          className="w-full"
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <div>
-                      <label htmlFor={`hoursWorked-${index}`} className="block text-sm font-medium mb-1">
-                        Hours Worked
-                      </label>
-                      <div className="relative">
-                        <Input
-                          id={`hoursWorked-${index}`}
-                          type="number"
-                          value={entry.hoursWorked}
-                          onChange={(e) => handleTaskEntryChange(index, 'hoursWorked', e.target.value)}
-                          placeholder="Enter hours worked"
-                          min="0"
-                          step="0.5"
-                          className="w-full"
-                        />
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                          <Clock className="h-4 w-4 mr-1" />
-                          hrs
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               ))}
               
@@ -460,11 +351,11 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={addTaskEntry}
+                onClick={addBillingCodeEntry}
                 className="w-full"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Another Task
+                Add Another Billing Code
               </Button>
             </div>
           ) : (
@@ -493,7 +384,7 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
                 <>
                   <BillingCodeSelector
                     billingCodeId={formData.billingCodeId}
-                    billingCodes={billingCodes}
+                    billingCodes={formBillingCodes}
                     onChange={handleChange}
                     error={formErrors.billingCodeId}
                   />
