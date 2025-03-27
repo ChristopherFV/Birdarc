@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
@@ -70,7 +69,7 @@ const TeamInvitePage = () => {
   };
 
   const handleContinueToDashboard = () => {
-    navigate('/dashboard');
+    navigate('/guided-project');
   };
 
   return (
@@ -179,7 +178,7 @@ const TeamInvitePage = () => {
               </>
             ) : (
               <Button onClick={handleContinueToDashboard}>
-                Continue to Dashboard
+                Continue to Next Step
               </Button>
             )}
           </CardFooter>

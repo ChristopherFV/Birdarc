@@ -1,0 +1,187 @@
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useAddProjectDialog } from '@/hooks/useAddProjectDialog';
+import { useApp } from '@/context/AppContext';
+import { useSchedule } from '@/context/ScheduleContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CheckCircle2, ClipboardList, MapPin, Calendar, ArrowRight } from 'lucide-react';
+
+const GuidedProjectPage = () => {
+  const navigate = useNavigate();
+  const { openAddProjectDialog } = useAddProjectDialog();
+  const { projects } = useApp();
+  const { tasks } = useSchedule();
+  const [activeTab, setActiveTab] = useState("project");
+  const [completed, setCompleted] = useState({
+    project: false,
+    task: false
+  });
+
+  // Check if user has completed steps (projects or tasks exist)
+  React.useEffect(() => {
+    if (projects && projects.length > 0) {
+      setCompleted(prev => ({ ...prev, project: true }));
+    }
+    
+    if (tasks && tasks.length > 0) {
+      setCompleted(prev => ({ ...prev, task: true }));
+    }
+  }, [projects, tasks]);
+
+  // Move to tasks tab after project creation
+  React.useEffect(() => {
+    if (completed.project && activeTab === "project") {
+      setActiveTab("task");
+    }
+  }, [completed.project, activeTab]);
+
+  const handleCreateProject = () => {
+    openAddProjectDialog();
+  };
+
+  const handleCreateTask = () => {
+    navigate('/schedule');
+  };
+
+  const handleFinish = () => {
+    navigate('/dashboard');
+  };
+
+  return (
+    <SimplePageLayout 
+      title="Get Started with Fieldvision" 
+      subtitle="Complete these steps to set up your workspace"
+    >
+      <div className="max-w-3xl mx-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="project" disabled={activeTab === "task" && !completed.project} className="relative">
+              {completed.project && (
+                <span className="absolute -right-1 -top-1">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                </span>
+              )}
+              <ClipboardList className="h-4 w-4 mr-2" />
+              Create Project
+            </TabsTrigger>
+            <TabsTrigger value="task" disabled={!completed.project}>
+              {completed.task && (
+                <span className="absolute -right-1 -top-1">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                </span>
+              )}
+              <Calendar className="h-4 w-4 mr-2" />
+              Schedule Tasks
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="project" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Create Your First Project</CardTitle>
+                <CardDescription>
+                  Projects are the foundation of your work in Fieldvision. They help you organize tasks, track work entries, and manage billing.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-muted/50 p-4 rounded-md border">
+                  <h3 className="font-medium mb-2">What makes a good project?</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+                    <li>Clear name that identifies the project scope</li>
+                    <li>Specific client and location information</li>
+                    <li>Defined billing codes for accurate invoicing</li>
+                  </ul>
+                </div>
+                <div className="flex items-center justify-center p-6">
+                  <Button 
+                    size="lg"
+                    onClick={handleCreateProject}
+                    className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+                  >
+                    Create Your First Project
+                  </Button>
+                </div>
+              </CardContent>
+              {completed.project && (
+                <CardFooter className="bg-green-50 border-t flex justify-between items-center">
+                  <div className="flex items-center">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                    <span className="text-sm font-medium">Project Created!</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setActiveTab("task")}>
+                    Continue <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              )}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="task" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Schedule Your First Task</CardTitle>
+                <CardDescription>
+                  Tasks help you organize work for your team. Schedule tasks on the map or calendar to visualize your field operations.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-muted/50 p-4 rounded-md border">
+                    <div className="flex items-center mb-2">
+                      <MapPin className="h-5 w-5 text-fieldvision-orange mr-2" />
+                      <h3 className="font-medium">Map View</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Visualize your tasks geographically to optimize routes and team assignments.
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 p-4 rounded-md border">
+                    <div className="flex items-center mb-2">
+                      <Calendar className="h-5 w-5 text-fieldvision-orange mr-2" />
+                      <h3 className="font-medium">Calendar View</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Plan your project timeline and visualize deadlines and task dependencies.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center p-6">
+                  <Button 
+                    size="lg"
+                    onClick={handleCreateTask}
+                    className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+                  >
+                    Schedule Your First Task
+                  </Button>
+                </div>
+              </CardContent>
+              {completed.task && (
+                <CardFooter className="bg-green-50 border-t flex justify-between items-center">
+                  <div className="flex items-center">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                    <span className="text-sm font-medium">Task Created!</span>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleFinish}>
+                    Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              )}
+            </Card>
+            
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={handleFinish}>
+                Skip for now
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </SimplePageLayout>
+  );
+};
+
+export default GuidedProjectPage;
