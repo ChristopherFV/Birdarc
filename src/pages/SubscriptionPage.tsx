@@ -32,7 +32,7 @@ const SubscriptionPage = () => {
       id: 'core',
       name: 'Core',
       description: 'Small - Early Stage Contractors',
-      price: 59,
+      price: 60,
       additionalUserFee: 7,
       features: [
         '≤ 3 Active Projects',
@@ -40,8 +40,7 @@ const SubscriptionPage = () => {
         '≤ 2 Subcontractors',
         'GIS Mapping',
         'Quickbooks Sync',
-        'Stripe Payments (subject to processing fees)',
-        '5 Marketplace Bid Matches'
+        'Stripe Payments (subject to processing fees)'
       ],
       icon: <MapPin className="h-10 w-10 text-blue-500" />
     },
@@ -49,7 +48,7 @@ const SubscriptionPage = () => {
       id: 'network',
       name: 'Network',
       description: 'Active - Midsize Contractor',
-      price: 149,
+      price: 150,
       additionalUserFee: 7,
       freeTrialDays: 30,
       features: [
@@ -57,8 +56,7 @@ const SubscriptionPage = () => {
         '≤ 500 Tasks per month',
         '≤ 10 Subcontractors',
         'All features of Core',
-        'Custom Invoice Builder',
-        '20 Marketplace Bid Matches'
+        'Custom Invoice Builder'
       ],
       icon: <Building className="h-10 w-10 text-indigo-500" />
     },
@@ -66,7 +64,7 @@ const SubscriptionPage = () => {
       id: 'program',
       name: 'Program',
       description: 'Large General Contractors',
-      price: 349,
+      price: 350,
       additionalUserFee: 7,
       features: [
         'Unlimited Projects',
@@ -75,8 +73,7 @@ const SubscriptionPage = () => {
         'All Integrations',
         'Payment Ledger Export',
         'Team Admin roles',
-        'SSO',
-        '50 Marketplace Bid Matches'
+        'SSO'
       ],
       icon: <Shield className="h-10 w-10 text-purple-500" />
     }
