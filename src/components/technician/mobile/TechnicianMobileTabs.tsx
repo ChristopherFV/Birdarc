@@ -6,7 +6,7 @@ import { Map, FileText, MessageSquare, Trash2 } from 'lucide-react';
 import { MapNote } from '../TechnicianLocationMap';
 import { Button } from '@/components/ui/button';
 import { TechnicianMainContent } from '../TechnicianMainContent';
-import { PendingNotification } from '@/components/repository/page/PendingNotification'; // Adjust import if needed
+import { PendingNotification } from '@/components/repository/page/PendingNotification';
 
 interface TechnicianMobileTabsProps {
   activeTab: string;
@@ -50,7 +50,7 @@ export const TechnicianMobileTabs: React.FC<TechnicianMobileTabsProps> = ({
   formatTime
 }) => {
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+    <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
       <TabsList className="w-full grid grid-cols-3 bg-muted/70 p-1 rounded-lg shadow-sm mx-2">
         <TabsTrigger value="map" className="text-xs py-1.5">
           <Map className="h-3.5 w-3.5 mr-1" />
