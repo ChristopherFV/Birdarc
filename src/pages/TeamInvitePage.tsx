@@ -115,10 +115,21 @@ const TeamInvitePage = () => {
   return (
     <SimplePageLayout title="Welcome to Fieldvision" subtitle="Invite your team members to get started">
       <div className="max-w-3xl mx-auto">
+        {/* Progress indicator */}
+        <div className="mb-8 w-full">
+          <div className="flex justify-between mb-2">
+            <span className="text-xs text-fieldvision-blue font-medium">Company Setup</span>
+            <span className="text-xs text-muted-foreground">Team Invites</span>
+          </div>
+          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-fieldvision-blue to-fieldvision-orange w-1/2 rounded-full" />
+          </div>
+        </div>
+
         <div className="mb-6">
           <div className="flex items-center mb-4">
-            <div className="bg-primary/10 p-3 rounded-full mr-3">
-              <Building className="h-6 w-6 text-primary" />
+            <div className="bg-fieldvision-blue/10 p-3 rounded-full mr-3">
+              <Building className="h-6 w-6 text-fieldvision-blue" />
             </div>
             <h2 className="text-xl font-semibold">Set Up Your Company</h2>
           </div>
@@ -127,12 +138,13 @@ const TeamInvitePage = () => {
           </p>
         </div>
 
-        <Card className="mb-6">
-          <CardHeader>
+        <Card className="mb-6 border-fieldvision-blue/20 shadow-lg overflow-hidden">
+          <div className="absolute top-0 h-1 w-full bg-gradient-to-r from-fieldvision-blue to-fieldvision-orange"></div>
+          <CardHeader className="bg-gradient-to-r from-fieldvision-blue/5 to-fieldvision-orange/5">
             <CardTitle>Company Information</CardTitle>
             <CardDescription>Enter your company name and upload your logo</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="company-name">Company Name</Label>
@@ -141,41 +153,45 @@ const TeamInvitePage = () => {
                   placeholder="Enter your company name"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
+                  className="border-fieldvision-blue/20 focus-visible:ring-fieldvision-blue/30"
                 />
               </div>
               
               <div>
                 <Label htmlFor="company-logo" className="block mb-2">Company Logo</Label>
-                <div className="flex items-center space-x-4">
-                  <Avatar className="w-16 h-16">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <Avatar className="w-24 h-24 border-2 border-fieldvision-blue/20">
                     {companyLogo ? (
                       <AvatarImage src={companyLogo} alt="Company logo" />
                     ) : (
-                      <AvatarFallback className="text-lg">
+                      <AvatarFallback className="text-2xl bg-gradient-to-br from-fieldvision-blue/10 to-fieldvision-orange/10 text-fieldvision-blue">
                         {companyName ? companyName.charAt(0).toUpperCase() : 'F'}
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  <Button 
-                    variant="outline" 
-                    type="button"
-                    onClick={triggerFileInput}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {companyLogo ? 'Change Logo' : 'Upload Logo'}
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    id="company-logo"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleCompanyLogoUpload}
-                  />
+                  <div className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      type="button"
+                      onClick={triggerFileInput}
+                      className="w-full sm:w-auto border-fieldvision-blue/20 hover:bg-fieldvision-blue/5 hover:text-fieldvision-blue"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {companyLogo ? 'Change Logo' : 'Upload Logo'}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Recommended: Square image, at least 200x200px
+                    </p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      id="company-logo"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleCompanyLogoUpload}
+                    />
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Recommended: Square image, at least 200x200px
-                </p>
               </div>
             </div>
           </CardContent>
@@ -183,8 +199,8 @@ const TeamInvitePage = () => {
 
         <div className="mb-6">
           <div className="flex items-center mb-4">
-            <div className="bg-primary/10 p-3 rounded-full mr-3">
-              <Users className="h-6 w-6 text-primary" />
+            <div className="bg-fieldvision-orange/10 p-3 rounded-full mr-3">
+              <Users className="h-6 w-6 text-fieldvision-orange" />
             </div>
             <h2 className="text-xl font-semibold">Build Your Team</h2>
           </div>
@@ -193,29 +209,36 @@ const TeamInvitePage = () => {
           </p>
         </div>
 
-        <Card className="mb-6">
-          <CardHeader>
+        <Card className="mb-6 border-fieldvision-orange/20 shadow-lg overflow-hidden">
+          <div className="absolute top-0 h-1 w-full bg-gradient-to-r from-fieldvision-orange to-fieldvision-blue"></div>
+          <CardHeader className="bg-gradient-to-r from-fieldvision-orange/5 to-fieldvision-blue/5">
             <CardTitle>Team Invite Code</CardTitle>
             <CardDescription>Share this code with your team members to join your workspace</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-2">
-              <div className="bg-muted p-3 rounded-md flex-1 font-mono text-center text-lg">
+          <CardContent className="pt-6">
+            <div className="p-3 bg-fieldvision-orange/5 rounded-lg border border-fieldvision-orange/20 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="font-mono text-lg sm:text-xl font-semibold text-center text-fieldvision-brown flex-1">
                 {teamCode}
               </div>
-              <Button variant="outline" size="icon" onClick={copyTeamCode}>
-                <Copy className="h-4 w-4" />
+              <Button 
+                variant="outline" 
+                onClick={copyTeamCode}
+                className="w-full sm:w-auto border-fieldvision-orange/20 hover:bg-fieldvision-orange/5 hover:text-fieldvision-orange"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy Code
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="mb-6">
-          <CardHeader>
+        <Card className="mb-6 border-fieldvision-orange/20 shadow-lg overflow-hidden">
+          <div className="absolute top-0 h-1 w-full bg-gradient-to-r from-fieldvision-orange to-fieldvision-blue"></div>
+          <CardHeader className="bg-gradient-to-r from-fieldvision-orange/5 to-fieldvision-blue/5">
             <CardTitle>Send Email Invitations</CardTitle>
             <CardDescription>Invite your team members via email</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {!invitesSent ? (
               <div className="space-y-4">
                 {emails.map((email, index) => (
@@ -228,6 +251,7 @@ const TeamInvitePage = () => {
                         placeholder="colleague@example.com"
                         value={email}
                         onChange={(e) => handleEmailChange(index, e.target.value)}
+                        className="border-fieldvision-blue/20 focus-visible:ring-fieldvision-blue/30"
                       />
                     </div>
                     {emails.length > 1 && (
@@ -236,6 +260,7 @@ const TeamInvitePage = () => {
                         size="icon" 
                         onClick={() => removeEmailField(index)}
                         aria-label="Remove email"
+                        className="border-fieldvision-orange/20 hover:bg-fieldvision-orange/5 hover:text-fieldvision-orange"
                       >
                         <div className="h-4 w-4">×</div>
                       </Button>
@@ -245,35 +270,37 @@ const TeamInvitePage = () => {
                 <Button 
                   variant="outline" 
                   onClick={addEmailField} 
-                  className="w-full"
+                  className="w-full border-fieldvision-blue/20 hover:bg-fieldvision-blue/5 hover:text-fieldvision-blue"
                 >
                   <Plus className="h-4 w-4 mr-2" /> Add Another Email
                 </Button>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-6">
-                <div className="bg-green-100 p-3 rounded-full mb-3">
-                  <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <div className="bg-green-100 p-4 rounded-full mb-4">
+                  <CheckCircle2 className="h-10 w-10 text-green-600" />
                 </div>
-                <h3 className="text-lg font-medium">Invitations Sent!</h3>
-                <p className="text-muted-foreground text-center mt-1">
+                <h3 className="text-xl font-semibold text-center">Invitations Sent!</h3>
+                <p className="text-muted-foreground text-center mt-2 max-w-md">
                   Your team members will receive an email with instructions to join your workspace.
                 </p>
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex justify-end space-x-2">
+          <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 border-t p-4 bg-muted/20">
             {!invitesSent ? (
               <>
                 <Button 
                   variant="outline" 
                   onClick={handleContinueToDashboard}
+                  className="w-full sm:w-auto order-2 sm:order-1 border-fieldvision-blue/20 hover:bg-fieldvision-blue/5"
                 >
                   Skip for Now
                 </Button>
                 <Button 
                   onClick={handleSendInvites} 
                   disabled={isProcessing}
+                  className="w-full sm:w-auto order-1 sm:order-2 bg-fieldvision-orange hover:bg-fieldvision-orange/90"
                 >
                   {isProcessing ? 'Sending...' : (
                     <>
@@ -283,7 +310,10 @@ const TeamInvitePage = () => {
                 </Button>
               </>
             ) : (
-              <Button onClick={handleContinueToDashboard}>
+              <Button 
+                onClick={handleContinueToDashboard}
+                className="w-full sm:w-auto bg-fieldvision-blue hover:bg-fieldvision-blue/90"
+              >
                 Continue to Next Step
               </Button>
             )}
