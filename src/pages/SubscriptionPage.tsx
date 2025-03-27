@@ -28,7 +28,7 @@ const SubscriptionPage = () => {
       additionalUserFee: 5,
       features: [
         '≤ 3 Active Projects',
-        '≤ 200 Tasks per month',
+        '≤ 100 Tasks per month',
         '≤ 2 Subcontractors',
         'GIS Mapping',
         'Quickbooks Sync',
@@ -38,14 +38,14 @@ const SubscriptionPage = () => {
       icon: <MapPin className="h-10 w-10 text-blue-500" />
     },
     {
-      id: 'cladding',
-      name: 'Cladding',
+      id: 'network',
+      name: 'Network',
       description: 'Active - Midsize Contractor',
       price: 149,
       additionalUserFee: 5,
       features: [
         '≤ 10 Active Projects',
-        '≤ 1000 Tasks per month',
+        '≤ 500 Tasks per month',
         '≤ 10 Subcontractors',
         'All features of Core',
         'Custom Invoice Builder',
@@ -54,8 +54,8 @@ const SubscriptionPage = () => {
       icon: <Building className="h-10 w-10 text-indigo-500" />
     },
     {
-      id: 'buffer',
-      name: 'Buffer',
+      id: 'program',
+      name: 'Program',
       description: 'Large General Contractors',
       price: 349,
       additionalUserFee: 5,
