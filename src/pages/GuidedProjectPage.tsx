@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { useAddProjectDialog } from '@/hooks/useAddProjectDialog';
 import { useApp } from '@/context/AppContext';
 import { useSchedule } from '@/context/ScheduleContext';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle2, ClipboardList, MapPin, Calendar, ArrowRight } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { CheckCircle2, ClipboardList, MapPin, Calendar, ArrowRight, ClockIcon, Users } from 'lucide-react';
 
 const GuidedProjectPage = () => {
   const navigate = useNavigate();
@@ -57,17 +57,24 @@ const GuidedProjectPage = () => {
   return (
     <SimplePageLayout 
       title="Get Started with Fieldvision" 
-      subtitle="Complete these steps to set up your work area"
+      subtitle="Complete these steps to set up your work management flow"
     >
       <div className="max-w-3xl mx-auto">
-        {/* Progress bar */}
+        {/* Progress indicators */}
         <div className="mb-8 w-full">
           <div className="flex justify-between mb-2">
-            <span className="text-xs text-fieldvision-blue font-medium">Company Setup</span>
-            <span className="text-xs text-fieldvision-orange font-medium">Project Setup</span>
+            <span className="text-xs font-medium">Start</span>
+            <span className={`text-xs ${completed.project ? "text-fieldvision-blue font-medium" : "text-muted-foreground"}`}>Create Project</span>
+            <span className={`text-xs ${completed.task ? "text-fieldvision-orange font-medium" : "text-muted-foreground"}`}>Schedule Tasks</span>
+            <span className="text-xs text-muted-foreground">Complete</span>
           </div>
           <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-fieldvision-blue to-fieldvision-orange w-full rounded-full" />
+            <div 
+              className="h-full bg-gradient-to-r from-fieldvision-blue to-fieldvision-orange transition-all duration-500" 
+              style={{ 
+                width: completed.task ? '100%' : (completed.project ? '66%' : '33%') 
+              }}
+            />
           </div>
         </div>
 
@@ -113,13 +120,25 @@ const GuidedProjectPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
-                <div className="bg-muted/50 p-4 rounded-md border">
-                  <h3 className="font-medium mb-2 text-fieldvision-blue">What makes a good project?</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                    <li>Clear name that shows what the job is about</li>
-                    <li>Client and location details</li>
-                    <li>Billing codes for correct payments</li>
-                  </ul>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-muted/50 p-4 rounded-md border">
+                    <h3 className="font-medium mb-2 text-fieldvision-blue flex items-center">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Define Location
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Set the project location so technicians know where to go to complete tasks.
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 p-4 rounded-md border">
+                    <h3 className="font-medium mb-2 text-fieldvision-blue flex items-center">
+                      <Users className="h-4 w-4 mr-2" />
+                      Client Details
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Add client information to track who the work is being done for.
+                    </p>
+                  </div>
                 </div>
                 <div className="flex items-center justify-center p-6">
                   <Button 
@@ -154,7 +173,7 @@ const GuidedProjectPage = () => {
                   Schedule Your First Task
                 </CardTitle>
                 <CardDescription>
-                  Tasks help you plan work for your team. Add tasks to the map or calendar to plan your work day.
+                  Assign work to team members with specific billing codes or hourly rates.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
@@ -162,21 +181,30 @@ const GuidedProjectPage = () => {
                   <div className="bg-muted/50 p-4 rounded-md border border-fieldvision-orange/10 hover:border-fieldvision-orange/30 transition-colors">
                     <div className="flex items-center mb-2">
                       <MapPin className="h-5 w-5 text-fieldvision-orange mr-2" />
-                      <h3 className="font-medium text-fieldvision-orange">Map View</h3>
+                      <h3 className="font-medium text-fieldvision-orange">Task Location</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      See your jobs on a map to plan the best routes for your crew.
+                      Specify where the task needs to be performed - you'll see it on the map.
                     </p>
                   </div>
                   <div className="bg-muted/50 p-4 rounded-md border border-fieldvision-orange/10 hover:border-fieldvision-orange/30 transition-colors">
                     <div className="flex items-center mb-2">
-                      <Calendar className="h-5 w-5 text-fieldvision-orange mr-2" />
-                      <h3 className="font-medium text-fieldvision-orange">Calendar View</h3>
+                      <ClockIcon className="h-5 w-5 text-fieldvision-orange mr-2" />
+                      <h3 className="font-medium text-fieldvision-orange">Billing & Timing</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Plan your work schedule and see when everything is due.
+                      Track costs with billing codes or hourly assignments.
                     </p>
                   </div>
+                </div>
+                <div className="bg-muted/30 p-4 rounded-md border border-fieldvision-orange/10">
+                  <h3 className="font-medium mb-2 text-fieldvision-orange flex items-center">
+                    <Users className="h-4 w-4 mr-2" />
+                    Assign to Team Members
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Choose a team member or contractor to perform the work, or leave it unassigned for now.
+                  </p>
                 </div>
                 <div className="flex items-center justify-center p-6">
                   <Button 
