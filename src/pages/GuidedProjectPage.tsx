@@ -78,7 +78,7 @@ const GuidedProjectPage = () => {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 border border-muted">
             <TabsTrigger 
               value="project" 
