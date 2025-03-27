@@ -54,10 +54,10 @@ const GuidedProjectPage = () => {
   return (
     <SimplePageLayout 
       title="Get Started with Fieldvision" 
-      subtitle="Complete these steps to set up your workspace"
+      subtitle="Complete these steps to set up your work area"
     >
       <div className="max-w-3xl mx-auto">
-        {/* Progress indicator */}
+        {/* Progress bar */}
         <div className="mb-8 w-full">
           <div className="flex justify-between mb-2">
             <span className="text-xs text-fieldvision-blue font-medium">Company Setup</span>
@@ -68,7 +68,6 @@ const GuidedProjectPage = () => {
           </div>
         </div>
 
-        {/* Important: Make sure Tabs and TabsContent are properly structured */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 border border-muted">
             <TabsTrigger 
@@ -108,17 +107,16 @@ const GuidedProjectPage = () => {
                   Create Your First Project
                 </CardTitle>
                 <CardDescription>
-                  Projects are the foundation of your work in Fieldvision. They help you organize tasks, 
-                  track work entries, and manage billing.
+                  Projects help you organize jobs, track work done, and manage payments.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
                 <div className="bg-muted/50 p-4 rounded-md border">
                   <h3 className="font-medium mb-2 text-fieldvision-blue">What makes a good project?</h3>
                   <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                    <li>Clear name that identifies the project scope</li>
-                    <li>Specific client and location information</li>
-                    <li>Defined billing codes for accurate invoicing</li>
+                    <li>Clear name that shows what the job is about</li>
+                    <li>Client and location details</li>
+                    <li>Billing codes for correct payments</li>
                   </ul>
                 </div>
                 <div className="flex items-center justify-center p-6">
@@ -154,8 +152,7 @@ const GuidedProjectPage = () => {
                   Schedule Your First Task
                 </CardTitle>
                 <CardDescription>
-                  Tasks help you organize work for your team. Schedule tasks on the map or calendar 
-                  to visualize your field operations.
+                  Tasks help you plan work for your team. Add tasks to the map or calendar to plan your work day.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pt-6">
@@ -166,7 +163,7 @@ const GuidedProjectPage = () => {
                       <h3 className="font-medium text-fieldvision-orange">Map View</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Visualize your tasks geographically to optimize routes and team assignments.
+                      See your jobs on a map to plan the best routes for your crew.
                     </p>
                   </div>
                   <div className="bg-muted/50 p-4 rounded-md border border-fieldvision-orange/10 hover:border-fieldvision-orange/30 transition-colors">
@@ -175,7 +172,7 @@ const GuidedProjectPage = () => {
                       <h3 className="font-medium text-fieldvision-orange">Calendar View</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Plan your project timeline and visualize deadlines and task dependencies.
+                      Plan your work schedule and see when everything is due.
                     </p>
                   </div>
                 </div>
