@@ -14,6 +14,7 @@ import ProjectsPage from "./pages/ProjectsPage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import SubscriptionPage from "./pages/SubscriptionPage";
+import TeamInvitePage from "./pages/TeamInvitePage";
 import { AddProjectDialog } from "@/components/forms/AddProjectDialog";
 import { AddInvoiceDialog } from "@/components/forms/AddInvoiceDialog";
 import { TechnicianWindow } from "@/components/technician/TechnicianWindow";
@@ -38,6 +39,7 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
+              <Route path="/team-invite" element={<TeamInvitePage />} />
               <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/work-entries" element={<MainLayout><WorkEntriesPage /></MainLayout>} />

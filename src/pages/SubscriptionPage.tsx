@@ -117,7 +117,7 @@ const SubscriptionPage = () => {
         title: "Team Joined",
         description: "You've successfully joined the team",
       });
-      navigate('/dashboard');
+      navigate('/team-invite');
     }, 1500);
   };
 
@@ -146,7 +146,7 @@ const SubscriptionPage = () => {
         title: "Subscription Confirmed",
         description: `You are now subscribed to the ${selectedPlan} plan`,
       });
-      navigate('/dashboard');
+      navigate('/team-invite');
     }, 1500);
   };
 
