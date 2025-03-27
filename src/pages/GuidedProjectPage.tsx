@@ -64,7 +64,7 @@ const GuidedProjectPage = () => {
         <div className="mb-8 w-full">
           <div className="flex justify-between mb-2">
             <span className="text-xs font-medium">Start</span>
-            <span className={`text-xs ${completed.project ? "text-fieldvision-blue font-medium" : "text-muted-foreground"}`}>Add Project</span>
+            <span className={`text-xs ${completed.project ? "text-fieldvision-blue font-medium" : "text-muted-foreground"}`}>Create Project</span>
             <span className={`text-xs ${completed.task ? "text-fieldvision-orange font-medium" : "text-muted-foreground"}`}>Schedule Tasks</span>
             <span className="text-xs text-muted-foreground">Complete</span>
           </div>
@@ -78,7 +78,7 @@ const GuidedProjectPage = () => {
           </div>
         </div>
 
-        <Tabs defaultValue={activeTab} value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 border border-muted">
             <TabsTrigger 
               value="project" 
@@ -90,7 +90,7 @@ const GuidedProjectPage = () => {
                 </span>
               )}
               <ClipboardList className="h-4 w-4 mr-2" />
-              Add Project
+              Create Project
             </TabsTrigger>
             <TabsTrigger 
               value="task" 
@@ -113,7 +113,7 @@ const GuidedProjectPage = () => {
               <CardHeader className="bg-gradient-to-r from-fieldvision-blue/5 to-fieldvision-blue/10">
                 <CardTitle className="text-fieldvision-blue flex items-center">
                   <ClipboardList className="h-5 w-5 mr-2" />
-                  Add an Active Project
+                  Create Your First Project
                 </CardTitle>
                 <CardDescription>
                   Projects help you organize jobs, track work done, and manage payments.
@@ -146,7 +146,7 @@ const GuidedProjectPage = () => {
                     onClick={handleCreateProject}
                     className="bg-fieldvision-blue hover:bg-fieldvision-blue/90 text-white"
                   >
-                    Add an Active Project
+                    Create Your First Project
                   </Button>
                 </div>
               </CardContent>
@@ -154,7 +154,7 @@ const GuidedProjectPage = () => {
                 <CardFooter className="bg-green-50 border-t flex justify-between items-center">
                   <div className="flex items-center">
                     <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
-                    <span className="text-sm font-medium">Project Added!</span>
+                    <span className="text-sm font-medium">Project Created!</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setActiveTab("task")}>
                     Continue <ArrowRight className="ml-2 h-4 w-4" />
