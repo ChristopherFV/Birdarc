@@ -22,6 +22,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAddProjectDialog } from '@/hooks/useAddProjectDialog';
 import { useApp } from '@/context/AppContext';
+import { toast } from "@/components/ui/use-toast";
+import { v4 as uuidv4 } from 'uuid';
 
 const projectFormSchema = z.object({
   name: z.string().min(2, {
@@ -47,24 +49,36 @@ export function AddProjectDialog() {
       name: "",
       client: "",
       location: "",
-      status: "",
+      status: "active",
       progress: 0,
     },
   })
 
   function onSubmit(data: z.infer<typeof projectFormSchema>) {
-    addProject({
+    const newProject = {
+      id: uuidv4(),
       name: data.name,
       client: data.client,
       location: data.location,
-      status: data.status,
-      progress: data.progress,
+      status: data.status || "active",
+      progress: data.progress || 0,
+    };
+    
+    addProject(newProject);
+    
+    toast({
+      title: "Project created",
+      description: `${data.name} has been added to your projects`,
     });
+    
+    form.reset();
     closeAddProjectDialog();
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={closeAddProjectDialog}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) closeAddProjectDialog();
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Project</DialogTitle>
