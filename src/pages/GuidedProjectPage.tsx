@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -21,7 +22,7 @@ const GuidedProjectPage = () => {
   });
 
   // Check if user has completed steps (projects or tasks exist)
-  React.useEffect(() => {
+  useEffect(() => {
     if (projects && projects.length > 0) {
       setCompleted(prev => ({ ...prev, project: true }));
     }
@@ -31,14 +32,17 @@ const GuidedProjectPage = () => {
     }
   }, [projects, tasks]);
 
-  // Move to tasks tab after project creation
-  React.useEffect(() => {
+  // Move to tasks tab after project creation only if coming from project tab
+  useEffect(() => {
     if (completed.project && activeTab === "project") {
       setActiveTab("task");
     }
   }, [completed.project, activeTab]);
 
   const handleCreateProject = () => {
+    // Force the active tab to be "project" before opening dialog
+    setActiveTab("project");
+    // Then open the dialog
     openAddProjectDialog();
   };
 
@@ -71,7 +75,6 @@ const GuidedProjectPage = () => {
           <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 border border-muted">
             <TabsTrigger 
               value="project" 
-              disabled={activeTab === "task" && !completed.project} 
               className="relative data-[state=active]:bg-white data-[state=active]:text-fieldvision-blue"
             >
               {completed.project && (
