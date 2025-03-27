@@ -43,6 +43,7 @@ const SubscriptionPage = () => {
       description: 'Active - Midsize Contractor',
       price: 149,
       additionalUserFee: 5,
+      freeTrialDays: 30,
       features: [
         '≤ 10 Active Projects',
         '≤ 500 Tasks per month',
@@ -223,11 +224,21 @@ const SubscriptionPage = () => {
                     <div className="mb-2">{plan.icon}</div>
                     <CardTitle>{plan.name}</CardTitle>
                     <CardDescription>{plan.description}</CardDescription>
+                    {plan.freeTrialDays && (
+                      <div className="mt-2">
+                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-md">
+                          {plan.freeTrialDays} days risk-free trial
+                        </span>
+                      </div>
+                    )}
                   </CardHeader>
                   <CardContent className="flex-grow">
                     <div className="mb-4">
                       <span className="text-3xl font-bold">${plan.price}</span>
                       <span className="text-muted-foreground ml-1">/month</span>
+                      {plan.freeTrialDays && (
+                        <p className="text-sm text-green-600 font-medium mt-1">Try free for {plan.freeTrialDays} days</p>
+                      )}
                       <p className="text-sm text-muted-foreground mt-1">+${plan.additionalUserFee} per additional user</p>
                     </div>
                     <ul className="space-y-2">
