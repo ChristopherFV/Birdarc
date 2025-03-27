@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
@@ -9,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Check, Shield, Building, MapPin, FileText, Users, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
 
 const SubscriptionPage = () => {
   const navigate = useNavigate();
@@ -18,6 +18,14 @@ const SubscriptionPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [joinMode, setJoinMode] = useState<'new' | 'existing'>('new');
   const [teamCode, setTeamCode] = useState('');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+
+  const ANNUAL_DISCOUNT_PERCENTAGE = 10;
+  const calculateAnnualPrice = (monthlyPrice: number) => {
+    const annualPrice = monthlyPrice * 12;
+    const discount = annualPrice * (ANNUAL_DISCOUNT_PERCENTAGE / 100);
+    return Math.round(annualPrice - discount);
+  };
 
   const plans = [
     {
@@ -81,7 +89,16 @@ const SubscriptionPage = () => {
   const calculateTotalPrice = () => {
     const plan = plans.find(p => p.id === selectedPlan);
     if (!plan) return 0;
-    return plan.price + (additionalUsers * plan.additionalUserFee);
+    
+    const basePricePerPeriod = billingCycle === 'annual' 
+      ? calculateAnnualPrice(plan.price) 
+      : plan.price;
+      
+    const additionalUserFeePerPeriod = billingCycle === 'annual'
+      ? plan.additionalUserFee * 12
+      : plan.additionalUserFee;
+      
+    return basePricePerPeriod + (additionalUsers * additionalUserFeePerPeriod);
   };
 
   const handleJoinTeam = () => {
@@ -134,6 +151,26 @@ const SubscriptionPage = () => {
       });
       navigate('/dashboard');
     }, 1500);
+  };
+
+  const getPriceDisplay = (plan) => {
+    if (billingCycle === 'annual') {
+      const annualPrice = calculateAnnualPrice(plan.price);
+      const monthlyEquivalent = Math.round(annualPrice / 12);
+      return (
+        <>
+          <span className="text-3xl font-bold">${annualPrice}</span>
+          <span className="text-muted-foreground ml-1">/year</span>
+          <p className="text-sm text-green-600 font-medium mt-1">Save {ANNUAL_DISCOUNT_PERCENTAGE}% (${monthlyEquivalent}/mo equivalent)</p>
+        </>
+      );
+    }
+    return (
+      <>
+        <span className="text-3xl font-bold">${plan.price}</span>
+        <span className="text-muted-foreground ml-1">/month</span>
+      </>
+    );
   };
 
   return (
@@ -213,6 +250,35 @@ const SubscriptionPage = () => {
                 Select the plan that best fits your business needs
               </p>
             </div>
+            
+            <div className="flex justify-center items-center mb-6 bg-muted rounded-full p-1 w-fit">
+              <div className="flex items-center space-x-5 px-4 py-2">
+                <Label 
+                  htmlFor="billing-toggle"
+                  className={`cursor-pointer font-medium ${billingCycle === 'monthly' ? 'text-foreground' : 'text-muted-foreground'}`}
+                >
+                  Monthly
+                </Label>
+                <div className="flex items-center">
+                  <Switch
+                    id="billing-toggle"
+                    checked={billingCycle === 'annual'}
+                    onCheckedChange={(checked) => setBillingCycle(checked ? 'annual' : 'monthly')}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <Label 
+                    htmlFor="billing-toggle" 
+                    className={`cursor-pointer font-medium ${billingCycle === 'annual' ? 'text-foreground' : 'text-muted-foreground'}`}
+                  >
+                    Annual 
+                  </Label>
+                  <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    Save {ANNUAL_DISCOUNT_PERCENTAGE}%
+                  </span>
+                </div>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8">
               {plans.map((plan) => (
@@ -234,12 +300,14 @@ const SubscriptionPage = () => {
                   </CardHeader>
                   <CardContent className="flex-grow">
                     <div className="mb-4">
-                      <span className="text-3xl font-bold">${plan.price}</span>
-                      <span className="text-muted-foreground ml-1">/month</span>
-                      {plan.freeTrialDays && (
+                      {getPriceDisplay(plan)}
+                      {plan.freeTrialDays && billingCycle === 'monthly' && (
                         <p className="text-sm text-green-600 font-medium mt-1">Try free for {plan.freeTrialDays} days</p>
                       )}
-                      <p className="text-sm text-muted-foreground mt-1">+${plan.additionalUserFee} per additional user</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        +${billingCycle === 'annual' ? plan.additionalUserFee * 12 : plan.additionalUserFee} 
+                        per additional user{billingCycle === 'annual' ? '/year' : '/month'}
+                      </p>
                     </div>
                     <ul className="space-y-2">
                       {plan.features.map((feature, index) => (
@@ -283,14 +351,16 @@ const SubscriptionPage = () => {
                           className="w-24"
                         />
                         <span className="ml-2 text-sm text-muted-foreground">
-                          +${additionalUsers * (plans.find(p => p.id === selectedPlan)?.additionalUserFee || 0)}
+                          +${additionalUsers * (billingCycle === 'annual' 
+                            ? (plans.find(p => p.id === selectedPlan)?.additionalUserFee || 0) * 12 
+                            : (plans.find(p => p.id === selectedPlan)?.additionalUserFee || 0))}
                         </span>
                       </div>
                     </div>
                     
                     <div className="pt-4 border-t">
                       <div className="flex justify-between text-lg font-semibold">
-                        <span>Total Monthly:</span>
+                        <span>Total {billingCycle === 'annual' ? 'Annual' : 'Monthly'}:</span>
                         <span>${calculateTotalPrice()}</span>
                       </div>
                     </div>
