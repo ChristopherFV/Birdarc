@@ -25,7 +25,7 @@ const SubscriptionPage = () => {
       name: 'Core',
       description: 'Small - Early Stage Contractors',
       price: 59,
-      additionalUserFee: 5,
+      additionalUserFee: 7,
       features: [
         '≤ 3 Active Projects',
         '≤ 100 Tasks per month',
@@ -42,7 +42,7 @@ const SubscriptionPage = () => {
       name: 'Network',
       description: 'Active - Midsize Contractor',
       price: 149,
-      additionalUserFee: 5,
+      additionalUserFee: 7,
       freeTrialDays: 30,
       features: [
         '≤ 10 Active Projects',
@@ -59,7 +59,7 @@ const SubscriptionPage = () => {
       name: 'Program',
       description: 'Large General Contractors',
       price: 349,
-      additionalUserFee: 5,
+      additionalUserFee: 7,
       features: [
         'Unlimited Projects',
         'Unlimited Tasks',
