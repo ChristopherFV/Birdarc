@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 const SchedulePage: React.FC = () => {
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [mapboxApiKey] = useState<string>("pk.eyJ1IjoiY2h1Y2F0eCIsImEiOiJjbThra2NrcHIwZGIzMm1wdDYzNnpreTZyIn0.KUTPCuD8hk7VOzTYJ-WODg");
+  const [activeView, setActiveView] = useState<string>("map");
   const isMobile = useIsMobile();
   
   return (
@@ -38,7 +40,7 @@ const SchedulePage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           <Card className="lg:col-span-2">
             <CardHeader className="pb-3">
-              <Tabs defaultValue="map">
+              <Tabs defaultValue={activeView} onValueChange={setActiveView}>
                 <TabsList className="w-full sm:w-auto">
                   <TabsTrigger value="map" className="flex-1 sm:flex-auto">
                     <MapPin className="mr-2 h-4 w-4" />
@@ -49,19 +51,21 @@ const SchedulePage: React.FC = () => {
                     Calendar View
                   </TabsTrigger>
                 </TabsList>
+              
+                <TabsContent value="map" className="mt-0">
+                  <div className="h-[350px] sm:h-[500px] w-full rounded-md overflow-hidden border">
+                    <ScheduleMap mapboxApiKey={mapboxApiKey} />
+                  </div>
+                </TabsContent>
+                <TabsContent value="calendar" className="mt-0">
+                  <div className="h-[350px] sm:h-[500px] w-full rounded-md overflow-hidden border p-4">
+                    <ScheduleCalendar />
+                  </div>
+                </TabsContent>
               </Tabs>
             </CardHeader>
             <CardContent>
-              <TabsContent value="map" className="mt-0">
-                <div className="h-[350px] sm:h-[500px] w-full rounded-md overflow-hidden border">
-                  <ScheduleMap mapboxApiKey={mapboxApiKey} />
-                </div>
-              </TabsContent>
-              <TabsContent value="calendar" className="mt-0">
-                <div className="h-[350px] sm:h-[500px] w-full rounded-md overflow-hidden border p-4">
-                  <ScheduleCalendar />
-                </div>
-              </TabsContent>
+              {/* CardContent is empty since content is rendered inside TabsContent */}
             </CardContent>
           </Card>
           
