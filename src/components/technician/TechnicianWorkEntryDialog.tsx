@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import { AttachmentButton } from '@/components/forms/work-entry/AttachmentButton
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CircleX, Send, Clock, Plus, Trash2 } from "lucide-react";
+import { CircleX, Send, Clock, Plus, Trash2, CalendarDays } from "lucide-react";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { useApp } from '@/context/AppContext';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -25,6 +26,8 @@ interface TechnicianWorkEntryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId?: string;
+  isTaskCompletion?: boolean;
+  taskData?: any;
 }
 
 interface TaskEntry {
@@ -38,7 +41,9 @@ interface TaskEntry {
 export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps> = ({
   open,
   onOpenChange,
-  projectId
+  projectId,
+  isTaskCompletion = false,
+  taskData
 }) => {
   const { toast } = useToast();
   const { teamMembers } = useApp();
@@ -249,10 +254,10 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     }
     
     toast({
-      title: "Work entry submitted",
-      description: multipleTasksEnabled ? 
-        "Multiple task work entries have been saved and submitted for approval." :
-        "Your work entry has been saved to your dashboard and submitted for approval.",
+      title: isTaskCompletion ? "Work entry submitted" : "Daily work logged",
+      description: isTaskCompletion ?
+        "Your work entry has been saved to your dashboard and submitted for approval." :
+        "Your daily production has been logged without closing the task."
     });
     
     onOpenChange(false);
@@ -277,11 +282,24 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
     onOpenChange(false);
   };
 
+  // Determine the dialog title based on whether this is a task completion or daily logging
+  const dialogTitle = isTaskCompletion 
+    ? "Log Work Entry for Completed Review" 
+    : "Log Daily Production";
+
+  // Determine the submit button text based on the same condition
+  const submitButtonText = isTaskCompletion 
+    ? "Submit for Approval" 
+    : "Log Daily Work";
+
+  // Show the cancel ticket button only for task completion
+  const showCancelButton = isTaskCompletion;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Log Work Entry for Completed Review</DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={onSubmit} className="space-y-4 mt-4">
@@ -559,45 +577,50 @@ export const TechnicianWorkEntryDialog: React.FC<TechnicianWorkEntryDialogProps>
           
           <DialogFooter className="mt-4">
             <div className="flex justify-between w-full">
-              <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button type="button" variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive/10">
-                    <CircleX className="size-4 mr-1" />
-                    Cancel Ticket
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Cancel Ticket</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Please provide a reason for cancelling this ticket. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  
-                  <Textarea
-                    value={cancelNotes}
-                    onChange={(e) => setCancelNotes(e.target.value)}
-                    placeholder="Enter reason for cancellation..."
-                    className="mt-2"
-                    rows={4}
-                  />
-                  
-                  <AlertDialogFooter className="mt-4">
-                    <AlertDialogCancel>Go Back</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleCancelTicket} className="bg-destructive hover:bg-destructive/90">
-                      Confirm Cancel
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              {showCancelButton && (
+                <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+                  <AlertDialogTrigger asChild>
+                    <Button type="button" variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive/10">
+                      <CircleX className="size-4 mr-1" />
+                      Cancel Ticket
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Cancel Ticket</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Please provide a reason for cancelling this ticket. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    
+                    <Textarea
+                      value={cancelNotes}
+                      onChange={(e) => setCancelNotes(e.target.value)}
+                      placeholder="Enter reason for cancellation..."
+                      className="mt-2"
+                      rows={4}
+                    />
+                    
+                    <AlertDialogFooter className="mt-4">
+                      <AlertDialogCancel>Go Back</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleCancelTicket} className="bg-destructive hover:bg-destructive/90">
+                        Confirm Cancel
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
               
               <Button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 flex items-center gap-2"
+                className={`bg-fieldvision-orange hover:bg-fieldvision-orange/90 flex items-center gap-2 ${showCancelButton ? '' : 'ml-auto'}`}
               >
-                <Send className="size-4" />
-                {isSubmitting ? 'Submitting...' : 'Submit for Approval'}
+                {isTaskCompletion ? 
+                  <Send className="size-4" /> : 
+                  <CalendarDays className="size-4" />
+                }
+                {isSubmitting ? 'Submitting...' : submitButtonText}
               </Button>
             </div>
           </DialogFooter>

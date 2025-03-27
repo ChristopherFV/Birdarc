@@ -7,8 +7,11 @@ import { useTaskCompletion } from './hooks/useTaskCompletion';
 import { useDrawingTools } from './hooks/useDrawingTools';
 import { useMobileTools } from './hooks/useMobileTools';
 import { TechnicianWindowContainer } from './TechnicianWindowContainer';
+import { useToast } from "@/hooks/use-toast";
 
 export const TechnicianWindow: React.FC = () => {
+  const { toast } = useToast();
+  
   // Custom hooks for mobile UI management
   const { 
     showMobileTools, setShowMobileTools, 
@@ -33,6 +36,21 @@ export const TechnicianWindow: React.FC = () => {
   } = useTaskCompletion({ mapNotes, taskData });
   
   const { currentTool, setCurrentTool } = useDrawingTools();
+  
+  // Handle daily production logging without closing the task
+  const handleLogDailyProduction = () => {
+    if (!taskData) {
+      toast({
+        title: "No task selected",
+        description: "Please select a task to log work for.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Open work entry dialog but set a flag to indicate we're not completing the task
+    setWorkEntryDialogOpen(true);
+  };
   
   // Set map token input to false on initial load
   React.useEffect(() => {
@@ -75,6 +93,7 @@ export const TechnicianWindow: React.FC = () => {
       exportAsKMZ={exportAsKMZ}
       shouldExportMap={shouldExportMap}
       setShouldExportMap={setShouldExportMap}
+      logDailyProduction={handleLogDailyProduction}
     />
   );
 };

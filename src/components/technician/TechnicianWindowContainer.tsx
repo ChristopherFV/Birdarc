@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { TechnicianMobileHeader } from './mobile/TechnicianMobileHeader';
@@ -7,6 +6,7 @@ import { TechnicianMobileTabs } from './mobile/TechnicianMobileTabs';
 import { TechnicianDesktopContent } from './desktop/TechnicianDesktopContent';
 import { TechnicianDialogs } from './dialogs/TechnicianDialogs';
 import { Button } from '@/components/ui/button';
+import { CalendarDays, Check } from 'lucide-react';
 
 interface TechnicianWindowContainerProps {
   showMobileTools: boolean;
@@ -43,6 +43,7 @@ interface TechnicianWindowContainerProps {
   exportAsKMZ: () => void;
   shouldExportMap: boolean;
   setShouldExportMap: (shouldExport: boolean) => void;
+  logDailyProduction: () => void;
 }
 
 export const TechnicianWindowContainer: React.FC<TechnicianWindowContainerProps> = ({
@@ -79,7 +80,8 @@ export const TechnicianWindowContainer: React.FC<TechnicianWindowContainerProps>
   exportAsGeoJSON,
   exportAsKMZ,
   shouldExportMap,
-  setShouldExportMap
+  setShouldExportMap,
+  logDailyProduction
 }) => {
   const isMobile = useIsMobile();
   
@@ -133,13 +135,22 @@ export const TechnicianWindowContainer: React.FC<TechnicianWindowContainerProps>
             formatTime={formatTime}
           />
           
-          {/* Complete task button */}
-          <div className="fixed bottom-20 right-4 z-50">
+          <div className="fixed bottom-20 right-4 z-50 flex flex-col gap-2">
+            <Button 
+              onClick={logDailyProduction}
+              variant="outline"
+              className="shadow-lg rounded-full px-4 flex items-center gap-2"
+            >
+              <CalendarDays className="h-4 w-4" />
+              Log Daily Work
+            </Button>
+            
             <Button 
               onClick={handleCompleteReview}
               variant="blue"
-              className="text-white shadow-lg rounded-full px-4"
+              className="text-white shadow-lg rounded-full px-4 flex items-center gap-2"
             >
+              <Check className="h-4 w-4" />
               Complete Task
             </Button>
           </div>
@@ -170,13 +181,22 @@ export const TechnicianWindowContainer: React.FC<TechnicianWindowContainerProps>
             saveGeneralNotes={saveGeneralNotes}
           />
           
-          {/* Complete task button */}
-          <div className="fixed bottom-8 right-8 z-50">
+          <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2">
+            <Button 
+              onClick={logDailyProduction}
+              variant="outline"
+              className="shadow-lg flex items-center gap-2"
+            >
+              <CalendarDays className="h-4 w-4" />
+              Log Daily Work
+            </Button>
+            
             <Button 
               onClick={handleCompleteReview}
               variant="blue"
-              className="text-white shadow-lg"
+              className="text-white shadow-lg flex items-center gap-2"
             >
+              <Check className="h-4 w-4" />
               Complete Task
             </Button>
           </div>

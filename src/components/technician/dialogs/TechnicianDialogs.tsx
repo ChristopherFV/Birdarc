@@ -33,12 +33,17 @@ export const TechnicianDialogs: React.FC<TechnicianDialogsProps> = ({
   shouldExportMap,
   setShouldExportMap
 }) => {
+  // Determine if this is a task completion or a daily production entry
+  const isTaskCompletion = confirmDialogOpen;
+  
   return (
     <>
       <TechnicianWorkEntryDialog 
         open={workEntryDialogOpen} 
         onOpenChange={setWorkEntryDialogOpen} 
-        projectId={taskData.projectId || "project-1"}
+        projectId={taskData?.projectId || "project-1"}
+        isTaskCompletion={isTaskCompletion}
+        taskData={taskData}
       />
       
       <TaskConfirmationDialog
@@ -46,7 +51,7 @@ export const TechnicianDialogs: React.FC<TechnicianDialogsProps> = ({
         onOpenChange={setConfirmDialogOpen}
         onConfirm={completeTask}
         actionType="complete"
-        taskTitle={taskData.title}
+        taskTitle={taskData?.title || ''}
         shouldExportMap={shouldExportMap}
         setShouldExportMap={setShouldExportMap}
       />

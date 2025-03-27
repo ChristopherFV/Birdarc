@@ -25,6 +25,7 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [shouldExportMap, setShouldExportMap] = useState(true);
   
+  // Handle completing a task (with confirmation)
   const handleCompleteReview = () => {
     if (mapNotes.length > 0 && shouldExportMap) {
       setExportDialogOpen(true);
@@ -33,6 +34,7 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
     }
   };
   
+  // Actually complete the task (after confirmation)
   const completeTask = () => {
     // Update task status if we have task data
     if (taskData) {
@@ -55,6 +57,7 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
     setWorkEntryDialogOpen(true);
   };
 
+  // Export map data as GeoJSON
   const exportAsGeoJSON = () => {
     try {
       const geoJSON = notesToGeoJSON(mapNotes);
@@ -74,6 +77,7 @@ export const useTaskCompletion = (options: UseTaskCompletionOptions = {}) => {
     }
   };
   
+  // Export map data as KMZ
   const exportAsKMZ = async () => {
     try {
       const kmzBlob = await notesToKMZ(mapNotes);
