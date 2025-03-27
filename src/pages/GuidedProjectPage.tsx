@@ -40,9 +40,9 @@ const GuidedProjectPage = () => {
   }, [completed.project, activeTab]);
 
   const handleCreateProject = () => {
-    // Force the active tab to be "project" before opening dialog
+    // Ensure we're on the project tab
     setActiveTab("project");
-    // Then open the dialog
+    // Open the dialog
     openAddProjectDialog();
   };
 
