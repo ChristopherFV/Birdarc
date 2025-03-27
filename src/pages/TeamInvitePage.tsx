@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SimplePageLayout } from '@/components/layout/SimplePageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Send, Users, CheckCircle2, Copy } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Plus, Send, Users, CheckCircle2, Copy, Building, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useApp } from '@/context/AppContext';
 
 const TeamInvitePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { companies, setSelectedCompany } = useApp();
   const [emails, setEmails] = useState<string[]>(['']);
   const [isProcessing, setIsProcessing] = useState(false);
   const [invitesSent, setInvitesSent] = useState(false);
   const [teamCode] = useState('TEAM-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+  const [companyName, setCompanyName] = useState('');
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEmailChange = (index: number, value: string) => {
     const newEmails = [...emails];
@@ -42,7 +49,32 @@ const TeamInvitePage = () => {
     });
   };
 
+  const handleCompanyLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCompanyLogo(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleSendInvites = () => {
+    // Validate company name
+    if (!companyName.trim()) {
+      toast({
+        title: "Company name required",
+        description: "Please enter your company name",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Validate emails
     const validEmails = emails.filter(email => email.trim() !== '' && /\S+@\S+\.\S+/.test(email));
     
@@ -57,8 +89,16 @@ const TeamInvitePage = () => {
 
     setIsProcessing(true);
     
-    // Simulate API call to send invitations
+    // Create a new company object
+    const newCompany = {
+      id: 'company-' + Math.random().toString(36).substring(2, 8),
+      name: companyName,
+      logo: companyLogo
+    };
+    
+    // Simulate API call to send invitations and save company
     setTimeout(() => {
+      setSelectedCompany(newCompany);
       setIsProcessing(false);
       setInvitesSent(true);
       toast({
@@ -75,6 +115,72 @@ const TeamInvitePage = () => {
   return (
     <SimplePageLayout title="Welcome to Fieldvision" subtitle="Invite your team members to get started">
       <div className="max-w-3xl mx-auto">
+        <div className="mb-6">
+          <div className="flex items-center mb-4">
+            <div className="bg-primary/10 p-3 rounded-full mr-3">
+              <Building className="h-6 w-6 text-primary" />
+            </div>
+            <h2 className="text-xl font-semibold">Set Up Your Company</h2>
+          </div>
+          <p className="text-muted-foreground">
+            Personalize your Fieldvision workspace with your company information.
+          </p>
+        </div>
+
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Company Information</CardTitle>
+            <CardDescription>Enter your company name and upload your logo</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="company-name">Company Name</Label>
+                <Input 
+                  id="company-name" 
+                  placeholder="Enter your company name"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="company-logo" className="block mb-2">Company Logo</Label>
+                <div className="flex items-center space-x-4">
+                  <Avatar className="w-16 h-16">
+                    {companyLogo ? (
+                      <AvatarImage src={companyLogo} alt="Company logo" />
+                    ) : (
+                      <AvatarFallback className="text-lg">
+                        {companyName ? companyName.charAt(0).toUpperCase() : 'F'}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <Button 
+                    variant="outline" 
+                    type="button"
+                    onClick={triggerFileInput}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {companyLogo ? 'Change Logo' : 'Upload Logo'}
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    id="company-logo"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleCompanyLogoUpload}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Recommended: Square image, at least 200x200px
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="mb-6">
           <div className="flex items-center mb-4">
             <div className="bg-primary/10 p-3 rounded-full mr-3">
