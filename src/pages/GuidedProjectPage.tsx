@@ -57,9 +57,24 @@ const GuidedProjectPage = () => {
       subtitle="Complete these steps to set up your workspace"
     >
       <div className="max-w-3xl mx-auto">
+        {/* Progress indicator */}
+        <div className="mb-8 w-full">
+          <div className="flex justify-between mb-2">
+            <span className="text-xs text-fieldvision-blue font-medium">Company Setup</span>
+            <span className="text-xs text-fieldvision-orange font-medium">Project Setup</span>
+          </div>
+          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-fieldvision-blue to-fieldvision-orange w-full rounded-full" />
+          </div>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="project" disabled={activeTab === "task" && !completed.project} className="relative">
+          <TabsList className="grid w-full grid-cols-2 mb-6 bg-muted/50 p-1 border border-muted">
+            <TabsTrigger 
+              value="project" 
+              disabled={activeTab === "task" && !completed.project} 
+              className="relative data-[state=active]:bg-white data-[state=active]:text-fieldvision-blue"
+            >
               {completed.project && (
                 <span className="absolute -right-1 -top-1">
                   <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -68,7 +83,11 @@ const GuidedProjectPage = () => {
               <ClipboardList className="h-4 w-4 mr-2" />
               Create Project
             </TabsTrigger>
-            <TabsTrigger value="task" disabled={!completed.project}>
+            <TabsTrigger 
+              value="task" 
+              disabled={!completed.project}
+              className="relative data-[state=active]:bg-white data-[state=active]:text-fieldvision-orange"
+            >
               {completed.task && (
                 <span className="absolute -right-1 -top-1">
                   <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -79,17 +98,22 @@ const GuidedProjectPage = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="project" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Create Your First Project</CardTitle>
+          <TabsContent value="project" className="space-y-6 animate-in fade-in-50">
+            <Card className="border-fieldvision-blue/20 shadow-lg overflow-hidden">
+              <div className="absolute top-0 h-1 w-full bg-gradient-to-r from-fieldvision-blue to-fieldvision-blue/70"></div>
+              <CardHeader className="bg-gradient-to-r from-fieldvision-blue/5 to-fieldvision-blue/10">
+                <CardTitle className="text-fieldvision-blue flex items-center">
+                  <ClipboardList className="h-5 w-5 mr-2" />
+                  Create Your First Project
+                </CardTitle>
                 <CardDescription>
-                  Projects are the foundation of your work in Fieldvision. They help you organize tasks, track work entries, and manage billing.
+                  Projects are the foundation of your work in Fieldvision. They help you organize tasks, 
+                  track work entries, and manage billing.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-6">
                 <div className="bg-muted/50 p-4 rounded-md border">
-                  <h3 className="font-medium mb-2">What makes a good project?</h3>
+                  <h3 className="font-medium mb-2 text-fieldvision-blue">What makes a good project?</h3>
                   <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
                     <li>Clear name that identifies the project scope</li>
                     <li>Specific client and location information</li>
@@ -100,7 +124,7 @@ const GuidedProjectPage = () => {
                   <Button 
                     size="lg"
                     onClick={handleCreateProject}
-                    className="bg-fieldvision-orange hover:bg-fieldvision-orange/90 text-white"
+                    className="bg-fieldvision-blue hover:bg-fieldvision-blue/90 text-white"
                   >
                     Create Your First Project
                   </Button>
@@ -120,29 +144,34 @@ const GuidedProjectPage = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="task" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Schedule Your First Task</CardTitle>
+          <TabsContent value="task" className="space-y-6 animate-in fade-in-50">
+            <Card className="border-fieldvision-orange/20 shadow-lg overflow-hidden">
+              <div className="absolute top-0 h-1 w-full bg-gradient-to-r from-fieldvision-orange to-fieldvision-orange/70"></div>
+              <CardHeader className="bg-gradient-to-r from-fieldvision-orange/5 to-fieldvision-orange/10">
+                <CardTitle className="text-fieldvision-orange flex items-center">
+                  <Calendar className="h-5 w-5 mr-2" />
+                  Schedule Your First Task
+                </CardTitle>
                 <CardDescription>
-                  Tasks help you organize work for your team. Schedule tasks on the map or calendar to visualize your field operations.
+                  Tasks help you organize work for your team. Schedule tasks on the map or calendar 
+                  to visualize your field operations.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-muted/50 p-4 rounded-md border">
+                  <div className="bg-muted/50 p-4 rounded-md border border-fieldvision-orange/10 hover:border-fieldvision-orange/30 transition-colors">
                     <div className="flex items-center mb-2">
                       <MapPin className="h-5 w-5 text-fieldvision-orange mr-2" />
-                      <h3 className="font-medium">Map View</h3>
+                      <h3 className="font-medium text-fieldvision-orange">Map View</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       Visualize your tasks geographically to optimize routes and team assignments.
                     </p>
                   </div>
-                  <div className="bg-muted/50 p-4 rounded-md border">
+                  <div className="bg-muted/50 p-4 rounded-md border border-fieldvision-orange/10 hover:border-fieldvision-orange/30 transition-colors">
                     <div className="flex items-center mb-2">
                       <Calendar className="h-5 w-5 text-fieldvision-orange mr-2" />
-                      <h3 className="font-medium">Calendar View</h3>
+                      <h3 className="font-medium text-fieldvision-orange">Calendar View</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       Plan your project timeline and visualize deadlines and task dependencies.
@@ -173,7 +202,11 @@ const GuidedProjectPage = () => {
             </Card>
             
             <div className="flex justify-end">
-              <Button variant="outline" onClick={handleFinish}>
+              <Button 
+                variant="outline" 
+                onClick={handleFinish}
+                className="border-fieldvision-blue/20 hover:bg-fieldvision-blue/5 hover:text-fieldvision-blue"
+              >
                 Skip for now
               </Button>
             </div>

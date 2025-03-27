@@ -39,10 +39,13 @@ const App = () => (
           <AddInvoiceDialog />
           <BrowserRouter>
             <Routes>
+              {/* Auth and onboarding routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
               <Route path="/team-invite" element={<TeamInvitePage />} />
               <Route path="/guided-project" element={<GuidedProjectPage />} />
+              
+              {/* Main app routes with layout */}
               <Route path="/schedule" element={<MainLayout><SchedulePage /></MainLayout>} />
               <Route path="/dashboard" element={<MainLayout><Index /></MainLayout>} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
